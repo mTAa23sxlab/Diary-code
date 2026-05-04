@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>推し活日記 — 2nd Anniversary Memory Book</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- 背景・机 -->
+  <div class="scene">
+    <div class="table">
+
+      <!-- 本のラップ（タブ含む） -->
+      <div class="book-wrap">
+
+        <!-- 年タブ（上部） -->
+        <div class="year-tabs" id="year-tabs"></div>
+
+        <!-- 月タブ（左側） -->
+        <div class="month-tabs" id="month-tabs"></div>
+
+        <!-- 前へボタン -->
+        <button class="nav-btn nav-prev hidden" id="nav-prev" aria-label="前のページ">▶</button>
+
+        <!-- 本体 -->
+        <div class="book">
+
+          <!-- 綴じ目 -->
+          <div class="book-spine"></div>
+
+          <!-- 左ページ -->
+          <div class="page page-left" id="page-left-content"></div>
+
+          <!-- 右ページ -->
+          <div class="page page-right" id="page-right-content"></div>
+
+          <!-- ページめくりアニメーション用レイヤー -->
+          <div id="flip-container" style="position:absolute;inset:0;pointer-events:none;z-index:30;overflow:hidden;border-radius:4px 8px 8px 4px;"></div>
+
+        </div>
+
+        <!-- 次へボタン -->
+        <button class="nav-btn nav-next" id="nav-next" aria-label="次のページ">◀</button>
+
+      </div><!-- /book-wrap -->
+
+    </div><!-- /table -->
+  </div><!-- /scene -->
+
+  <!-- データ読み込み（写真・コメント） -->
+  <script src="data.js"></script>
+  <!-- ナビゲーションロジック -->
+  <script src="script.js"></script>
+
+</body>
+</html>
