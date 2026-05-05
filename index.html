@@ -543,27 +543,40 @@ body{
 /* ════════════════════════════════════════════════
    月ページ
 ════════════════════════════════════════════════ */
-/* ─ 写真グリッド（月ごとのパターン） ─ */
-.photo-grid{display:grid;gap:clamp(4px,1vw,8px);height:100%;align-content:start;}
-/* パターンA: 2列均等 */
-.photo-grid.pat-a{grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;}
-/* パターンB: 上1枚大＋下2枚 */
-.photo-grid.pat-b{grid-template-columns:1fr 1fr;grid-template-rows:2fr 1fr;}
-.photo-grid.pat-b .photo-item:first-child{grid-column:1/-1;}
-/* パターンC: 左縦長1＋右2枚縦 */
-.photo-grid.pat-c{grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;}
-.photo-grid.pat-c .photo-item:first-child{grid-row:1/3;}
-/* パターンD: 下1枚大＋上2枚 */
-.photo-grid.pat-d{grid-template-columns:1fr 1fr;grid-template-rows:1fr 2fr;}
-.photo-grid.pat-d .photo-item:last-child{grid-column:1/-1;}
-/* パターンE: 右縦長1＋左2枚縦 */
-.photo-grid.pat-e{grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;}
-.photo-grid.pat-e .photo-item:last-child{grid-row:1/3;grid-column:2;}
-/* 全パターン共通: アイテムがセルを超えない */
-.photo-grid .photo-item{overflow:hidden;min-height:0;}
-/* 5枚 */
-.photo-grid.five{grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr 1fr;}
-.photo-grid.five .photo-item:last-child{grid-column:1/-1;}
+/* ─ 写真グリッド ─
+   全写真を均一サイズで表示。
+   パターンは並び順(order)のみで変化。
+   4枚: 2列×2行、5枚: 2列×3行(最後のみ横幅100%)
+─ */
+.photo-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  grid-auto-rows:1fr;
+  gap:clamp(4px,1vw,8px);
+  height:100%;
+}
+/* 全パターン共通 */
+.photo-grid .photo-item{
+  overflow:hidden;
+  min-height:0;
+  min-width:0;
+}
+/* 5枚目は横幅100% */
+.photo-grid.five .photo-item:nth-child(5){
+  grid-column:1/-1;
+}
+/* パターンB: 2枚目と3枚目を入れ替え（視覚的変化） */
+.photo-grid.pat-b .photo-item:nth-child(2){order:3;}
+.photo-grid.pat-b .photo-item:nth-child(3){order:2;}
+/* パターンC: 1枚目と3枚目を入れ替え */
+.photo-grid.pat-c .photo-item:nth-child(1){order:3;}
+.photo-grid.pat-c .photo-item:nth-child(3){order:1;}
+/* パターンD: 1枚目と4枚目を入れ替え */
+.photo-grid.pat-d .photo-item:nth-child(1){order:4;}
+.photo-grid.pat-d .photo-item:nth-child(4){order:1;}
+/* パターンE: 2枚目と4枚目を入れ替え */
+.photo-grid.pat-e .photo-item:nth-child(2){order:4;}
+.photo-grid.pat-e .photo-item:nth-child(4){order:2;}
 .photo-item{
   background:#fff;
   border-radius:2px;
@@ -573,9 +586,10 @@ body{
     0 1px 3px rgba(0,0,0,.06),
     inset 0 1px 0 rgba(255,255,255,.8);
   cursor:default;transition:transform .22s,box-shadow .22s;
-  display:flex;flex-direction:column;position:relative;
+  display:flex;flex-direction:column;
+  position:relative;
   overflow:hidden;
-  min-height:0;
+  min-height:0;min-width:0;
 }
 .photo-item.clickable{cursor:pointer;}
 .photo-item:nth-child(1){transform:rotate(-1.3deg);}
@@ -588,8 +602,8 @@ body{
   box-shadow:0 8px 24px rgba(80,55,130,.22),0 2px 6px rgba(0,0,0,.08);
   z-index:5;
 }
-.photo-img{width:100%;height:100%;object-fit:cover;display:block;background:linear-gradient(135deg,#e8dff8,#d8ccec);flex:1;min-height:0;}
-.photo-placeholder{width:100%;flex:1;min-height:0;background:linear-gradient(135deg,#e8dff8,#d8ccec);display:flex;align-items:center;justify-content:center;font-size:clamp(14px,2vw,26px);color:#b0a0d0;}
+.photo-img{width:100%;height:100%;object-fit:cover;display:block;background:linear-gradient(135deg,#e8dff8,#d8ccec);}
+.photo-placeholder{width:100%;height:100%;background:linear-gradient(135deg,#e8dff8,#d8ccec);display:flex;align-items:center;justify-content:center;font-size:clamp(14px,2vw,26px);color:#b0a0d0;}
 .photo-name{position:absolute;bottom:clamp(2px,.35vw,4px);left:0;right:0;text-align:center;font-size:clamp(6.5px,.72vw,8.5px);color:#9080b8;font-family:'Cormorant Garamond',serif;font-style:italic;}
 
 .pickup-area{display:flex;flex-direction:column;height:100%;gap:clamp(4px,.8vw,8px);}
