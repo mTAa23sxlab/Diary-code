@@ -1,0 +1,1365 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>推し活日記 — 2nd Anniversary Memory Book</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Zen+Kurenaido&display=swap" rel="stylesheet">
+<style>
+/* ════════════════════════════════════════════════
+   RESET & BASE
+════════════════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{width:100%;min-height:100%;}
+body{
+  font-family:'Shippori Mincho','Hiragino Mincho ProN',serif;
+  /* 机：ラベンダー系の滑らかなグラデーション */
+  background:
+    radial-gradient(ellipse 140% 100% at 30% 20%, rgba(220,210,255,0.6) 0%, transparent 60%),
+    radial-gradient(ellipse 100% 120% at 80% 80%, rgba(180,165,230,0.5) 0%, transparent 55%),
+    linear-gradient(155deg, #e8e0f5 0%, #d4c8ec 35%, #c2b4e2 65%, #b3a4d8 100%);
+  display:flex;align-items:center;justify-content:center;
+  min-height:100vh;min-height:100dvh;
+  padding:clamp(8px,1.5vw,20px) 0;
+}
+
+/* ════════════════════════════════════════════════
+   DESK（大枠）
+════════════════════════════════════════════════ */
+.desk{
+  width:min(96vw,1100px);
+  display:flex;flex-direction:column;gap:0;
+  position:relative;
+}
+
+/* 机の表面 */
+.desk-surface{
+  background:
+    /* 木目風ノイズ */
+    repeating-linear-gradient(
+      92deg,
+      transparent 0px, transparent 18px,
+      rgba(255,255,255,0.03) 18px, rgba(255,255,255,0.03) 19px
+    ),
+    repeating-linear-gradient(
+      178deg,
+      transparent 0px, transparent 42px,
+      rgba(0,0,0,0.02) 42px, rgba(0,0,0,0.02) 43px
+    ),
+    linear-gradient(165deg, #f5f0fc 0%, #ece4f8 30%, #e0d6f2 60%, #d5ccea 100%);
+  border-radius:18px;
+  padding:clamp(14px,2vw,24px) clamp(16px,2.2vw,28px) clamp(12px,1.8vw,20px);
+  box-shadow:
+    0 2px 0 rgba(255,255,255,0.8) inset,
+    0 -1px 0 rgba(0,0,0,0.06) inset,
+    0 20px 60px rgba(80,55,130,0.28),
+    0 6px 16px rgba(80,55,130,0.18),
+    0 1px 3px rgba(80,55,130,0.12);
+  position:relative;
+  overflow:visible;
+}
+.desk-surface::before{
+  content:'';position:absolute;inset:0;border-radius:18px;
+  border:1px solid rgba(255,255,255,0.55);pointer-events:none;
+}
+/* 机の端の厚み表現 */
+.desk-surface::after{
+  content:'';
+  position:absolute;bottom:-6px;left:10px;right:10px;height:8px;
+  background:linear-gradient(to bottom, #c4b8e0, #b0a4d0);
+  border-radius:0 0 12px 12px;
+  box-shadow:0 4px 12px rgba(80,55,130,0.3);
+  z-index:-1;
+}
+
+/* ════════════════════════════════════════════════
+   年タブ行
+════════════════════════════════════════════════ */
+.year-row{
+  display:flex;flex-direction:row;align-items:flex-end;
+  gap:3px;
+  padding-left:clamp(38px,4.8vw,52px);
+  margin-bottom:0;
+  position:relative;z-index:30;
+  opacity:0;pointer-events:none;transition:opacity .4s;
+}
+.year-row.open{opacity:1;pointer-events:auto;}
+
+.year-tab{
+  background:linear-gradient(145deg,#a898cc,#8e7ec0);
+  color:#fff;
+  font-family:'Shippori Mincho',serif;
+  font-size:clamp(10px,1.3vw,13px);font-weight:600;
+  padding:5px 14px 10px;
+  border-radius:8px 8px 0 0;
+  border:none;cursor:pointer;letter-spacing:.06em;
+  box-shadow:0 -3px 10px rgba(80,55,130,0.2),inset 0 1px 0 rgba(255,255,255,0.25);
+  transition:background .2s,padding-bottom .15s;
+  line-height:1;position:relative;margin-bottom:-1px;
+}
+.year-tab:hover:not(.active){background:linear-gradient(145deg,#9888bc,#7e6eb0);}
+.year-tab.active{
+  background:linear-gradient(145deg,#7560b0,#6450a0);
+  padding-bottom:14px;
+  box-shadow:0 -4px 14px rgba(80,55,130,0.3),inset 0 1px 0 rgba(255,255,255,0.2);
+  z-index:2;
+}
+
+/* ════════════════════════════════════════════════
+   中段
+════════════════════════════════════════════════ */
+.mid{display:flex;flex-direction:row;align-items:stretch;position:relative;}
+
+/* ════════════════════════════════════════════════
+   月タブ列
+════════════════════════════════════════════════ */
+.month-col{
+  display:flex;flex-direction:column;justify-content:stretch;
+  gap:2px;flex-shrink:0;
+  margin-right:-1px;
+  position:relative;z-index:30;
+  opacity:0;pointer-events:none;transition:opacity .4s;
+}
+.month-col.open{opacity:1;pointer-events:auto;}
+
+.month-tab{
+  flex:1;
+  width:clamp(36px,5vw,46px);
+  min-height:0;
+  padding:0 1px;
+  font-family:'Shippori Mincho',serif;
+  font-size:clamp(7.5px,.85vw,10px);
+  font-weight:500;
+  text-align:center;
+  border-radius:6px 0 0 6px;
+  border:none;cursor:pointer;color:#4a3a6a;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:-2px 1px 6px rgba(80,55,130,0.15);
+  transition:filter .15s,padding-right .15s;
+  line-height:1;
+  position:relative;z-index:1;
+  margin-right:-1px;
+  white-space:nowrap;
+  overflow:hidden;
+  letter-spacing:-.05em;
+}
+.month-tab:hover:not(.disabled):not(.active){filter:brightness(.9);}
+.month-tab.active{font-weight:600;filter:brightness(.82);z-index:2;padding-right:10px;}
+.month-tab.disabled{background:#c8c4d4!important;color:#999;cursor:not-allowed;box-shadow:none;}
+
+/* ════════════════════════════════════════════════
+   本エリア
+════════════════════════════════════════════════ */
+.book-area{flex:1;min-width:0;position:relative;display:flex;align-items:center;}
+
+/* 両脇ボタン */
+.side-btn{
+  position:absolute;top:0;bottom:0;width:44px;
+  display:flex;align-items:center;justify-content:center;
+  z-index:40;cursor:pointer;border:none;background:transparent;
+  opacity:0;transition:opacity .3s;
+}
+.side-btn:hover{opacity:1;}
+.side-btn-left{left:0;}
+.side-btn-right{right:0;}
+.side-btn-inner{
+  width:clamp(28px,3.2vw,40px);height:clamp(28px,3.2vw,40px);
+  border-radius:50%;
+  background:rgba(255,255,255,0.3);
+  border:1.5px solid rgba(255,255,255,0.5);
+  display:flex;align-items:center;justify-content:center;
+  font-size:clamp(12px,1.4vw,16px);color:#5a4a8a;
+  transition:background .2s,transform .2s;
+  box-shadow:0 2px 10px rgba(80,55,130,0.2);
+  backdrop-filter:blur(8px);
+}
+.side-btn:hover .side-btn-inner{background:rgba(255,255,255,0.5);transform:scale(1.1);}
+.side-btn.hidden{display:none;}
+
+/* ════════════════════════════════════════════════
+   本体（3D立体感）
+════════════════════════════════════════════════ */
+.book-outer{
+  flex:1;min-width:0;
+  position:relative;
+  /* filterはz-indexを壊すため使用しない */
+}
+
+/* 本の背表紙（右端の厚み） */
+.book-outer::before{
+  content:'';
+  position:absolute;
+  right:-8px;top:4px;bottom:4px;
+  width:10px;
+  background:linear-gradient(to right,#c4b8e4,#a898cc);
+  border-radius:0 4px 4px 0;
+  z-index:-1;
+}
+/* 本の下端の厚み */
+.book-outer::after{
+  content:'';
+  position:absolute;
+  bottom:-7px;left:4px;right:4px;height:9px;
+  background:linear-gradient(to bottom,#d4c8ec,#b8acdc);
+  border-radius:0 0 6px 6px;
+  z-index:-1;
+}
+
+.book{
+  width:100%;aspect-ratio:4/3;
+  position:relative;
+  perspective:2400px;
+  border-radius:4px 10px 10px 4px;
+  overflow:hidden;
+  box-shadow:0 16px 48px rgba(60,40,110,0.28),0 4px 10px rgba(60,40,110,0.16);
+}
+
+/* ════════════════════════════════════════════════
+   ページ（左・右）
+════════════════════════════════════════════════ */
+.pages-wrap{
+  position:absolute;inset:0;
+  display:flex;
+  border-radius:4px 10px 10px 4px;
+  overflow:hidden;
+}
+
+/* 共通 */
+.page{
+  flex:1;
+  position:relative;overflow:hidden;
+  padding:clamp(10px,1.6vw,20px) clamp(12px,1.8vw,22px);
+  /* ページの紙質 */
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent 0px,transparent 27px,
+      rgba(175,155,215,0.055) 27px,rgba(175,155,215,0.055) 28px
+    ),
+    linear-gradient(180deg, #fefcff 0%, #fdf9ff 60%, #fbf6fe 100%);
+}
+.page-left{
+  border-radius:4px 0 0 4px;
+  /* 左ページの右端グラデーション（綴じ目への影） */
+  box-shadow:inset -8px 0 16px rgba(80,55,130,0.08);
+}
+.page-right{
+  border-radius:0 10px 10px 0;
+  box-shadow:inset 8px 0 16px rgba(80,55,130,0.08);
+}
+
+/* 綴じ目 */
+.spine{
+  position:absolute;left:50%;top:0;transform:translateX(-50%);
+  width:14px;height:100%;z-index:20;pointer-events:none;
+  background:linear-gradient(90deg,
+    #9888c4 0%,#b0a4d8 15%,#d0c8ec 40%,#e0daf4 50%,
+    #d0c8ec 60%,#b0a4d8 85%,#9888c4 100%
+  );
+  box-shadow:0 0 12px rgba(80,55,130,0.2);
+}
+/* 綴じ目の縫い目風 */
+.spine::after{
+  content:'';position:absolute;left:50%;top:0;transform:translateX(-50%);
+  width:1px;height:100%;
+  background:repeating-linear-gradient(
+    to bottom,
+    rgba(80,55,130,0.15) 0px,rgba(80,55,130,0.15) 6px,
+    transparent 6px,transparent 10px
+  );
+}
+
+/* ════════════════════════════════════════════════
+   CSS 3D ページめくり
+════════════════════════════════════════════════ */
+.flip-panel{
+  position:absolute;top:0;height:100%;width:50%;
+  transform-style:preserve-3d;
+  /* めくりアニメは JS で --angle を制御 */
+  z-index:50;pointer-events:none;
+  display:none;
+}
+.flip-panel.flipping{display:block;}
+.flip-panel.flip-next{right:0;transform-origin:left center;}
+.flip-panel.flip-prev{left:0;transform-origin:right center;}
+
+.fp-front,.fp-back{
+  position:absolute;inset:0;
+  backface-visibility:hidden;
+  overflow:hidden;
+  padding:clamp(10px,1.6vw,20px) clamp(12px,1.8vw,22px);
+  background:
+    repeating-linear-gradient(
+      0deg,transparent 0px,transparent 27px,
+      rgba(175,155,215,0.055) 27px,rgba(175,155,215,0.055) 28px
+    ),
+    linear-gradient(180deg,#fefcff 0%,#fdf9ff 60%,#fbf6fe 100%);
+}
+.fp-back{transform:rotateY(180deg);}
+
+/* めくれるページの折り目側にのみ薄い影 */
+.fp-front::after{
+  content:'';position:absolute;top:0;right:0;width:16px;height:100%;
+  background:linear-gradient(to right,transparent,rgba(80,55,130,0.10));
+  pointer-events:none;
+}
+.fp-back::after{
+  content:'';position:absolute;top:0;left:0;width:16px;height:100%;
+  background:linear-gradient(to left,transparent,rgba(80,55,130,0.08));
+  pointer-events:none;
+}
+
+/* flip-shadow は使用しない（不自然な影を防ぐため）*/
+.flip-shadow{ display:none; }
+
+/* ════════════════════════════════════════════════
+   表紙
+════════════════════════════════════════════════ */
+.cover{
+  position:absolute;inset:0;z-index:60;
+  border-radius:4px 10px 10px 4px;
+  background:
+    radial-gradient(ellipse at 30% 40%, rgba(180,165,230,0.4) 0%, transparent 60%),
+    linear-gradient(145deg,#ede4fa 0%,#ddd0f4 40%,#cfc0ec 70%,#c4b4e8 100%);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;
+  /* 表紙の質感 */
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.5),inset -2px 0 8px rgba(80,55,130,0.1);
+}
+/* 表紙の装飾ライン */
+.cover::before{
+  content:'';position:absolute;inset:12px;
+  border:1px solid rgba(150,130,200,0.3);
+  border-radius:2px 6px 6px 2px;pointer-events:none;
+}
+.cover-inner{text-align:center;padding:20px;pointer-events:none;}
+.cover-en{
+  font-family:'Cormorant Garamond',serif;font-style:italic;
+  font-size:clamp(9px,1.3vw,14px);letter-spacing:.3em;
+  color:#8878b8;margin-bottom:12px;
+}
+.cover-title{
+  font-family:'Shippori Mincho',serif;font-weight:700;
+  font-size:clamp(18px,4vw,48px);
+  color:#2a1848;letter-spacing:.12em;line-height:1.4;
+  text-shadow:0 2px 8px rgba(80,55,130,0.15);
+  margin-bottom:8px;
+}
+.cover-sub{
+  font-family:'Cormorant Garamond',serif;font-style:italic;
+  font-size:clamp(9px,1.2vw,14px);color:#6858a8;
+  letter-spacing:.1em;margin-bottom:18px;
+}
+.cover-deco{
+  color:#a898cc;font-size:clamp(12px,1.8vw,20px);
+  letter-spacing:.4em;margin-bottom:18px;
+}
+.cover-hint{
+  font-size:clamp(9px,1vw,12px);color:#8878b8;
+  letter-spacing:.12em;animation:pulse 2.4s ease-in-out infinite;
+  margin-bottom:clamp(8px,1.2vw,14px);
+}
+.cover-unit{
+  font-family:'Shippori Mincho',serif;
+  font-size:clamp(14px,2vw,22px);
+  color:#5a4a8a;letter-spacing:.22em;font-weight:600;
+  margin-bottom:clamp(6px,1vw,10px);
+}
+.cover-members{
+  margin-top:clamp(6px,1vw,10px);
+}
+.cover-members-row1{
+  display:flex;align-items:center;justify-content:center;
+  gap:0;position:relative;
+  font-family:'Shippori Mincho',serif;
+  font-size:clamp(9px,1.2vw,13px);
+  color:#5a4a8a;letter-spacing:.08em;
+  line-height:1;
+}
+/* 3人（奇数）は通常配置、2人（偶数）は間に入る */
+.cover-members-row1 span{
+  padding:0 clamp(4px,.6vw,8px);
+  position:relative;
+}
+/* 間に挟まる2人：少し下にずらして間に位置する */
+.cover-members-row1 .cover-members-sub{
+  font-size:clamp(8px,1.05vw,11px);
+  color:#5a4a8a;
+  position:relative;
+  top:clamp(8px,1.2vw,14px);
+}
+@keyframes pulse{0%,100%{opacity:.4;}50%{opacity:1;}}
+.cover.closing{
+  animation:coverClose .5s ease-in-out forwards;
+  pointer-events:none;
+}
+@keyframes coverClose{
+  0%  {opacity:1;transform:scale(1);}
+  60% {opacity:0.3;}
+  100%{opacity:0;transform:scale(0.95);}
+}
+
+/* ════════════════════════════════════════════════
+   ナビ下部
+════════════════════════════════════════════════ */
+.nav-row{
+  display:flex;align-items:center;gap:clamp(8px,1.5vw,16px);
+  padding:clamp(8px,1.2vw,12px) 0 0;
+  padding-left:clamp(36px,4.5vw,50px);
+  opacity:0;pointer-events:none;transition:opacity .4s;
+}
+.nav-row.open{opacity:1;pointer-events:auto;}
+.page-info{
+  font-family:'Cormorant Garamond',serif;font-style:italic;
+  font-size:clamp(9px,1.1vw,12px);color:#8878b8;
+  white-space:nowrap;min-width:clamp(70px,10vw,100px);text-align:center;
+}
+.page-slider{
+  flex:1;-webkit-appearance:none;appearance:none;
+  height:3px;border-radius:2px;outline:none;cursor:pointer;
+  background:linear-gradient(to right,#8878b8 var(--pct,0%),rgba(140,120,184,.25) var(--pct,0%));
+}
+.page-slider::-webkit-slider-thumb{
+  -webkit-appearance:none;appearance:none;
+  width:13px;height:13px;border-radius:2px;transform:rotate(45deg);
+  background:linear-gradient(135deg,#9888c8,#7868b0);
+  border:2px solid #fff;box-shadow:0 1px 5px rgba(80,55,130,.4);cursor:pointer;
+  transition:transform .15s,box-shadow .15s;
+}
+.page-slider:hover::-webkit-slider-thumb{
+  transform:rotate(45deg) scale(1.2);
+  box-shadow:0 2px 8px rgba(80,55,130,.5);
+}
+.page-slider::-moz-range-thumb{
+  width:13px;height:13px;border-radius:2px;transform:rotate(45deg);
+  background:linear-gradient(135deg,#9888c8,#7868b0);
+  border:2px solid #fff;cursor:pointer;
+}
+
+/* ════════════════════════════════════════════════
+   目次
+════════════════════════════════════════════════ */
+.toc-left{
+  height:100%;display:flex;flex-direction:column;overflow:hidden;
+  justify-content:flex-start;
+}
+/* ─ 新目次レイアウト ─ */
+.toc-left-new{
+  height:100%;display:flex;flex-direction:column;overflow:hidden;
+  gap:0;
+}
+.toc-notice-block{
+  flex:1;min-height:0;overflow:hidden;
+  display:flex;flex-direction:column;
+}
+.toc-divider{
+  flex-shrink:0;
+  height:1px;background:rgba(140,120,184,.25);
+  margin:clamp(6px,1vw,10px) 0;
+}
+.toc-how-block{
+  flex:1;min-height:0;overflow:hidden;
+  display:flex;flex-direction:column;gap:clamp(3px,.5vw,5px);
+}
+.toc-guide-center{
+  display:flex;justify-content:center;align-items:center;
+  padding:clamp(4px,.7vw,8px) 0;
+}
+.guide-book-col{
+  flex-shrink:0;position:relative;
+  padding-top:clamp(14px,2vw,20px);
+  padding-left:clamp(20px,3vw,28px);
+}
+.toc-how-text{
+  font-size:clamp(6.5px,.78vw,9px);
+  color:#6858a8;line-height:1.65;
+  text-align:left;
+}
+.guide-tip-inline{
+  font-size:clamp(6.5px,.76vw,8.5px);
+  color:#8878b8;display:block;margin-top:2px;
+}
+.toc-title{
+  font-family:'Cormorant Garamond',serif;font-style:italic;
+  font-size:clamp(9px,1.1vw,12px);color:#8878b8;letter-spacing:.1em;
+  border-bottom:1px solid rgba(140,120,184,.25);
+  padding-bottom:4px;margin-bottom:clamp(4px,.7vw,8px);flex-shrink:0;
+}
+.toc-notice{
+  font-size:clamp(7.5px,.88vw,9.5px);
+  line-height:clamp(1.6,2.2vw - 0.2,1.85);
+  color:#2a1848;overflow:hidden;
+}
+.toc-notice a{color:#7868a8;font-size:clamp(7px,.8vw,9px);word-break:break-all;}
+
+.toc-right{
+  height:100%;display:flex;flex-direction:column;
+  gap:clamp(4px,.7vw,8px);overflow:hidden;
+}
+.toc-welcome{
+  font-family:'Cormorant Garamond',serif;font-style:italic;
+  font-size:clamp(10px,1.45vw,16px);color:#6858a8;
+  text-align:center;letter-spacing:.06em;flex-shrink:0;
+}
+.toc-desc{
+  font-size:clamp(7.5px,.86vw,9.5px);
+  line-height:clamp(1.6,2vw,1.8);
+  color:#2a1848;flex-shrink:0;
+}
+.toc-guide{
+  flex:1;min-height:0;
+  border:1px solid rgba(140,120,184,.25);border-radius:8px;
+  padding:clamp(5px,.9vw,10px);
+  background:rgba(237,228,252,.3);
+  display:flex;flex-direction:column;gap:clamp(3px,.6vw,6px);overflow:hidden;
+}
+.guide-label{font-size:clamp(7.5px,.82vw,9.5px);color:#8878b8;text-align:center;letter-spacing:.1em;flex-shrink:0;}
+.guide-body{flex:1;min-height:0;display:flex;flex-direction:row;align-items:center;gap:clamp(8px,1.6vw,18px);}
+.guide-book-col{flex-shrink:0;position:relative;padding-top:16px;padding-left:24px;}
+.guide-book{
+  width:clamp(100px,13vw,150px);aspect-ratio:2/1;
+  border:1.5px solid #cfc4e8;border-radius:2px 4px 4px 2px;
+  display:flex;position:relative;background:#fdf9ff;
+}
+.guide-page-mini{flex:1;}
+.guide-page-mini-l{border-right:1px solid #cfc4e8;}
+.guide-spine-mini{position:absolute;left:50%;top:0;transform:translateX(-50%);width:3px;height:100%;background:#c4b8d8;}
+.guide-year-mini{
+  position:absolute;top:0;left:24px;
+  background:linear-gradient(135deg,#9888c4,#7868b4);color:#fff;
+  font-size:clamp(5px,.62vw,7px);padding:2px 5px 3px;
+  border-radius:3px 3px 0 0;white-space:nowrap;pointer-events:none;line-height:1.4;margin-bottom:-1px;
+}
+.guide-month-mini{
+  position:absolute;top:16px;left:0;
+  background:#ddd0f0;color:#4a3a6a;
+  font-size:clamp(5px,.62vw,7px);padding:1px 3px;
+  border-radius:3px 0 0 3px;line-height:1.9;pointer-events:none;margin-right:-1px;
+}
+.guide-text-col{flex:1;min-width:0;font-size:clamp(7px,.82vw,9.5px);color:#6858a8;line-height:clamp(1.7,2.2vw,2.0);}
+.guide-tip{font-size:clamp(6.5px,.76vw,9px);color:#8878b8;line-height:clamp(1.6,2vw,1.85);text-align:center;flex-shrink:0;}
+
+/* ════════════════════════════════════════════════
+   月ページ
+════════════════════════════════════════════════ */
+/* ─ 写真グリッド（月ごとのパターン） ─ */
+.photo-grid{display:grid;gap:clamp(4px,1vw,8px);height:100%;align-content:start;}
+/* パターンA: 2列均等（デフォルト） */
+.photo-grid.pat-a{grid-template-columns:1fr 1fr;}
+/* パターンB: 上1枚大＋下2枚 */
+.photo-grid.pat-b{grid-template-columns:1fr 1fr;}
+.photo-grid.pat-b .photo-item:first-child{grid-column:1/-1;}
+/* パターンC: 左縦長1＋右2枚縦 */
+.photo-grid.pat-c{grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;}
+.photo-grid.pat-c .photo-item:first-child{grid-row:1/3;}
+/* パターンD: 下1枚大＋上2枚 */
+.photo-grid.pat-d{grid-template-columns:1fr 1fr;}
+.photo-grid.pat-d .photo-item:last-child{grid-column:1/-1;}
+/* パターンE: 右縦長1＋左2枚縦 */
+.photo-grid.pat-e{grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;}
+.photo-grid.pat-e .photo-item:nth-child(2){grid-row:1/3;order:3;}
+/* 5枚 */
+.photo-grid.five{grid-template-columns:1fr 1fr;}
+.photo-grid.five.pat-a .photo-item:last-child{grid-column:1/-1;}
+.photo-item{
+  background:#fff;
+  border-radius:2px;
+  padding:clamp(4px,.6vw,7px) clamp(4px,.6vw,7px) clamp(12px,1.8vw,22px);
+  box-shadow:
+    0 3px 10px rgba(80,55,130,.12),
+    0 1px 3px rgba(0,0,0,.06),
+    inset 0 1px 0 rgba(255,255,255,.8);
+  cursor:default;transition:transform .22s,box-shadow .22s;
+  display:flex;flex-direction:column;position:relative;
+}
+.photo-item.clickable{cursor:pointer;}
+.photo-item:nth-child(1){transform:rotate(-1.3deg);}
+.photo-item:nth-child(2){transform:rotate(.8deg);}
+.photo-item:nth-child(3){transform:rotate(1.6deg);}
+.photo-item:nth-child(4){transform:rotate(-.6deg);}
+.photo-item:nth-child(5){transform:rotate(.4deg);}
+.photo-item:hover{
+  transform:rotate(0deg) scale(1.05) translateY(-2px)!important;
+  box-shadow:0 8px 24px rgba(80,55,130,.22),0 2px 6px rgba(0,0,0,.08);
+  z-index:5;
+}
+.photo-img{width:100%;aspect-ratio:3/4;object-fit:cover;display:block;background:linear-gradient(135deg,#e8dff8,#d8ccec);}
+.photo-placeholder{width:100%;aspect-ratio:3/4;background:linear-gradient(135deg,#e8dff8,#d8ccec);display:flex;align-items:center;justify-content:center;font-size:clamp(14px,2vw,26px);color:#b0a0d0;}
+.photo-name{position:absolute;bottom:clamp(2px,.35vw,4px);left:0;right:0;text-align:center;font-size:clamp(6.5px,.72vw,8.5px);color:#9080b8;font-family:'Cormorant Garamond',serif;font-style:italic;}
+
+.pickup-area{display:flex;flex-direction:column;height:100%;gap:clamp(4px,.8vw,8px);}
+.pickup-fanmark{
+  text-align:center;
+  font-size:clamp(14px,2vw,22px);
+  line-height:1;
+  flex-shrink:0;
+  letter-spacing:.2em;
+  opacity:0.85;
+}
+.pickup-month-label{
+  font-family:'Cormorant Garamond',serif;font-style:italic;
+  font-size:clamp(9px,1.1vw,13px);color:#8878b8;letter-spacing:.12em;
+  text-align:right;flex-shrink:0;
+}
+.pickup-frame{
+  flex:1;min-height:0;background:#fff;border-radius:2px;
+  padding:clamp(4px,.8vw,8px) clamp(4px,.8vw,8px) clamp(16px,2.5vw,28px);
+  box-shadow:0 4px 16px rgba(80,55,130,.14),0 1px 4px rgba(0,0,0,.07),inset 0 1px 0 rgba(255,255,255,.8);
+  transform:rotate(-.3deg);transition:transform .22s,box-shadow .22s;
+  display:flex;flex-direction:column;cursor:default;overflow:hidden;
+}
+.pickup-frame.clickable{cursor:pointer;}
+.pickup-frame:hover{transform:rotate(0deg) scale(1.01) translateY(-1px);box-shadow:0 10px 28px rgba(80,55,130,.2);}
+.pickup-img{width:100%;flex:1;min-height:0;object-fit:cover;object-position:top;display:block;background:linear-gradient(135deg,#e8dff8,#d8ccec);}
+.pickup-placeholder{width:100%;flex:1;background:linear-gradient(135deg,#e8dff8,#d8ccec);display:flex;align-items:center;justify-content:center;font-size:clamp(20px,3vw,38px);color:#b0a0d0;}
+.pickup-message{
+  flex-shrink:0;
+  background:linear-gradient(135deg,rgba(230,220,248,.45),rgba(218,208,240,.35));
+  border-left:3px solid #c8b8e4;
+  padding:clamp(5px,.8vw,9px) clamp(8px,1.1vw,12px);
+  border-radius:0 6px 6px 0;
+  font-size:clamp(8px,.95vw,11px);line-height:1.95;
+  color:#2a1848;min-height:40px;
+}
+
+/* ════════════════════════════════════════════════
+   2周年
+════════════════════════════════════════════════ */
+.ann-wrap{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(10px,1.8vw,22px);text-align:center;}
+.ann-deco{color:#b0a0cc;font-size:clamp(12px,1.5vw,20px);letter-spacing:.45em;}
+.ann-en{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:clamp(12px,1.8vw,22px);color:#6858a8;letter-spacing:.08em;}
+.ann-main{font-family:'Shippori Mincho',serif;font-weight:700;font-size:clamp(18px,3vw,44px);color:#2a1848;letter-spacing:.1em;line-height:1.6;text-shadow:0 2px 8px rgba(80,55,130,.12);}
+.ann-msg{font-size:clamp(10px,1.1vw,13px);color:#2a1848;line-height:2.4;max-width:88%;}
+
+/* ════════════════════════════════════════════════
+   スマホ
+════════════════════════════════════════════════ */
+@media(max-width:700px){
+  .year-row,.nav-row{padding-left:clamp(30px,4.5vw,42px);}
+  .month-tab{width:clamp(28px,4vw,36px);font-size:clamp(8px,1.1vw,9px);}
+  .year-tab{font-size:clamp(9px,1.4vw,11px);padding:4px 8px 8px;}
+  .side-btn{width:32px;}
+  .page{padding:clamp(8px,1.4vw,14px);}
+}
+@media(max-width:480px){
+  .month-tab{width:26px;font-size:7.5px;}
+  .year-tab{font-size:8.5px;padding:3px 7px 7px;}
+}
+
+/* ─ 花の装飾 ─ */
+.flower-row{
+  display:flex;justify-content:center;align-items:center;
+  gap:clamp(4px,1vw,10px);
+  flex-wrap:wrap;
+}
+.flower{
+  font-size:clamp(14px,2.2vw,22px);
+  display:inline-block;
+  opacity:0.8;
+}
+
+/* ─ 最終ページ ─ */
+.final-wrap{
+  height:100%;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  gap:clamp(8px,1.5vw,16px);text-align:center;
+}
+.final-title-l{
+  font-family:'Cormorant Garamond',serif;font-style:italic;
+  font-size:clamp(40px,8vw,80px);
+  color:#2a1848;letter-spacing:.08em;line-height:1;
+  font-weight:300;
+}
+.final-title-sub{
+  font-family:'Cormorant Garamond',serif;font-style:italic;
+  font-size:clamp(16px,3vw,32px);
+  color:#6858a8;letter-spacing:.12em;
+}
+.final-title-r{
+  font-family:'Shippori Mincho',serif;font-weight:700;
+  font-size:clamp(22px,4vw,44px);
+  color:#2a1848;letter-spacing:.15em;line-height:1.3;
+}
+.ann-msg-final{
+  font-size:clamp(10px,1.3vw,15px);
+  color:#2a1848;line-height:2.4;
+  font-family:'Shippori Mincho',serif;
+}
+/* ─ 花の装飾 ─ */
+.ann-flowers{
+  display:flex;justify-content:center;align-items:center;
+  gap:clamp(6px,1.5vw,16px);
+  flex-wrap:wrap;
+  margin:clamp(4px,.8vw,8px) 0;
+}
+.fl{
+  font-size:clamp(14px,2.2vw,24px);
+  opacity:0.75;
+  display:inline-block;
+}
+/* 各花に色を付ける */
+/* 芍薬: ピンク, 蝋梅: 淡黄, 金木犀: オレンジ, ジャスミン: 白/クリーム, 桃の花: 薄ピンク */
+.fl-shakyaku  { filter:hue-rotate(300deg) saturate(1.5); }
+.fl-roubai    { filter:hue-rotate(40deg) saturate(0.8) brightness(1.1); }
+.fl-kinmokusei{ filter:hue-rotate(20deg) saturate(2) brightness(1.1); }
+.fl-jasmine   { filter:grayscale(0.8) brightness(1.3); }
+.fl-momo      { filter:hue-rotate(320deg) saturate(1.2); }
+
+/* 花をより自然に：CSS描画 */
+.flower-row{
+  display:flex;justify-content:center;align-items:center;
+  gap:clamp(8px,2vw,20px);margin:clamp(6px,1vw,12px) 0;
+}
+.flower{
+  width:clamp(20px,3vw,32px);height:clamp(20px,3vw,32px);
+  position:relative;display:inline-flex;align-items:center;justify-content:center;
+  font-size:clamp(16px,2.5vw,26px);
+}
+
+/* ─ 目次タイトル（横線の上） ─ */
+.toc-book-title{
+  font-family:'Cormorant Garamond',serif;font-style:italic;
+  font-size:clamp(9px,1.1vw,12px);
+  color:#8878b8;letter-spacing:.12em;
+  text-align:center;margin-bottom:clamp(3px,.5vw,5px);
+  flex-shrink:0;
+}
+
+/* ─ ミニ本イラスト（タブ密着） ─ */
+.guide-book-col-inline{
+  position:relative;
+  padding-top:clamp(20px,2.8vw,26px);
+  padding-left:clamp(24px,3.2vw,36px);
+  display:inline-block;
+  overflow:visible;
+}
+.guide-year-mini-i{
+  position:absolute;
+  bottom:100%;
+  left:clamp(24px,3.2vw,36px);
+  background:linear-gradient(135deg,#9888c4,#7868b4);color:#fff;
+  font-size:clamp(6.5px,.85vw,9px);
+  padding:2px 6px 3px;
+  border-radius:3px 3px 0 0;
+  white-space:nowrap;
+  line-height:1.4;
+  margin-bottom:-1px;
+  pointer-events:none;
+  max-width:none;
+  overflow:visible;
+}
+.toc-book-row{
+  display:flex;align-items:stretch;
+}
+.guide-month-mini-i{
+  background:#ddd0f0;color:#4a3a6a;
+  font-size:clamp(7px,.9vw,10px);padding:3px 5px;
+  border-radius:3px 0 0 3px;line-height:1.85;
+  margin-right:-1px;pointer-events:none;
+  display:flex;flex-direction:column;justify-content:flex-start;
+  align-self:stretch;
+}
+
+/* ─ 使い方テキスト ─ */
+.toc-desc-inline{
+  color:#4a3a6a!important;font-style:normal;
+}
+.toc-warn{
+  color:#9060a0!important;
+}
+
+/* ─ 最終ページ見開き ─ */
+.final-spread-l,.final-spread-r{
+  height:100%;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  gap:clamp(8px,1.5vw,16px);text-align:center;
+  padding:clamp(8px,1.5vw,16px);
+}
+.final-en{
+  font-family:'Cormorant Garamond',serif;font-style:italic;
+  font-size:clamp(12px,1.8vw,20px);
+  color:#8878b8;letter-spacing:.1em;
+}
+.final-ja-big{
+  font-family:'Shippori Mincho',serif;font-weight:700;
+  font-size:clamp(22px,4vw,44px);
+  color:#2a1848;letter-spacing:.12em;line-height:1.3;
+}
+.final-msg{
+  font-family:'Shippori Mincho',serif;
+  font-size:clamp(10px,1.4vw,15px);
+  color:#2a1848;line-height:2.3;
+}
+
+
+/* ─ How to Use タイトル（横線の上・左寄せ） ─ */
+.toc-how-title{
+  font-family:'Cormorant Garamond',serif;font-style:italic;
+  font-size:clamp(9px,1.1vw,12px);
+  color:#8878b8;letter-spacing:.15em;
+  text-align:left;
+  margin-top:clamp(4px,.6vw,7px);
+  margin-bottom:clamp(2px,.3vw,3px);
+  flex-shrink:0;
+}
+
+
+/* ─ 最終ページ: 綴じ目なし・1枚化 ─ */
+.book.final-page .book-spine,
+.book.final-page .spine{
+  display:none;
+}
+.book.final-page .page-left{
+  border-radius:4px 0 0 4px;
+  box-shadow:none;
+  border-right:1px solid rgba(140,120,184,.15);
+}
+.book.final-page .page-right{
+  border-radius:0 10px 10px 0;
+  box-shadow:none;
+}
+
+/* 最終ページ左: 写真スペース */
+.final-photo-side{
+  height:100%;
+  display:flex;flex-direction:column;
+  gap:clamp(6px,1vw,10px);
+  padding:clamp(4px,.6vw,8px);
+}
+.final-photo-frame{
+  flex:1;min-height:0;
+  background:#fff;
+  border-radius:3px;
+  padding:clamp(6px,1vw,10px) clamp(6px,1vw,10px) clamp(20px,3vw,30px);
+  box-shadow:0 3px 12px rgba(100,80,150,.13),inset 0 1px 0 rgba(255,255,255,.8);
+  transform:rotate(-.3deg);
+  display:flex;align-items:center;justify-content:center;
+  overflow:hidden;
+}
+.final-photo-placeholder{
+  width:100%;height:100%;
+  background:linear-gradient(135deg,#e8dff8,#d8ccec);
+  display:flex;align-items:center;justify-content:center;
+  font-size:clamp(20px,3vw,36px);color:#b0a0d0;border-radius:2px;
+}
+.final-photo-img{
+  width:100%;height:100%;object-fit:cover;border-radius:2px;display:block;
+}
+
+/* 最終ページ右: 文字スペース */
+.final-msg-side{
+  height:100%;
+  display:flex;flex-direction:column;
+  align-items:flex-start;
+  justify-content:center;
+  gap:clamp(8px,1.4vw,16px);
+  padding:clamp(6px,1vw,10px) clamp(4px,.6vw,8px);
+}
+.final-flower-row{
+  display:flex;gap:clamp(3px,.6vw,6px);flex-wrap:wrap;
+}
+.final-flower{
+  font-size:clamp(12px,1.8vw,20px);opacity:.82;
+}
+.final-ann-en{
+  font-family:'Cormorant Garamond',serif;font-style:italic;
+  font-size:clamp(10px,1.4vw,16px);color:#8878b8;letter-spacing:.12em;
+}
+.final-ann-ja{
+  font-family:'Shippori Mincho',serif;font-weight:700;
+  font-size:clamp(18px,3.2vw,38px);color:#2a1848;
+  letter-spacing:.1em;line-height:1.4;
+}
+.final-ann-msg{
+  font-family:'Shippori Mincho',serif;
+  font-size:clamp(9px,1.2vw,13px);color:#2a1848;line-height:2.2;
+}
+
+
+/* ─ How to Use 横並びレイアウト ─ */
+.toc-guide-row{
+  display:flex;flex-direction:row;
+  align-items:flex-start;
+  gap:clamp(6px,1.2vw,14px);
+  flex-shrink:0;
+}
+.toc-how-ops{
+  flex:1;min-width:0;
+  font-size:clamp(6.5px,.78vw,9px);
+  color:#6858a8;line-height:1.75;
+  padding-top:clamp(18px,2.5vw,24px); /* 年タブ分の余白に合わせる */
+}
+.toc-how-desc{
+  flex-shrink:0;
+  font-size:clamp(6px,.72vw,8.5px);
+  color:#8878b8;line-height:1.7;
+  margin-top:clamp(3px,.5vw,5px);
+  border-top:1px solid rgba(140,120,184,.18);
+  padding-top:clamp(3px,.5vw,5px);
+}
+
+</style>
+</head>
+<body>
+<div class="desk">
+  <div class="desk-surface">
+
+    <!-- 年タブ -->
+    <div class="year-row" id="yearRow"></div>
+
+    <div class="mid">
+      <!-- 月タブ -->
+      <div class="month-col" id="monthCol"></div>
+
+      <!-- 本エリア -->
+      <div class="book-area" id="bookArea">
+
+        <button class="side-btn side-btn-left hidden" id="btnPrev" aria-label="前のページ">
+          <div class="side-btn-inner">◀</div>
+        </button>
+
+        <!-- 本の外枠（3D立体感用） -->
+        <div class="book-outer">
+          <div class="book" id="book">
+            <!-- ページ -->
+            <div class="pages-wrap">
+              <div class="page page-left"  id="pageLeft"></div>
+              <div class="page page-right" id="pageRight"></div>
+              <div class="spine"></div>
+            </div>
+
+            <!-- CSS 3D めくりパネル -->
+            <div class="flip-panel" id="flipPanel">
+              <div class="fp-front" id="fpFront"></div>
+              <div class="fp-back"  id="fpBack"></div>
+            </div>
+
+            <!-- めくり中の落ち影 -->
+            <div class="flip-shadow" id="flipShadow"></div>
+
+            <!-- 表紙 -->
+            <div class="cover" id="cover">
+              <div class="cover-inner">
+                <div class="cover-unit">いずれ菖蒲か杜若</div>
+                <div class="cover-en">2nd Anniversary Memory Book</div>
+                <div class="cover-deco">✦ ✦ ✦</div>
+                <div class="cover-title">推し活日記</div>
+                <div class="cover-sub">2024.06 — 2026.05</div>
+                <div class="cover-hint">— タップして開く —</div>
+                <div class="cover-members">
+                  <div class="cover-members-row1">
+                    <span>綺沙良</span>
+                    <span class="cover-members-sub">司賀りこ</span>
+                    <span>ルンルン</span>
+                    <span class="cover-members-sub">珠乃井ナナ</span>
+                    <span>梢桃音</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button class="side-btn side-btn-right hidden" id="btnNext" aria-label="次のページ">
+          <div class="side-btn-inner">▶</div>
+        </button>
+
+      </div>
+    </div>
+
+    <!-- ナビ下部 -->
+    <div class="nav-row" id="navRow">
+      <span class="page-info" id="pageInfo"></span>
+      <input type="range" class="page-slider" id="pageSlider" min="0" value="0" step="1">
+    </div>
+
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script>
+'use strict';
+/* ─── 定数 ────────────────────────────────── */
+const VALID={2024:[6,7,8,9,10,11,12],2025:[1,2,3,4,5,6,7,8,9,10,11,12],2026:[1,2,3,4,5,6]};
+const MCOL={1:'#FFE36C',2:'#DDD0F0',3:'#FFC6E2',4:'#63AED9',5:'#846FC7',6:'#DDD0F0',7:'#DDD0F0',8:'#DDD0F0',9:'#DDD0F0',10:'#D8E9FC',11:'#DDD0F0',12:'#DDD0F0'};
+const MN=['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+
+const PAGES=[{type:'toc'}];
+[2024,2025,2026].forEach(y=>VALID[y].forEach(m=>{
+  if(y===2026&&m===6) PAGES.push({type:'anniversary'});
+  else PAGES.push({type:'month',year:y,month:m});
+}));
+
+/* ─── 状態 ─────────────────────────────────── */
+let idx=0,flipping=false,bookOpen=false,curYear=2024,curMonth=6;
+
+/* ─── DOM ──────────────────────────────────── */
+const cover      = document.getElementById('cover');
+const yearRow    = document.getElementById('yearRow');
+const monthCol   = document.getElementById('monthCol');
+const pageLeft   = document.getElementById('pageLeft');
+const pageRight  = document.getElementById('pageRight');
+const btnPrev    = document.getElementById('btnPrev');
+const btnNext    = document.getElementById('btnNext');
+const pageInfo   = document.getElementById('pageInfo');
+const slider     = document.getElementById('pageSlider');
+const navRow     = document.getElementById('navRow');
+const flipPanel  = document.getElementById('flipPanel');
+const fpFront    = document.getElementById('fpFront');
+const fpBack     = document.getElementById('fpBack');
+const flipShadow = document.getElementById('flipShadow');
+
+/* ─── 初期化 ──────────────────────────────── */
+(function init(){
+  slider.max=PAGES.length-1;
+  renderYearTabs(); renderMonthTabs(); updateSliderTrack(0);
+})();
+
+/* ─── 表紙を開く ──────────────────────────── */
+cover.addEventListener('click',openBook);
+function openBook(){
+  if(bookOpen)return;
+  bookOpen=true;
+  renderPage(0); updateUI();
+  cover.classList.add('closing');
+  let done=false;
+  function revealBook(){
+    if(done)return; done=true;
+    cover.style.display='none';
+    yearRow.classList.add('open');
+    monthCol.classList.add('open');
+    navRow.classList.add('open');
+  }
+  cover.addEventListener('animationend', revealBook, {once:true});
+  setTimeout(revealBook, 600);
+}
+
+/* ─── 年タブ ───────────────────────────────── */
+function renderYearTabs(){
+  yearRow.innerHTML='';
+  [2024,2025,2026].forEach(y=>{
+    const b=document.createElement('button');
+    b.className='year-tab'+(y===curYear?' active':'');
+    b.textContent=y+'年'; b.onclick=()=>onYear(y);
+    yearRow.appendChild(b);
+  });
+}
+/* ─── 月タブ ───────────────────────────────── */
+function renderMonthTabs(){
+  monthCol.innerHTML='';
+  const valid=VALID[curYear]||[];
+  for(let m=1;m<=12;m++){
+    const ok=valid.includes(m);
+    const act=ok&&curMonth===m&&idx>0;
+    const b=document.createElement('button');
+    b.className='month-tab'+(ok?'':' disabled')+(act?' active':'');
+    b.textContent=MN[m-1]; b.style.background=ok?MCOL[m]:'';
+    if(ok) b.onclick=()=>onMonth(m);
+    monthCol.appendChild(b);
+  }
+}
+
+/* ─── 年/月クリック ────────────────────────── */
+function onYear(y){
+  curYear=y;
+  const valid=VALID[y];
+  const m=idx===0?valid[0]:(valid.includes(curMonth)?curMonth:valid[0]);
+  if(y===2026&&m===6){goAnn();return;}
+  const ni=fIdx(y,m); if(ni!==-1)go(ni);
+}
+function onMonth(m){
+  if(curYear===2026&&m===6){goAnn();return;}
+  const ni=fIdx(curYear,m); if(ni!==-1)go(ni);
+}
+function goAnn(){const ni=PAGES.findIndex(p=>p.type==='anniversary');if(ni!==-1)go(ni);}
+function fIdx(y,m){return PAGES.findIndex(p=>p.type==='month'&&p.year===y&&p.month===m);}
+
+/* ─── ページ移動 ───────────────────────────── */
+function go(ni){
+  if(flipping||ni===idx)return;
+  const dir=ni>idx?'next':'prev';
+  const oldIdx=idx;
+  idx=ni;
+  const p=PAGES[idx];
+  if(p.type==='month'){curYear=p.year;curMonth=p.month;}
+  flip3D(dir, oldIdx, idx, ()=>{
+    renderYearTabs(); renderMonthTabs(); updateUI();
+  });
+}
+
+btnPrev.addEventListener('click',()=>{if(idx>0)go(idx-1);});
+btnNext.addEventListener('click',()=>{if(idx<PAGES.length-1)go(idx+1);});
+
+/* ─── スライダー ───────────────────────────── */
+let sliderDragging=false;
+slider.addEventListener('mousedown',()=>{sliderDragging=true;});
+slider.addEventListener('touchstart',()=>{sliderDragging=true;},{passive:true});
+slider.addEventListener('input',()=>updateSliderTrack(parseInt(slider.value)));
+slider.addEventListener('change',()=>{
+  sliderDragging=false;
+  const ni=parseInt(slider.value);
+  if(ni!==idx)go(ni);
+});
+/* mouseup/touchend は document 全体で拾う（スライダー外で離しても確実にリセット） */
+document.addEventListener('mouseup',()=>{
+  if(!sliderDragging)return;
+  sliderDragging=false;
+  const ni=parseInt(slider.value);
+  if(ni!==idx)go(ni);
+});
+document.addEventListener('touchend',()=>{
+  if(!sliderDragging)return;
+  sliderDragging=false;
+  const ni=parseInt(slider.value);
+  if(ni!==idx)go(ni);
+},{passive:true});
+function updateSliderTrack(val){
+  const max=parseInt(slider.max)||1;
+  slider.style.setProperty('--pct',(val/max*100).toFixed(1)+'%');
+}
+
+/* ─── UI更新 ───────────────────────────────── */
+function updateUI(){
+  btnPrev.classList.toggle('hidden',idx===0);
+  btnNext.classList.toggle('hidden',idx===PAGES.length-1);
+  const p=PAGES[idx];
+  pageInfo.textContent=p.type==='toc'?'目次':p.type==='anniversary'?'2nd Anniversary':`${p.year}年 ${MN[p.month-1]}`;
+  if(!sliderDragging){slider.value=idx;updateSliderTrack(idx);}
+}
+
+/* ══════════════════════════════════════════
+   CSS 3D ページめくり
+══════════════════════════════════════════ */
+function flip3D(dir, oldIdx, newIdx, cb){
+  flipping=true;
+  const isNext=(dir==='next');
+  const dur=680;
+  const {left:oldL, right:oldR} = getPageHTML(oldIdx);
+  const {left:newL, right:newR} = getPageHTML(newIdx);
+
+  pageLeft.innerHTML  = oldL;
+  pageRight.innerHTML = oldR;
+
+  flipPanel.className        = 'flip-panel flipping '+(isNext?'flip-next':'flip-prev');
+  flipPanel.style.transition = 'none';
+  flipPanel.style.transform  = 'rotateY(0deg)';
+
+  fpFront.innerHTML = isNext ? oldR : oldL;
+  fpFront.className = 'fp-front '+(isNext?'page-right':'page-left');
+  fpBack.innerHTML  = isNext ? newL : newR;
+  fpBack.className  = 'fp-back ' +(isNext?'page-left':'page-right');
+  /* flipShadow disabled */
+
+
+  let midTimer=null;
+  requestAnimationFrame(()=>{
+    flipPanel.style.transition=`transform ${dur}ms cubic-bezier(0.645,0.045,0.355,1.000)`;
+    flipPanel.style.transform = isNext?'rotateY(-180deg)':'rotateY(180deg)';
+    midTimer=setTimeout(()=>{
+      if(isNext){ pageRight.innerHTML=newR; }
+      else      { pageLeft.innerHTML =newL; }
+    }, dur*0.48);
+  });
+
+  flipPanel.addEventListener('transitionend',()=>{
+    clearTimeout(midTimer);
+    flipPanel.className       ='flip-panel';
+    flipPanel.style.transform ='rotateY(0deg)';
+    /* flipShadow disabled */
+
+    pageLeft.innerHTML =newL;
+    pageRight.innerHTML=newR;
+    flipping=false;
+    cb();
+  },{once:true});
+}
+
+/* ─── ページHTML生成 ──────────────────────── */
+function getPageHTML(i){
+  const p=PAGES[i];
+  if(p.type==='toc')        return getTocHTML();
+  if(p.type==='anniversary') return getAnnHTML();
+  return getMonthHTML(p.year,p.month);
+}
+function renderPage(i){
+  const {left,right}=getPageHTML(i);
+  pageLeft.innerHTML=left;
+  pageRight.innerHTML=right;
+}
+
+/* ─── 目次 ─────────────────────────────────── */
+function getTocHTML(){
+  const left=`
+<div class="toc-left-new">
+  <!-- 上半分: タイトル＋注意書き -->
+  <div class="toc-notice-block">
+    <div class="toc-book-title">2nd Anniversary Memory Book</div>
+    <div class="toc-title">Notice</div>
+    <div class="toc-notice">
+      このサイトは個人のファンが制作した<br>非公式のファン活動です。<br>
+      ANYCOLOR株式会社・所属ライバーとは<br>一切関係ありません。<br><br>
+      掲載しているキャラクター・映像・<br>スクリーンショットの著作権は<br>
+      ANYCOLOR株式会社および各権利者に帰属します。<br><br>
+      ANYCOLOR二次創作ガイドライン<br>（2026年6月19日参照）に基づき<br>制作・公開しています。<br>
+      <a href="https://www.anycolor.co.jp/guidelines/" target="_blank" rel="noopener">anycolor.co.jp/guidelines/</a><br><br>
+      無断転載・二次配布はご遠慮ください。
+    </div>
+  </div>
+  <!-- 区切り線（How to Use タイトル付き） -->
+  <div class="toc-how-title">How to Use</div>
+  <div class="toc-divider"></div>
+  <!-- 下半分: 使い方 -->
+  <div class="toc-how-block">
+    <!-- ミニ本(左)＋操作説明(右) 横並び -->
+    <div class="toc-guide-row">
+      <div class="guide-book-col-inline">
+        <div class="guide-year-mini-i">2024年 2025年 2026年</div>
+        <div class="toc-book-row">
+          <div class="guide-month-mini-i">1月<br>2月<br>3月</div>
+          <div class="guide-book">
+            <div class="guide-spine-mini"></div>
+            <div class="guide-page-mini guide-page-mini-l"></div>
+            <div class="guide-page-mini"></div>
+          </div>
+        </div>
+      </div>
+      <div class="toc-how-ops">
+        上のタブで年を選びます<br>
+        横のタブで月を選びます<br>
+        両脇 ◀ ▶ でめくれます<br>
+        スライダーでも移動できます<br>
+        スマホはスワイプも可能です<br>
+        <span class="guide-tip-inline">グレーのタブは押せません</span><br>
+        <span class="guide-tip-inline">写真クリックでリンクが開きます</span>
+      </div>
+    </div>
+    <!-- 下部: サイト説明・非推奨文 -->
+    <div class="toc-how-desc">
+      <span class="toc-desc-inline">デビュー2周年を記念した個人制作のファン活動です</span><br>
+      <span class="toc-desc-inline">2024年6月〜2026年5月の推し活の思い出をご覧いただけます</span><br>
+      <span class="toc-warn">※他の方のファン活動をご覧になりたくない方には非推奨です</span>
+    </div>
+  </div>
+</div>`;
+
+  /* 右ページ: 2周年おめでとう */
+  const right=`
+<div class="ann-wrap">
+  <div class="flower-row">
+    <span class="flower">🌸</span><!-- 芍薬 -->
+    <span class="flower">🌼</span><!-- 蝋梅 -->
+    <span class="flower">🌼</span><!-- 金木犀 -->
+    <span class="flower">🤍</span><!-- ジャスミン -->
+    <span class="flower">🌸</span><!-- 桃の花 -->
+  </div>
+  <div class="ann-en">2nd Anniversary</div>
+  <div class="ann-main">デビュー2周年<br>おめでとう</div>
+  <div class="flower-row">
+    <span class="flower">🌸</span>
+    <span class="flower">🌼</span>
+    <span class="flower">🌼</span>
+    <span class="flower">🤍</span>
+    <span class="flower">🌸</span>
+  </div>
+</div>`;
+  return {left,right};
+}
+
+/* ─── 月ページ ──────────────────────────────── */
+function getMonthHTML(year,month){
+  const data=(typeof DIARY_DATA!=='undefined')?DIARY_DATA.find(d=>d.year===year&&d.month===month):null;
+  const label=`${year}年 ${MN[month-1]}`;
+  const five=data&&data.photos&&data.photos.length>=5;
+  let ph='';
+  if(data&&data.photos&&data.photos.length){
+    ph=data.photos.map(p=>`
+      <div class="photo-item${p.url?' clickable':''}" ${p.url?`onclick="window.open('${p.url}','_blank','noopener')"`:''}>
+        <img class="photo-img" src="${p.file}" alt="${p.name||''}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="photo-placeholder" style="display:none;">📷</div>
+        ${p.name?`<div class="photo-name">${p.name}</div>`:''}
+      </div>`).join('');
+  }else{
+    ph=`<div style="grid-column:1/-1;display:flex;align-items:center;justify-content:center;color:#b0a0d0;font-size:10px;">data.jsに写真を追加してください</div>`;
+  }
+  /* 月ごとにパターンを変える（6ヶ月周期） */
+  const patterns=['pat-a','pat-b','pat-c','pat-d','pat-e','pat-a'];
+  const patIdx=((year-2024)*12+(month-1))%6;
+  const pat=patterns[patIdx];
+  const left=`<div class="photo-grid ${pat}${five?' five':''}" style="height:100%;">${ph}</div>`;
+  const pu=data&&data.pickup;
+  const FAN_MARKS={'綺沙良':'🪞','司賀りこ':'📒','ルンルン':'🥨🍚','珠乃井ナナ':'🛼','梢桃音':'🪷'};
+  const fanMark = pu&&pu.member ? (FAN_MARKS[pu.member]||'') : '';
+  const right=`
+<div class="pickup-area">
+  <div class="pickup-month-label">${label}</div>
+  ${fanMark ? `<div class="pickup-fanmark">${fanMark}</div>` : ''}
+  <div class="pickup-frame${pu&&pu.url?' clickable':''}" ${pu&&pu.url?`onclick="window.open('${pu.url}','_blank','noopener')"`:''}>
+    ${pu?`<img class="pickup-img" src="${pu.file}" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="pickup-placeholder" style="display:none;">🌸</div>`:`<div class="pickup-placeholder">🌸</div>`}
+  </div>
+  <div class="pickup-message">${pu?pu.message:'ここにこの月の一言コメントを入れてください。'}</div>
+</div>`;
+  return {left,right};
+}
+
+/* ─── 最終ページ（見開き全体でメッセージ） ── */
+function getAnnHTML(){
+  /* 花5種：芍薬・蝋梅・金木犀・ジャスミン・桃の花 */
+  const flowers5=[
+    {e:'🌸',n:'芍薬',c:'#f9a8d4'},
+    {e:'🌼',n:'蝋梅',c:'#fde68a'},
+    {e:'🌸',n:'金木犀',c:'#fdba74'},
+    {e:'🤍',n:'ジャスミン',c:'#e9d5ff'},
+    {e:'🌸',n:'桃の花',c:'#fbcfe8'},
+  ];
+  const flowerRow = flowers5.map(f=>
+    `<span class="flower" title="${f.n}" style="color:${f.c}">${f.e}</span>`
+  ).join('');
+  const flowerDiv = `<div class="flower-row">${flowerRow}</div>`;
+
+  const left=`
+<div class="final-spread-l">
+  ${flowerDiv}
+  <div class="final-en">2nd Anniversary</div>
+  <div class="final-ja-big">デビュー2周年</div>
+  <div class="final-msg">
+    ここにお祝いの<br>
+    メッセージを<br>
+    書いてください。
+  </div>
+  ${flowerDiv}
+</div>`;
+
+  const right=`
+<div class="final-spread-r">
+  ${flowerDiv}
+  <div class="final-ja-big">おめでとう</div>
+  <div class="final-msg">
+    2年間ありがとう。<br>
+    これからもずっと<br>
+    応援しています。
+  </div>
+  ${flowerDiv}
+</div>`;
+  return {left,right};
+}
+
+/* ─── キーボード ─────────────────────────────── */
+document.addEventListener('keydown',e=>{
+  if(!bookOpen)return;
+  if(e.key==='ArrowLeft'&&idx<PAGES.length-1)go(idx+1);
+  if(e.key==='ArrowRight'&&idx>0)go(idx-1);
+});
+
+/* ─── スワイプ ───────────────────────────────── */
+let tx=0;
+document.getElementById('book').addEventListener('touchstart',e=>{tx=e.touches[0].clientX;},{passive:true});
+document.getElementById('book').addEventListener('touchend',e=>{
+  if(!bookOpen)return;
+  const dx=e.changedTouches[0].clientX-tx;
+  if(dx<-50&&idx<PAGES.length-1)go(idx+1);
+  if(dx>50&&idx>0)go(idx-1);
+},{passive:true});
+</script>
+</body>
+</html>
