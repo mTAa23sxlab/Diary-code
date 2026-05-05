@@ -2,8 +2,24 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>推し活日記 — 2nd Anniversary Memory Book</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>推し活日記 — いずれ菖蒲か杜若 2nd Anniversary Memory Book</title>
+<meta name="description" content="いずれ菖蒲か杜若のデビュー2周年を記念した個人制作のファン活動サイトです。2024年6月〜2026年5月の推し活の思い出をまとめた非公式記念誌です。">
+<meta name="robots" content="noindex">
+
+<!-- OGP -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="推し活日記 — いずれ菖蒲か杜若 2nd Anniversary Memory Book">
+<meta property="og:description" content="いずれ菖蒲か杜若のデビュー2周年を記念した個人制作のファン活動サイトです。2024年6月〜2026年5月の推し活の思い出をまとめた非公式記念誌です。">
+<meta property="og:locale" content="ja_JP">
+<!-- og:image と og:url はドメイン確定後に追記してください -->
+<!-- <meta property="og:image" content="https://あなたのドメイン/ogp.jpg"> -->
+<!-- <meta property="og:url" content="https://あなたのドメイン/"> -->
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="推し活日記 — いずれ菖蒲か杜若 2nd Anniversary Memory Book">
+<meta name="twitter:description" content="いずれ菖蒲か杜若のデビュー2周年を記念した個人制作のファン活動サイトです。">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Zen+Kurenaido&display=swap" rel="stylesheet">
 <style>
@@ -962,9 +978,178 @@ body{
   padding-top:clamp(16px,2.2vw,22px); /* 年タブ高さ分 */
 }
 
+
+/* ════════════════════════════════════════
+   ローディング画面
+════════════════════════════════════════ */
+#loading-screen{
+  position:fixed;inset:0;
+  background:linear-gradient(135deg,#ede4fa 0%,#ddd0f4 50%,#cfc0ec 100%);
+  z-index:99999;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  gap:clamp(16px,3vw,28px);
+  transition:opacity .5s ease, visibility .5s ease;
+  opacity:1;visibility:visible;
+}
+#loading-screen.hidden{
+  opacity:0;visibility:hidden;pointer-events:none;
+}
+.loading-title{
+  font-family:'Shippori Mincho',serif;
+  font-size:clamp(14px,2vw,20px);
+  color:#5a4a8a;letter-spacing:.2em;
+  font-weight:600;
+}
+.loading-sub{
+  font-family:'Cormorant Garamond',serif;font-style:italic;
+  font-size:clamp(10px,1.4vw,14px);
+  color:#8878b8;letter-spacing:.2em;
+}
+/* ドットスピナー（参考サイトと同様の実装） */
+.loading-dot{
+  position:relative;
+  width:10px;height:10px;
+  border-radius:5px;
+  background:transparent;color:transparent;
+  box-shadow:
+    0 -22px 0 0 #9888c4,
+    15.56px -15.56px 0 0 #9888c4,
+    22px 0 0 0 #9888c4,
+    15.56px 15.56px 0 0 rgba(152,136,196,0),
+    0 22px 0 0 rgba(152,136,196,0),
+    -15.56px 15.56px 0 0 rgba(152,136,196,0),
+    -22px 0 0 0 rgba(152,136,196,0),
+    -15.56px -15.56px 0 0 rgba(152,136,196,0);
+  animation:loading-spin 1.5s infinite linear;
+}
+@keyframes loading-spin{
+  0%,100%{
+    box-shadow:
+      0 -22px 0 0 #9888c4, 15.56px -15.56px 0 0 #9888c4, 22px 0 0 0 #9888c4,
+      15.56px 15.56px 0 -5px rgba(152,136,196,0), 0 22px 0 -5px rgba(152,136,196,0),
+      -15.56px 15.56px 0 -5px rgba(152,136,196,0), -22px 0 0 -5px rgba(152,136,196,0),
+      -15.56px -15.56px 0 -5px rgba(152,136,196,0);
+  }
+  12.5%{
+    box-shadow:
+      0 -22px 0 -5px rgba(152,136,196,0), 15.56px -15.56px 0 0 #9888c4, 22px 0 0 0 #9888c4,
+      15.56px 15.56px 0 0 #9888c4, 0 22px 0 -5px rgba(152,136,196,0),
+      -15.56px 15.56px 0 -5px rgba(152,136,196,0), -22px 0 0 -5px rgba(152,136,196,0),
+      -15.56px -15.56px 0 -5px rgba(152,136,196,0);
+  }
+  25%{
+    box-shadow:
+      0 -22px 0 -5px rgba(152,136,196,0), 15.56px -15.56px 0 -5px rgba(152,136,196,0), 22px 0 0 0 #9888c4,
+      15.56px 15.56px 0 0 #9888c4, 0 22px 0 0 #9888c4,
+      -15.56px 15.56px 0 -5px rgba(152,136,196,0), -22px 0 0 -5px rgba(152,136,196,0),
+      -15.56px -15.56px 0 -5px rgba(152,136,196,0);
+  }
+  37.5%{
+    box-shadow:
+      0 -22px 0 -5px rgba(152,136,196,0), 15.56px -15.56px 0 -5px rgba(152,136,196,0), 22px 0 0 -5px rgba(152,136,196,0),
+      15.56px 15.56px 0 0 #9888c4, 0 22px 0 0 #9888c4,
+      -15.56px 15.56px 0 0 #9888c4, -22px 0 0 -5px rgba(152,136,196,0),
+      -15.56px -15.56px 0 -5px rgba(152,136,196,0);
+  }
+  50%{
+    box-shadow:
+      0 -22px 0 -5px rgba(152,136,196,0), 15.56px -15.56px 0 -5px rgba(152,136,196,0), 22px 0 0 -5px rgba(152,136,196,0),
+      15.56px 15.56px 0 -5px rgba(152,136,196,0), 0 22px 0 0 #9888c4,
+      -15.56px 15.56px 0 0 #9888c4, -22px 0 0 0 #9888c4,
+      -15.56px -15.56px 0 -5px rgba(152,136,196,0);
+  }
+  62.5%{
+    box-shadow:
+      0 -22px 0 -5px rgba(152,136,196,0), 15.56px -15.56px 0 -5px rgba(152,136,196,0), 22px 0 0 -5px rgba(152,136,196,0),
+      15.56px 15.56px 0 -5px rgba(152,136,196,0), 0 22px 0 -5px rgba(152,136,196,0),
+      -15.56px 15.56px 0 0 #9888c4, -22px 0 0 0 #9888c4,
+      -15.56px -15.56px 0 0 #9888c4;
+  }
+  75%{
+    box-shadow:
+      0 -22px 0 0 #9888c4, 15.56px -15.56px 0 -5px rgba(152,136,196,0), 22px 0 0 -5px rgba(152,136,196,0),
+      15.56px 15.56px 0 -5px rgba(152,136,196,0), 0 22px 0 -5px rgba(152,136,196,0),
+      -15.56px 15.56px 0 -5px rgba(152,136,196,0), -22px 0 0 0 #9888c4,
+      -15.56px -15.56px 0 0 #9888c4;
+  }
+  87.5%{
+    box-shadow:
+      0 -22px 0 0 #9888c4, 15.56px -15.56px 0 0 #9888c4, 22px 0 0 -5px rgba(152,136,196,0),
+      15.56px 15.56px 0 -5px rgba(152,136,196,0), 0 22px 0 -5px rgba(152,136,196,0),
+      -15.56px 15.56px 0 -5px rgba(152,136,196,0), -22px 0 0 -5px rgba(152,136,196,0),
+      -15.56px -15.56px 0 0 #9888c4;
+  }
+}
+
+/* メインコンテンツ：ローディング中は非表示 */
+.site-main{
+  opacity:0;
+  transition:opacity .5s ease;
+}
+.site-main.loaded{
+  opacity:1;
+}
+
+/* ════════════════════════════════════════
+   スマホ横向き警告
+════════════════════════════════════════ */
+#orientation-lock{
+  display:none;
+  position:fixed;inset:0;
+  background:linear-gradient(135deg,#ede4fa,#cfc0ec);
+  z-index:999999;
+  align-items:center;justify-content:center;
+  flex-direction:column;
+  gap:clamp(12px,2vw,20px);
+  text-align:center;
+  padding:20px;
+}
+#orientation-lock .orient-icon{
+  font-size:clamp(36px,8vw,56px);
+  animation:rotate-hint 2s ease-in-out infinite;
+}
+@keyframes rotate-hint{
+  0%,100%{transform:rotate(0deg);}
+  50%{transform:rotate(90deg);}
+}
+#orientation-lock .orient-text{
+  font-family:'Shippori Mincho',serif;
+  font-size:clamp(13px,2vw,18px);
+  color:#5a4a8a;letter-spacing:.1em;
+}
+#orientation-lock .orient-sub{
+  font-family:'Cormorant Garamond',serif;font-style:italic;
+  font-size:clamp(10px,1.5vw,13px);
+  color:#8878b8;letter-spacing:.1em;
+}
+/* スマホ横向き時のみ表示 */
+@media screen and (max-width:900px) and (orientation:landscape){
+  #orientation-lock{
+    display:flex;
+  }
+}
+
 </style>
 </head>
 <body>
+
+<!-- ローディング画面 -->
+<div id="loading-screen">
+  <div class="loading-title">いずれ菖蒲か杜若</div>
+  <div class="loading-dot"></div>
+  <div class="loading-sub">2nd Anniversary Memory Book</div>
+</div>
+
+<!-- スマホ横向き警告 -->
+<div id="orientation-lock">
+  <div class="orient-icon">📱</div>
+  <div class="orient-text">縦向きでご覧ください</div>
+  <div class="orient-sub">Please rotate your device</div>
+</div>
+
+<!-- メインコンテンツ -->
+<div class="site-main" id="siteMain">
 <div class="desk">
   <div class="desk-surface">
 
@@ -1426,6 +1611,28 @@ document.getElementById('book').addEventListener('touchend',e=>{
   if(dx<-50&&idx<PAGES.length-1)go(idx+1);
   if(dx>50&&idx>0)go(idx-1);
 },{passive:true});
+
+/* ─── ローディング画面制御 ─────────────── */
+(function(){
+  const loadingScreen = document.getElementById('loading-screen');
+  const siteMain      = document.getElementById('siteMain');
+  let hidden = false;
+  function hideLoading(){
+    if(hidden) return;
+    hidden = true;
+    loadingScreen.classList.add('hidden');
+    siteMain.classList.add('loaded');
+  }
+  const maxWait = setTimeout(hideLoading, 1500);
+  if(document.fonts && document.fonts.ready){
+    document.fonts.ready.then(()=>{
+      clearTimeout(maxWait);
+      setTimeout(hideLoading, 300);
+    });
+  }
+})();
+
 </script>
+</div><!-- /site-main -->
 </body>
 </html>
