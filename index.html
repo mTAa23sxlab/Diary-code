@@ -992,43 +992,127 @@ body{
 @media screen and (max-width:900px) and (orientation:landscape){#orientation-lock{display:flex;}}
 /* ════ スマホ1ページ表示 ════ */
 @media(max-width:600px){
+  /* ── 全体レイアウト ── */
   .desk-surface{padding:2vw;}
   .year-row{padding-left:0 !important;}
   .nav-row{padding-left:0 !important;}
-  .month-col{flex-direction:row !important;flex-wrap:nowrap !important;width:100% !important;margin-right:0 !important;margin-bottom:-1px !important;padding:0 !important;gap:1px !important;overflow-x:hidden !important;align-items:flex-end !important;}
-  .month-tab{flex:1 !important;width:auto !important;min-width:0 !important;height:clamp(22px,6vw,30px) !important;border-radius:4px 4px 0 0 !important;font-size:clamp(7px,2.2vw,9.5px) !important;padding:0 !important;letter-spacing:-.04em !important;white-space:nowrap !important;overflow:hidden !important;writing-mode:horizontal-tb !important;margin-right:0 !important;line-height:1 !important;}
+
+  /* ── 月タブを横並びに ── */
+  .month-col{
+    flex-direction:row !important;
+    flex-wrap:nowrap !important;
+    width:100% !important;
+    margin-right:0 !important;
+    margin-bottom:-1px !important;
+    padding:0 !important;
+    gap:1px !important;
+    overflow-x:hidden !important;
+    align-items:flex-end !important;
+  }
+  .month-tab{
+    flex:1 !important;
+    width:auto !important;
+    min-width:0 !important;
+    height:clamp(22px,6vw,30px) !important;
+    border-radius:4px 4px 0 0 !important;
+    font-size:clamp(7px,2.2vw,9.5px) !important;
+    padding:0 !important;
+    letter-spacing:-.04em !important;
+    white-space:nowrap !important;
+    overflow:hidden !important;
+    writing-mode:horizontal-tb !important;
+    margin-right:0 !important;
+    line-height:1 !important;
+  }
   .month-tab.active{padding-right:0 !important;}
-  .book{aspect-ratio:1/1.25 !important;}
-  .page{padding:3vw 3.5vw;}
-  .fp-front,.fp-back{padding:3vw 3.5vw;}
-  .book.show-right .page-left{transform:translateX(-100%) !important;opacity:0 !important;pointer-events:none;}
-  .book.show-right .page-right{transform:translateX(-100%) !important;}
-  .book.show-left .page-right{transform:translateX(100%) !important;opacity:0 !important;pointer-events:none;}
-  .page-left,.page-right{transition:transform .35s ease,opacity .35s ease;}
+
+  /* ── book: 縦長1ページ表示 ── */
+  /* midを縦積みにして月タブを上に */
+  .mid{flex-direction:column !important;}
+  /* book全体を縦長に変更（見開き→1ページ） */
+  .book-outer{width:100%;}
+  .book{
+    /* 縦長1ページのアスペクト比（参考サイトに合わせる） */
+    aspect-ratio:1/1.4 !important;
+  }
+  /* pages-wrap: 左右を縦に積む（上下に並ぶ） */
+  .pages-wrap{
+    flex-direction:column !important;
+  }
+  /* 左右ページそれぞれを全幅・全高に */
+  .page-left, .page-right{
+    flex:none !important;
+    width:100% !important;
+    height:100% !important;
+    position:absolute !important;
+    top:0; left:0;
+    border-radius:4px 10px 10px 4px !important;
+    transition:transform 0.35s ease, opacity 0.35s ease;
+    box-shadow:inset 8px 0 16px rgba(80,55,130,0.06) !important;
+  }
+  /* 綴じ目を非表示（1ページ表示時は不要） */
+  .spine{display:none !important;}
+  /* flipパネルも全幅に */
+  .flip-panel.flip-next,
+  .flip-panel.flip-prev{
+    width:100% !important;
+    right:auto !important;
+    left:0 !important;
+  }
+  /* show-right: 左を画面外に、右を前面に */
+  .book.show-right .page-left{
+    transform:translateX(-100%) !important;
+    opacity:0 !important;
+    pointer-events:none !important;
+  }
+  .book.show-right .page-right{
+    transform:translateX(0) !important;
+    opacity:1 !important;
+  }
+  /* show-left: 右を画面外に（デフォルト） */
+  .book.show-left .page-right{
+    transform:translateX(100%) !important;
+    opacity:0 !important;
+    pointer-events:none !important;
+  }
+  .book.show-left .page-left{
+    transform:translateX(0) !important;
+    opacity:1 !important;
+  }
+  /* ページ余白をSP最適化 */
+  .page{padding:4vw 5vw !important;}
+  .fp-front,.fp-back{padding:4vw 5vw !important;}
+
+  /* ── ページ内容のフォントをSP最適化 ── */
+  /* 目次 */
   .toc-book-title{font-size:2.5vw;}
   .toc-title{font-size:2.5vw;margin-bottom:1.5vw;}
-  .toc-notice{font-size:2.2vw;line-height:1.7;}
-  .toc-notice a{font-size:2vw;}
+  .toc-notice{font-size:2.4vw;line-height:1.75;}
+  .toc-notice a{font-size:2.2vw;}
   .toc-how-title{font-size:2.5vw;}
   .toc-divider{margin:1.5vw 0;}
   .toc-minibook-wrap{display:none !important;}
   .toc-guide-row{flex-direction:column;gap:0;}
-  .toc-how-ops{font-size:2.2vw !important;line-height:1.75;padding-top:0 !important;}
-  .toc-how-desc{font-size:2vw;line-height:1.65;}
+  .toc-how-ops{font-size:2.4vw !important;line-height:1.8;padding-top:0 !important;}
+  .toc-how-desc{font-size:2.2vw;line-height:1.7;}
+  /* 2周年おめでとう */
   .ann-wrap{gap:2vw;}
-  .ann-en{font-size:3vw;}
-  .ann-main{font-size:6vw;white-space:nowrap;letter-spacing:.04em;}
-  .flower-row{gap:1.5vw;flex-wrap:nowrap;}
-  .flower{font-size:5vw;}
-  .final-spread-l,.final-spread-r{gap:2vw;padding:2.5vw;}
-  .final-en{font-size:2.8vw;}
-  .final-ja-big{font-size:6vw;white-space:nowrap;letter-spacing:.04em;}
-  .final-msg{font-size:2.8vw;line-height:2;}
-  .final-flower-row{gap:1.5vw;flex-wrap:nowrap;}
-  .final-flower{font-size:5vw;}
-  .pickup-month-label{font-size:2.8vw;}
-  .pickup-message{font-size:2.5vw;}
-  .pickup-fanmark{font-size:5.5vw;}
+  .ann-en{font-size:3.2vw;}
+  .ann-main{font-size:7vw;white-space:nowrap;letter-spacing:.04em;}
+  .flower-row{gap:2vw;flex-wrap:nowrap;}
+  .flower{font-size:6vw;}
+  /* 最終ページ */
+  .final-spread-l,.final-spread-r{gap:2.5vw;padding:3vw;}
+  .final-en{font-size:3vw;}
+  .final-ja-big{font-size:7vw;white-space:nowrap;letter-spacing:.04em;}
+  .final-msg{font-size:3vw;line-height:2.1;}
+  .final-flower-row{gap:2vw;flex-wrap:nowrap;}
+  .final-flower{font-size:6vw;}
+  /* 月ページ */
+  .pickup-month-label{font-size:3vw;}
+  .pickup-message{font-size:2.8vw;line-height:1.9;}
+  .pickup-fanmark{font-size:6vw;}
+  /* サイドボタン */
   .side-btn{width:28px;}
 }
 
