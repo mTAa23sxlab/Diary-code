@@ -1186,10 +1186,6 @@ function openBook(){
   if(bookOpen)return;
   bookOpen=true;
   renderPage(0); updateUI();
-  /* SP: show-left を初期設定 */
-  if(window.innerWidth<=600){
-    document.getElementById('book').classList.add('show-left');
-  }
   cover.classList.add('closing');
   let done=false;
   function revealBook(){
@@ -1246,12 +1242,14 @@ function fIdx(y,m){return PAGES.findIndex(p=>p.type==='month'&&p.year===y&&p.mon
 /* ─── ページ移動 ───────────────────────────── */
 function go(ni){
   if(flipping||ni===idx)return;
-  /* SP: アニメなしで即座に切り替え */
+  /* SP: spNext/spPrevを使わずgo()が直接呼ばれた場合（タブからの遷移） */
   if(window.innerWidth<=600){
     idx=ni;
     const p=PAGES[idx];
     if(p.type==='month'){curYear=p.year;curMonth=p.month;}
-    renderPage(idx); renderYearTabs(); renderMonthTabs(); updateUI();
+    spSide='left'; /* タブ遷移は常に左ページから */
+    renderPage(idx); renderYearTabs(); renderMonthTabs();
+    syncSp();
     return;
   }
   flipping=true;
@@ -1531,57 +1529,121 @@ document.addEventListener('keydown',e=>{
 /* book touchend: SP統合版に移行済み */
 
 /* ════ スマホ1ページ表示 ════ */
-(function(){
-  const MOBILE=()=>window.innerWidth<=600;
-  const book=document.getElementById('book');
-  let spSide='left';
+/* spSideをグローバルで管理してgo()完了後も正しく動くようにする */
+let spSide = 'left'; /* 'left' or 'right' */
+const MOBILE = () => window.innerWidth <= 600;
 
-  function syncSp(){
-    if(!MOBILE()){
-      book.classList.remove('show-left','show-right');
-      slider.max=PAGES.length-1;
-      return;
-    }
-    book.classList.toggle('show-left', spSide==='left');
-    book.classList.toggle('show-right',spSide==='right');
-    slider.max=PAGES.length*2-1;
-    const sv=idx*2+(spSide==='right'?1:0);
-    if(!sliderDragging){slider.value=sv;updateSliderTrack(sv);}
-    const p=PAGES[idx];
-    pageInfo.textContent=(p.type==='toc'?'目次':p.type==='anniversary'?'2nd Anniversary':`${p.year}年 ${MN[p.month-1]}`)+(spSide==='right'?' ▶':'');
-    btnPrev.classList.toggle('hidden',idx===0&&spSide==='left');
-    btnNext.classList.toggle('hidden',idx===PAGES.length-1&&spSide==='right');
+function syncSp(){
+  const book = document.getElementById('book');
+  if(!MOBILE()){
+    book.classList.remove('show-left','show-right');
+    slider.max = PAGES.length - 1;
+    return;
   }
-  function spNext(){if(flipping)return;if(spSide==='left'){spSide='right';syncSp();}else if(idx<PAGES.length-1){go(idx+1);spSide='left';}}
-  function spPrev(){if(flipping)return;if(spSide==='right'){spSide='left';syncSp();}else if(idx>0){go(idx-1);spSide='right';}}
+  /* show-left / show-right を設定 */
+  book.classList.toggle('show-left',  spSide === 'left');
+  book.classList.toggle('show-right', spSide === 'right');
+  /* スライダー: 1ページ単位 */
+  slider.max = PAGES.length * 2 - 1;
+  const sv = idx * 2 + (spSide === 'right' ? 1 : 0);
+  if(!sliderDragging){ slider.value = sv; updateSliderTrack(sv); }
+  /* ページ情報 */
+  const p = PAGES[idx];
+  const label = p.type==='toc' ? '目次' : p.type==='anniversary' ? '2nd Anniversary' : `${p.year}年 ${MN[p.month-1]}`;
+  pageInfo.textContent = label + (spSide === 'right' ? ' ▶' : '');
+  /* ボタン表示 */
+  btnPrev.classList.toggle('hidden', idx === 0 && spSide === 'left');
+  btnNext.classList.toggle('hidden', idx === PAGES.length - 1 && spSide === 'right');
+}
 
-  btnPrev.addEventListener('click',()=>{if(MOBILE())spPrev();else if(idx>0)go(idx-1);});
-  btnNext.addEventListener('click',()=>{if(MOBILE())spNext();else if(idx<PAGES.length-1)go(idx+1);});
+function spNext(){
+  /* 左ページ表示中 → 右ページへ（同じ見開き） */
+  if(spSide === 'left'){
+    spSide = 'right';
+    syncSp();
+  /* 右ページ表示中 → 次の見開きの左ページへ */
+  } else if(idx < PAGES.length - 1){
+    idx++;
+    const p = PAGES[idx];
+    if(p.type === 'month'){ curYear = p.year; curMonth = p.month; }
+    renderPage(idx); renderYearTabs(); renderMonthTabs();
+    spSide = 'left';
+    syncSp();
+  }
+}
 
-  let stx=0;
-  book.addEventListener('touchstart',e=>{stx=e.touches[0].clientX;},{passive:true});
-  book.addEventListener('touchend',e=>{
-    if(!bookOpen)return;
-    const dx=e.changedTouches[0].clientX-stx;
-    if(Math.abs(dx)<40)return;
-    if(MOBILE()){dx<0?spNext():spPrev();}
-    else{if(dx<-50&&idx<PAGES.length-1)go(idx+1);if(dx>50&&idx>0)go(idx-1);}
-  },{passive:true});
+function spPrev(){
+  /* 右ページ表示中 → 左ページへ（同じ見開き） */
+  if(spSide === 'right'){
+    spSide = 'left';
+    syncSp();
+  /* 左ページ表示中 → 前の見開きの右ページへ */
+  } else if(idx > 0){
+    idx--;
+    const p = PAGES[idx];
+    if(p.type === 'month'){ curYear = p.year; curMonth = p.month; }
+    renderPage(idx); renderYearTabs(); renderMonthTabs();
+    spSide = 'right';
+    syncSp();
+  }
+}
 
-  slider.addEventListener('change',()=>{
-    sliderDragging=false;
-    const val=parseInt(slider.value);
-    if(MOBILE()){
-      const ni=Math.floor(val/2),ns=val%2===0?'left':'right';
-      if(ni!==idx){go(ni);spSide=ns;}else if(ns!==spSide){spSide=ns;syncSp();}
-    }else{if(val!==idx)go(val);}
-  });
+/* ボタン */
+btnPrev.addEventListener('click', ()=>{ if(MOBILE()) spPrev(); else if(idx>0) go(idx-1); });
+btnNext.addEventListener('click', ()=>{ if(MOBILE()) spNext(); else if(idx<PAGES.length-1) go(idx+1); });
 
-  const _ui=updateUI;
-  updateUI=function(){_ui();if(MOBILE())syncSp();};
-  window.addEventListener('resize',()=>syncSp());
-  if(MOBILE())slider.max=PAGES.length*2-1;
+/* スワイプ */
+(function(){
+  let stx = 0;
+  const bk = document.getElementById('book');
+  bk.addEventListener('touchstart', e=>{ stx = e.touches[0].clientX; }, {passive:true});
+  bk.addEventListener('touchend', e=>{
+    if(!bookOpen) return;
+    const dx = e.changedTouches[0].clientX - stx;
+    if(Math.abs(dx) < 40) return;
+    if(MOBILE()){ dx < 0 ? spNext() : spPrev(); }
+    else { if(dx < -50 && idx < PAGES.length-1) go(idx+1); if(dx > 50 && idx > 0) go(idx-1); }
+  }, {passive:true});
 })();
+
+/* スライダー */
+slider.addEventListener('change', ()=>{
+  sliderDragging = false;
+  const val = parseInt(slider.value);
+  if(MOBILE()){
+    const ni = Math.floor(val / 2);
+    const ns = val % 2 === 0 ? 'left' : 'right';
+    if(ni !== idx){
+      idx = ni;
+      const p = PAGES[idx];
+      if(p.type === 'month'){ curYear = p.year; curMonth = p.month; }
+      renderPage(idx); renderYearTabs(); renderMonthTabs();
+      spSide = ns;
+      syncSp();
+    } else if(ns !== spSide){
+      spSide = ns;
+      syncSp();
+    }
+  } else {
+    if(val !== idx) go(val);
+  }
+});
+
+/* updateUI に同期処理を追加 */
+const _ui = updateUI;
+updateUI = function(){
+  _ui();
+  if(MOBILE()) syncSp();
+};
+
+/* リサイズ対応 */
+window.addEventListener('resize', ()=>{
+  if(MOBILE()){ slider.max = PAGES.length*2-1; syncSp(); }
+  else{ slider.max = PAGES.length-1; document.getElementById('book').classList.remove('show-left','show-right'); _ui(); }
+});
+
+/* 初期化 */
+if(MOBILE()) slider.max = PAGES.length * 2 - 1;
 
 /* ════ ローディング画面制御 ════ */
 (function(){
