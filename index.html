@@ -1209,6 +1209,18 @@ cover.addEventListener('click',openBook);
 function openBook(){
   if(bookOpen)return;
   bookOpen=true;
+  /* SP: renderPage前に右ページを画面外に隠す（一瞬表示されるのを防ぐ） */
+  if(MOBILE()){
+    pageRight.style.transition='none';
+    pageRight.style.transform='translateX(100%)';
+    pageRight.style.opacity='0';
+    pageLeft.style.transition='none';
+    pageLeft.style.transform='translateX(0)';
+    pageLeft.style.opacity='1';
+    spSide='left';
+    document.getElementById('book').classList.add('show-left');
+    document.getElementById('book').classList.remove('show-right');
+  }
   renderPage(0); updateUI();
   cover.classList.add('closing');
   let done=false;
