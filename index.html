@@ -1411,19 +1411,26 @@ function initTurnJs(){
   fb.style.display = 'block';
   fb.innerHTML = '';
 
-  /* ltrモード: 各見開きi → 左ページ(page 2i+1)→右ページ(page 2i+2) の順で追加
-     page1=PAGES[0].left, page2=PAGES[0].right, page3=PAGES[1].left ... */
+  /* ltrモード・空ページ先頭:
+     page1=空(右端単独表示), page2=PAGES[0].left, page3=PAGES[0].right,
+     page4=PAGES[1].left, page5=PAGES[1].right, ...
+     見開きi: left=page(i*2+2), right=page(i*2+3) */
+  function makePageDiv(inner_html){
+    const wrap = document.createElement('div');
+    wrap.className = 'page';
+    const inner = document.createElement('div');
+    inner.className = 'page-content';
+    inner.innerHTML = inner_html;
+    wrap.appendChild(inner);
+    return wrap;
+  }
+  /* page1: 空ページ（turn.jsがdouble表示で右端単独にする） */
+  fb.appendChild(makePageDiv(''));
+
   PAGES.forEach((pg, i) => {
     const {left, right} = getPageHTML(i);
-    [left, right].forEach(pageHtml => {
-      const wrap = document.createElement('div');
-      wrap.className = 'page';
-      const inner = document.createElement('div');
-      inner.className = 'page-content';
-      inner.innerHTML = pageHtml;
-      wrap.appendChild(inner);
-      fb.appendChild(wrap);
-    });
+    fb.appendChild(makePageDiv(left));
+    fb.appendChild(makePageDiv(right));
   });
 
   console.log('[turn.js] init w='+w+' h='+h+' pages='+PAGES.length);
@@ -1435,7 +1442,7 @@ function initTurnJs(){
     width: w,
     height: h,
     display: 'double',
-    autoCenter: true,
+    autoCenter: false,
     acceleration: true,
     gradients: false,
     elevation: 100,
@@ -1452,8 +1459,8 @@ function initTurnJs(){
         /* めくり完了: spineを再表示 */
         const sp = document.getElementById('spineEl');
         if(sp) sp.style.visibility = 'visible';
-        /* ltr page1スタート: 見開きidx = floor((page-1)/2) */
-        const ni = Math.max(0, Math.floor((page - 1) / 2));
+        /* ltr 空ページ先頭: 見開きidx = floor((page-2)/2) */
+        const ni = Math.max(0, Math.floor((page - 2) / 2));
         idx = ni;
         const p = PAGES[idx];
         if(p && p.type === 'month'){ curYear = p.year; curMonth = p.month; }
@@ -1493,8 +1500,8 @@ function goPC(ni){
   if(!turnInitialized) return;
   const $ = jQuery;
   const fb = $(document.getElementById('flipbook'));
-  /* ltr: 見開きni の左ページ = page(ni*2+1) */
-  const target = ni * 2 + 1;
+  /* ltr 空ページ先頭: 見開きni の左ページ = page(ni*2+2) */
+  const target = ni * 2 + 2;
   const current = fb.turn('page');
   if(target === current) return;
   const diff = Math.abs(target - current);
