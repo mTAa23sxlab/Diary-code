@@ -1255,7 +1255,6 @@ function go(ni){
     return;
   }
   flipping=true;
-  syncCanvas();
   const dir=ni>idx?'next':'prev';
   const oldIdx=idx;
   idx=ni;
@@ -1266,19 +1265,14 @@ function go(ni){
   });
 }
 
-btnPrev.addEventListener('click',()=>{if(idx>0)go(idx-1);});
-btnNext.addEventListener('click',()=>{if(idx<PAGES.length-1)go(idx+1);});
+/* btnPrev/btnNext: SP統合版に移行済み */
 
 /* ─── スライダー ───────────────────────────── */
 let sliderDragging=false;
 slider.addEventListener('mousedown',()=>{sliderDragging=true;});
 slider.addEventListener('touchstart',()=>{sliderDragging=true;},{passive:true});
 slider.addEventListener('input',()=>updateSliderTrack(parseInt(slider.value)));
-slider.addEventListener('change',()=>{
-  sliderDragging=false;
-  const ni=parseInt(slider.value);
-  if(ni!==idx)go(ni);
-});
+/* slider change: SP統合版に移行済み */
 /* mouseup/touchend は document 全体で拾う（スライダー外で離しても確実にリセット） */
 document.addEventListener('mouseup',()=>{
   if(!sliderDragging)return;
@@ -1533,14 +1527,8 @@ document.addEventListener('keydown',e=>{
 });
 
 /* ─── スワイプ ───────────────────────────────── */
-let tx=0;
-document.getElementById('book').addEventListener('touchstart',e=>{tx=e.touches[0].clientX;},{passive:true});
-document.getElementById('book').addEventListener('touchend',e=>{
-  if(!bookOpen)return;
-  const dx=e.changedTouches[0].clientX-tx;
-  if(dx<-50&&idx<PAGES.length-1)go(idx+1);
-  if(dx>50&&idx>0)go(idx-1);
-},{passive:true});
+/* touch: SP統合版に移行済み */
+/* book touchend: SP統合版に移行済み */
 
 /* ════ スマホ1ページ表示 ════ */
 (function(){
