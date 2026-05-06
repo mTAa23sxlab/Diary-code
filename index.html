@@ -1204,6 +1204,7 @@ body{
 
 <script src="data.js"></script>
 <script>
+
 $(document).ready(function(){
 'use strict';
 
@@ -1524,11 +1525,11 @@ function initFlipbook(){
     /* 左ページ */
     const lDiv = $('<div>').addClass('page').attr('id','tp-'+(si*2));
     const lContent = $('<div>').addClass('page-content');
-    let html;
-    if(sp.type==='toc')             html = getTocHTML();
-    else if(sp.type==='anniversary') html = getAnnHTML();
-    else html = getMonthHTML(sp.year, sp.month);
-    lContent.html(html.left);
+    let pageHtml;
+    if(sp.type==='toc')              pageHtml = getTocHTML();
+    else if(sp.type==='anniversary') pageHtml = getAnnHTML();
+    else pageHtml = getMonthHTML(sp.year, sp.month);
+    lContent.html(pageHtml.left);
     lDiv.append(lContent);
     if(sp.type==='anniversary') lDiv.addClass('final-page');
     $(flipbookEl).append(lDiv);
@@ -1536,7 +1537,7 @@ function initFlipbook(){
     /* 右ページ */
     const rDiv = $('<div>').addClass('page').attr('id','tp-'+(si*2+1));
     const rContent = $('<div>').addClass('page-content');
-    rContent.html(html.right);
+    rContent.html(pageHtml.right);
     rDiv.append(rContent);
     if(sp.type==='anniversary') rDiv.addClass('final-page');
     $(flipbookEl).append(rDiv);
@@ -1596,117 +1597,30 @@ function setCoverSize(){
   $(cover).css({ width: sz.w + 'px', height: sz.h + 'px' });
 }
 setCoverSize();
+/* DOMContentLoaded時点でwidthが0の場合、loadで再設定 */
+$(window).on('load', function(){
+  if(!bookOpen) setCoverSize();
+});
 $(window).on('resize', function(){
   if(!bookOpen) setCoverSize();
 });
 
-/* ─── ページ移動 ────────────────────────── */
-function goToSpread(si){
-  if(!bookOpen) return;
-  const clamped = Math.max(0, Math.min(SPREADS.length - 1, si));
-  const turnPage = clamped * 2 + 1;
-  $(flipbookEl).turn('page', turnPage);
-}
+}); // $(document).ready end
 
-/* ─── 年/月タブ ─────────────────────────── */
-function renderYearTabs(){
-  yearRow.innerHTML='';
-  [2024,2025,2026].forEach(y=>{
-    const b=document.createElement('button');
-    b.className='year-tab'+(y===curYear?' active':'');
-    b.textContent=y+'年'; b.onclick=()=>onYear(y);
-    yearRow.appendChild(b);
-  });
-}
-function renderMonthTabs(){
-  monthCol.innerHTML='';
-  const valid=VALID[curYear]||[];
-  for(let m=1;m<=12;m++){
-    const ok=valid.includes(m);
-    const act=ok&&curMonth===m&&curSpreadIdx>0;
-    const b=document.createElement('button');
-    b.className='month-tab'+(ok?'':' disabled')+(act?' active':'');
-    b.textContent=MN[m-1]; b.style.background=ok?MCOL[m]:'';
-    if(ok) b.onclick=()=>onMonth(m);
-    monthCol.appendChild(b);
-  }
-}
-function onYear(y){
-  curYear=y;
-  const valid=VALID[y];
-  const m=valid.includes(curMonth)?curMonth:valid[0];
-  if(y===2026&&m===6){ goToSpread(SPREADS.findIndex(s=>s.type==='anniversary')); return; }
-  goToSpread(SPREADS.findIndex(s=>s.type==='month'&&s.year===y&&s.month===m));
-}
-function onMonth(m){
-  if(curYear===2026&&m===6){ goToSpread(SPREADS.findIndex(s=>s.type==='anniversary')); return; }
-  goToSpread(SPREADS.findIndex(s=>s.type==='month'&&s.year===curYear&&s.month===m));
-}
-
-/* ─── UI更新 ────────────────────────────── */
-function updateSliderTrack(val){
-  const max=parseInt(slider.max)||1;
-  slider.style.setProperty('--pct',(val/max*100).toFixed(1)+'%');
-}
-function updateUI(){
-  if(!bookOpen) return;
-  btnPrev.classList.toggle('hidden', curSpreadIdx===0);
-  btnNext.classList.toggle('hidden', curSpreadIdx===SPREADS.length-1);
-  const sp=SPREADS[curSpreadIdx];
-  if(!sp) return;
-  pageInfo.textContent=sp.type==='toc'?'目次':sp.type==='anniversary'?'2nd Anniversary':`${sp.year}年 ${MN[sp.month-1]}`;
-  if(!sliderDragging){ slider.value=curSpreadIdx; updateSliderTrack(curSpreadIdx); }
-}
-
-/* ─── スライダー ────────────────────────── */
-slider.addEventListener('mousedown',()=>{sliderDragging=true;});
-slider.addEventListener('touchstart',()=>{sliderDragging=true;},{passive:true});
-slider.addEventListener('input',()=>updateSliderTrack(parseInt(slider.value)));
-slider.addEventListener('change',()=>{ sliderDragging=false; goToSpread(parseInt(slider.value)); });
-document.addEventListener('mouseup',()=>{ if(!sliderDragging)return; sliderDragging=false; goToSpread(parseInt(slider.value)); });
-document.addEventListener('touchend',()=>{ if(!sliderDragging)return; sliderDragging=false; goToSpread(parseInt(slider.value)); },{passive:true});
-
-/* ─── ボタン ────────────────────────────── */
-btnPrev.addEventListener('click',()=>goToSpread(curSpreadIdx-1));
-btnNext.addEventListener('click',()=>goToSpread(curSpreadIdx+1));
-
-/* ─── キーボード ────────────────────────── */
-document.addEventListener('keydown',e=>{
-  if(!bookOpen) return;
-  if(e.key==='ArrowRight') goToSpread(curSpreadIdx+1);
-  if(e.key==='ArrowLeft')  goToSpread(curSpreadIdx-1);
-});
-
-/* ─── リサイズ ──────────────────────────── */
-let resizeTimer;
-$(window).on('resize',function(){
-  clearTimeout(resizeTimer);
-  resizeTimer=setTimeout(function(){
-    if(!bookOpen) return;
-    const sz=getBookSize();
-    const dm=isMobile()?'single':'double';
-    $(flipbookEl).turn('size',sz.w,sz.h);
-    $(flipbookEl).turn('display',dm);
-    $(flipbookEl).css({width:sz.w+'px',height:sz.h+'px'});
-    updateUI();
-  },200);
-});
-
-/* ─── 初期化 ────────────────────────────── */
-slider.max = SPREADS.length - 1;
-updateSliderTrack(0);
-
-/* ─── ローディング画面 ─────────────────── */
+/* ─── ローディング画面（ready外で確実に実行） ─── */
 (function(){
   const ls=document.getElementById('loading-screen');
   const sm=document.getElementById('siteMain');
   let done=false;
   function hide(){if(done)return;done=true;ls.classList.add('hidden');sm.classList.add('loaded');}
-  const t=setTimeout(hide,1500);
-  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{clearTimeout(t);setTimeout(hide,300);});
+  /* 最大2秒でフェードアウト */
+  const t=setTimeout(hide,2000);
+  if(document.fonts&&document.fonts.ready){
+    document.fonts.ready.then(()=>{clearTimeout(t);setTimeout(hide,300);});
+  }
 })();
 
-}); // $(document).ready end
+
 </script>
 </div><!-- /site-main -->
 </body>
