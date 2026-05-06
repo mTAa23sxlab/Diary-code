@@ -1493,6 +1493,10 @@ function initTurnJs(){
 
   turnInitialized = true;
   console.log('[turn.js] initialized successfully, page='+$(fb).turn('page'));
+
+  /* 初期表示: page1（空）をスキップしてpage2（最初の見開き左）へ即座に移動
+     アニメなしで直接ジャンプする */
+  $(fb).turn('page', 2);
 }
 
 /* PC: turn.jsでページ移動 */
