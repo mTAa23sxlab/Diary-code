@@ -1365,8 +1365,15 @@ function initTurnJs(){
     top: 0, left: 0
   });
   turnInitialized = true;
-  /* bookのoverflowをhiddenに */
   bookEl.style.overflow = 'hidden';
+  /* 綴じ目（spine）をflipbookの上に表示 */
+  const spineEl = bookEl.querySelector('.spine');
+  if(spineEl){
+    spineEl.style.display = 'block';
+    spineEl.style.zIndex = '9999';
+    /* spineをbookの直接子要素に移動（pagesWrapの外へ） */
+    bookEl.appendChild(spineEl);
+  }
 }
 
 /* PCのgo()をturn.jsで上書き */
