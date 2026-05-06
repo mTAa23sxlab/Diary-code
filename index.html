@@ -914,9 +914,9 @@ body{
 }
 .toc-how-ops{
   flex:1;min-width:0;
-  font-size:clamp(6.5px,.78vw,9px);
-  color:#6858a8;line-height:1.75;
-  padding-top:clamp(18px,2.5vw,24px); /* 年タブ分の余白に合わせる */
+  font-size:clamp(8.5px,1vw,11px);
+  color:#6858a8;line-height:1.85;
+  padding-top:clamp(18px,2.5vw,24px);
 }
 .toc-how-desc{
   flex-shrink:0;
@@ -965,12 +965,7 @@ body{
   align-self:stretch;
   white-space:nowrap;
 }
-.toc-how-ops{
-  flex:1;min-width:0;
-  font-size:clamp(6.5px,.78vw,9px);
-  color:#6858a8;line-height:1.75;
-  padding-top:clamp(16px,2.2vw,22px); /* 年タブ高さ分 */
-}
+
 
 
 /* ════════════════════════════════════════
@@ -1145,33 +1140,38 @@ body{
     padding:1.5vw 2vw;
   }
   .mid{
-    flex-direction:column;
+    flex-direction:column !important;
   }
 
   /* ─ 月タブを上部横並びに変更 ─ */
   .month-col{
+    display:flex !important;
     flex-direction:row !important;
-    width:100%;
-    margin-right:0;
-    margin-bottom:-1px;
-    padding:0;
-    gap:1px;
+    width:100% !important;
+    margin-right:0 !important;
+    margin-bottom:-1px !important;
+    padding:0 !important;
+    gap:1px !important;
     overflow-x:auto;
-    flex-wrap:nowrap;
+    flex-wrap:nowrap !important;
     -webkit-overflow-scrolling:touch;
+    align-items:flex-end !important;
   }
   .month-tab{
-    flex:1;
-    min-width:clamp(20px,7.5vw,36px);
+    flex:1 !important;
+    min-width:clamp(20px,7.5vw,36px) !important;
     width:auto !important;
-    height:clamp(22px,6vw,32px);
-    border-radius:4px 4px 0 0;
-    font-size:clamp(7px,2.2vw,10px);
-    padding:0 1px;
-    white-space:nowrap;
+    height:clamp(24px,6.5vw,34px) !important;
+    min-height:0 !important;
+    border-radius:4px 4px 0 0 !important;
+    font-size:clamp(7px,2.2vw,10px) !important;
+    padding:0 2px !important;
+    white-space:nowrap !important;
     letter-spacing:-.03em;
-    margin-right:0;
+    margin-right:0 !important;
     box-shadow:0 -2px 4px rgba(80,55,130,0.12);
+    /* 縦並び防止 */
+    writing-mode:horizontal-tb !important;
   }
 
   /* ─ 本エリア: 月タブ横並び後はbook幅を100%に ─ */
@@ -1182,7 +1182,7 @@ body{
     width:100%;
   }
   .book{
-    aspect-ratio:1/1.2; /* スマホ縦向きに最適化 */
+    aspect-ratio:1/1.15 !important;
   }
 
   /* ─ ページ余白を最小に ─ */
@@ -1195,7 +1195,7 @@ body{
 
   /* ─ 年タブ ─ */
   .year-row{
-    padding-left:0;
+    padding-left:0 !important;
     gap:2px;
     justify-content:flex-start;
   }
@@ -1206,7 +1206,7 @@ body{
 
   /* ─ ナビ下部 ─ */
   .nav-row{
-    padding-left:0;
+    padding-left:0 !important;
   }
 
   /* ─ 目次左ページ ─ */
