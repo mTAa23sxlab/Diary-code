@@ -263,7 +263,7 @@ body{
 /* 綴じ目 */
 .spine{
   position:absolute;left:50%;top:0;transform:translateX(-50%);
-  width:14px;height:100%;z-index:20;pointer-events:none;
+  width:14px;height:100%;z-index:50;pointer-events:none;
   background:linear-gradient(90deg,
     #9888c4 0%,#b0a4d8 15%,#d0c8ec 40%,#e0daf4 50%,
     #d0c8ec 60%,#b0a4d8 85%,#9888c4 100%
@@ -835,8 +835,7 @@ body{
 
 
 /* ─ 最終ページ: 綴じ目なし・1枚化 ─ */
-.book.final-page .book-spine,
-.book.final-page .spine{
+.book.final-page #spineEl{
   display:none;
 }
 .book.final-page .page-left{
@@ -1138,8 +1137,9 @@ body{
             <div class="pages-wrap" id="pagesWrap">
               <div class="page page-left"  id="pageLeft"></div>
               <div class="page page-right" id="pageRight"></div>
-              <div class="spine"></div>
             </div>
+            <!-- 綴じ目（常に表示） -->
+            <div class="spine" id="spineEl"></div>
 
             <!-- CSS 3D めくりパネル（SP用） -->
             <div class="flip-panel" id="flipPanel">
