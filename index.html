@@ -1013,54 +1013,16 @@ body{
     will-change:transform;
   }
   .spine{display:none !important;}
-  /* SP: transitionを無効化（keyframesのみで制御） */
-  .page-left,.page-right{transition:none !important;}
-  /* show-left: 左ページを即座に表示位置に固定 */
-  .book.show-left .page-left{
-    transform:translateX(0) !important;
-    opacity:1 !important;
+  /* SP: ページ切り替えはJS側でstyleを直接操作
+     CSSはポインターイベントの制御のみ */
+  .page-left,.page-right{
+    transition:none !important;
     animation:none !important;
   }
-  .book.show-left .page-right{
-    transform:translateX(100%) !important;
-    opacity:0 !important;
-    pointer-events:none !important;
-    animation:none !important;
-  }
-  /* show-right: 右ページを即座に表示位置に固定 */
-  .book.show-right .page-right{
-    transform:translateX(0) !important;
-    opacity:1 !important;
-    animation:none !important;
-  }
-  .book.show-right .page-left{
-    transform:translateX(-100%) !important;
-    opacity:0 !important;
-    pointer-events:none !important;
-    animation:none !important;
-  }
-  /* dir-next: 表示ページが右からスライドイン */
-  .book.dir-next.show-right .page-right{
-    animation:spSlideFromRight 0.30s cubic-bezier(0.25,0.46,0.45,0.94) forwards !important;
-  }
-  .book.dir-next.show-left .page-left{
-    animation:spSlideFromRight 0.30s cubic-bezier(0.25,0.46,0.45,0.94) forwards !important;
-  }
-  /* dir-prev: 表示ページが左からスライドイン */
-  .book.dir-prev.show-left .page-left{
-    animation:spSlideFromLeft 0.30s cubic-bezier(0.25,0.46,0.45,0.94) forwards !important;
-  }
-  .book.dir-prev.show-right .page-right{
-    animation:spSlideFromLeft 0.30s cubic-bezier(0.25,0.46,0.45,0.94) forwards !important;
-  }
-  @keyframes spSlideFromRight{
-    from{transform:translateX(100%);opacity:0.3;}
-    to{transform:translateX(0);opacity:1;}
-  }
-  @keyframes spSlideFromLeft{
-    from{transform:translateX(-100%);opacity:0.3;}
-    to{transform:translateX(0);opacity:1;}
-  }
+  /* show-left: 右ページのpointer-eventsを無効 */
+  .book.show-left .page-right{ pointer-events:none !important; }
+  /* show-right: 左ページのpointer-eventsを無効 */
+  .book.show-right .page-left{ pointer-events:none !important; }
   /* flipパネル: SP時は非表示（CSSで切り替え、アニメなし） */
   .flip-panel{display:none !important;}
   /* ページ余白 */
@@ -1595,27 +1557,50 @@ document.addEventListener('keydown',e=>{
 let spSide = 'left'; /* 'left' or 'right' */
 const MOBILE = () => window.innerWidth <= 600;
 
-let spDir = 'next'; /* 最後のページ移動方向 */
+let spDir = 'next';
+const SP_ANI_DUR = 300; /* スライドアニメ時間(ms) */
+
+function spSetPage(showEl, hideEl, fromDir){
+  /* showEl: 表示するページ要素, hideEl: 隠すページ要素
+     fromDir: 'right'(次へ) or 'left'(前へ) */
+  const startX = fromDir === 'right' ? '100%' : '-100%';
+  const hideX  = fromDir === 'right' ? '-100%' : '100%';
+
+  /* 隠れる側を即座に画面外へ */
+  hideEl.style.transform  = hideX;
+  hideEl.style.opacity    = '0';
+
+  /* 表示側を開始位置に置いてからアニメ */
+  showEl.style.transition = 'none';
+  showEl.style.transform  = startX;
+  showEl.style.opacity    = '0.2';
+
+  /* 1フレーム後にアニメ開始 */
+  requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>{
+      showEl.style.transition = `transform ${SP_ANI_DUR}ms cubic-bezier(0.25,0.46,0.45,0.94), opacity ${SP_ANI_DUR}ms ease`;
+      showEl.style.transform  = 'translateX(0)';
+      showEl.style.opacity    = '1';
+    });
+  });
+}
+
 function syncSp(){
   const book = document.getElementById('book');
   if(!MOBILE()){
-    book.classList.remove('show-left','show-right','dir-next','dir-prev');
+    book.classList.remove('show-left','show-right');
+    /* PCではstyleをリセット */
+    pageLeft.style.transform  = '';
+    pageLeft.style.opacity    = '';
+    pageLeft.style.transition = '';
+    pageRight.style.transform  = '';
+    pageRight.style.opacity    = '';
+    pageRight.style.transition = '';
     slider.max = PAGES.length - 1;
     return;
   }
-  /* 前のdirタイマーをキャンセル */
-  if(window._spDirTimer) clearTimeout(window._spDirTimer);
-  /* dir/showクラスをリセット */
-  book.classList.remove('show-left','show-right','dir-next','dir-prev');
-  /* void でリフローを強制 */
-  void book.offsetWidth;
-  book.classList.add(spSide === 'left' ? 'show-left' : 'show-right');
-  book.classList.add(spDir === 'next' ? 'dir-next' : 'dir-prev');
-  /* アニメ完了後にdirクラスを削除 */
-  window._spDirTimer = setTimeout(()=>{
-    book.classList.remove('dir-next','dir-prev');
-    window._spDirTimer = null;
-  }, 380);
+  book.classList.toggle('show-left',  spSide === 'left');
+  book.classList.toggle('show-right', spSide === 'right');
   /* スライダー: 1ページ単位 */
   slider.max = PAGES.length * 2 - 1;
   const sv = idx * 2 + (spSide === 'right' ? 1 : 0);
@@ -1650,47 +1635,54 @@ function spSlide(toSide, newIdx, dir){
   updateUI();
 }
 
-let spAnim = false; /* アニメ中フラグ */
-const SP_DUR = 340;  /* アニメ時間(ms) */
+let spAnim = false;
 
 function spNext(){
-  if(spAnim) return; /* アニメ中は無視 */
+  if(spAnim) return;
   spAnim = true;
-  spDir = 'next';
+
   if(spSide === 'left'){
+    /* 左→右: 右ページが右からスライドイン */
     spSide = 'right';
-    syncSp(); updateUI();
+    spSetPage(pageRight, pageLeft, 'right');
+    updateUI();
   } else if(idx < PAGES.length - 1){
+    /* 次の見開き左ページへ: 左ページが右からスライドイン */
     idx++;
     const p = PAGES[idx];
     if(p.type === 'month'){ curYear = p.year; curMonth = p.month; }
     renderPage(idx); renderYearTabs(); renderMonthTabs();
     spSide = 'left';
-    syncSp(); updateUI();
+    spSetPage(pageLeft, pageRight, 'right');
+    updateUI();
   } else {
     spAnim = false; return;
   }
-  setTimeout(()=>{ spAnim = false; }, SP_DUR);
+  setTimeout(()=>{ spAnim = false; }, SP_ANI_DUR + 50);
 }
 
 function spPrev(){
   if(spAnim) return;
   spAnim = true;
-  spDir = 'prev';
+
   if(spSide === 'right'){
+    /* 右→左: 左ページが左からスライドイン */
     spSide = 'left';
-    syncSp(); updateUI();
+    spSetPage(pageLeft, pageRight, 'left');
+    updateUI();
   } else if(idx > 0){
+    /* 前の見開き右ページへ: 右ページが左からスライドイン */
     idx--;
     const p = PAGES[idx];
     if(p.type === 'month'){ curYear = p.year; curMonth = p.month; }
     renderPage(idx); renderYearTabs(); renderMonthTabs();
     spSide = 'right';
-    syncSp(); updateUI();
+    spSetPage(pageRight, pageLeft, 'left');
+    updateUI();
   } else {
     spAnim = false; return;
   }
-  setTimeout(()=>{ spAnim = false; }, SP_DUR);
+  setTimeout(()=>{ spAnim = false; }, SP_ANI_DUR + 50);
 }
 
 /* ボタン */
