@@ -220,9 +220,8 @@ body{
 .book{
   width:100%;aspect-ratio:4/3;
   position:relative;
-  perspective:2400px;
   border-radius:4px 10px 10px 4px;
-  overflow:visible; /* turn.jsめくりアニメのため */
+  overflow:hidden;
   box-shadow:0 16px 48px rgba(60,40,110,0.28),0 4px 10px rgba(60,40,110,0.16);
 }
 
@@ -281,48 +280,7 @@ body{
   );
 }
 
-/* ════════════════════════════════════════════════
-   CSS 3D ページめくり
-════════════════════════════════════════════════ */
-.flip-panel{
-  position:absolute;top:0;height:100%;width:50%;
-  transform-style:preserve-3d;
-  /* めくりアニメは JS で --angle を制御 */
-  z-index:50;pointer-events:none;
-  display:none;
-}
-.flip-panel.flipping{display:block;}
-.flip-panel.flip-next{right:0;transform-origin:left center;}
-.flip-panel.flip-prev{left:0;transform-origin:right center;}
 
-.fp-front,.fp-back{
-  position:absolute;inset:0;
-  backface-visibility:hidden;
-  overflow:hidden;
-  padding:clamp(10px,1.6vw,20px) clamp(12px,1.8vw,22px);
-  background:
-    repeating-linear-gradient(
-      0deg,transparent 0px,transparent 27px,
-      rgba(175,155,215,0.055) 27px,rgba(175,155,215,0.055) 28px
-    ),
-    linear-gradient(180deg,#fefcff 0%,#fdf9ff 60%,#fbf6fe 100%);
-}
-.fp-back{transform:rotateY(180deg);}
-
-/* めくれるページの折り目側にのみ薄い影 */
-.fp-front::after{
-  content:'';position:absolute;top:0;right:0;width:16px;height:100%;
-  background:linear-gradient(to right,transparent,rgba(80,55,130,0.10));
-  pointer-events:none;
-}
-.fp-back::after{
-  content:'';position:absolute;top:0;left:0;width:16px;height:100%;
-  background:linear-gradient(to left,transparent,rgba(80,55,130,0.08));
-  pointer-events:none;
-}
-
-/* flip-shadow は使用しない（不自然な影を防ぐため）*/
-.flip-shadow{ display:none; }
 
 /* ════════════════════════════════════════════════
    表紙
@@ -1151,26 +1109,16 @@ body{
         <!-- 本の外枠（3D立体感用） -->
         <div class="book-outer">
           <div class="book" id="book">
-            <!-- turn.js フリップブック（PC用・JS初期化後に有効） -->
-            <div id="flipbook"></div>
-
-            <!-- ページ（SP用・PC初期表示用） -->
+            <!-- ページ（SP用・PC: turn.js初期化前の表示） -->
             <div class="pages-wrap" id="pagesWrap">
               <div class="page page-left"  id="pageLeft"></div>
               <div class="page page-right" id="pageRight"></div>
+              <!-- 綴じ目（SP・初期表示用） -->
+              <div class="spine" id="spineEl" style="display:none;"></div>
             </div>
 
-            <!-- CSS 3D めくりパネル（SP用フォールバック） -->
-            <div class="flip-panel" id="flipPanel">
-              <div class="fp-front" id="fpFront"></div>
-              <div class="fp-back"  id="fpBack"></div>
-            </div>
-
-            <!-- めくり中の落ち影 -->
-            <div class="flip-shadow" id="flipShadow"></div>
-
-            <!-- 綴じ目（最前面・turn.jsの上） -->
-            <div class="spine" id="spineEl" style="display:none;"></div>
+            <!-- turn.js フリップブック（PC用・JS初期化後にpagesWrapと入れ替わる） -->
+            <div id="flipbook" style="display:none;position:absolute;inset:0;"></div>
 
             <!-- 表紙 -->
             <div class="cover" id="cover">
@@ -1241,10 +1189,11 @@ const btnNext    = document.getElementById('btnNext');
 const pageInfo   = document.getElementById('pageInfo');
 const slider     = document.getElementById('pageSlider');
 const navRow     = document.getElementById('navRow');
-const flipPanel  = document.getElementById('flipPanel');
-const fpFront    = document.getElementById('fpFront');
-const fpBack     = document.getElementById('fpBack');
-const flipShadow = document.getElementById('flipShadow');
+/* flip-panel要素はCSS 3Dフォールバック用（turn.js有効時は使われない） */
+const flipPanel  = null;
+const fpFront    = null;
+const fpBack     = null;
+const flipShadow = null;
 
 /* ─── 初期化 ──────────────────────────────── */
 (function init(){
@@ -1422,47 +1371,19 @@ function updateUI(){
    CSS 3D ページめくり
 ══════════════════════════════════════════ */
 function flip3D(dir, oldIdx, newIdx, cb){
-  flipping=true;
+  /* turn.js未初期化時のフォールバック（通常は呼ばれない） */
+  /* pagesWrapが存在する場合のみ動作 */
+  const pW = document.getElementById('pagesWrap');
+  if(!pW){ flipping=false; cb(); return; }
+  const pL = document.getElementById('pageLeft');
+  const pR = document.getElementById('pageRight');
   const isNext=(dir==='next');
-  const dur=680;
-  const {left:oldL, right:oldR} = getPageHTML(oldIdx);
   const {left:newL, right:newR} = getPageHTML(newIdx);
-
-  pageLeft.innerHTML  = oldL;
-  pageRight.innerHTML = oldR;
-
-  flipPanel.className        = 'flip-panel flipping '+(isNext?'flip-next':'flip-prev');
-  flipPanel.style.transition = 'none';
-  flipPanel.style.transform  = 'rotateY(0deg)';
-
-  fpFront.innerHTML = isNext ? oldR : oldL;
-  fpFront.className = 'fp-front '+(isNext?'page-right':'page-left');
-  fpBack.innerHTML  = isNext ? newL : newR;
-  fpBack.className  = 'fp-back ' +(isNext?'page-left':'page-right');
-  /* flipShadow disabled */
-
-
-  let midTimer=null;
-  requestAnimationFrame(()=>{
-    flipPanel.style.transition=`transform ${dur}ms cubic-bezier(0.645,0.045,0.355,1.000)`;
-    flipPanel.style.transform = isNext?'rotateY(-180deg)':'rotateY(180deg)';
-    midTimer=setTimeout(()=>{
-      if(isNext){ pageRight.innerHTML=newR; }
-      else      { pageLeft.innerHTML =newL; }
-    }, dur*0.48);
-  });
-
-  flipPanel.addEventListener('transitionend',()=>{
-    clearTimeout(midTimer);
-    flipPanel.className       ='flip-panel';
-    flipPanel.style.transform ='rotateY(0deg)';
-    /* flipShadow disabled */
-
-    pageLeft.innerHTML =newL;
-    pageRight.innerHTML=newR;
-    flipping=false;
-    cb();
-  },{once:true});
+  /* アニメなしで即切替 */
+  pL.innerHTML = newL;
+  pR.innerHTML = newR;
+  flipping=false;
+  cb();
 }
 
 /* ════════════════════════════════════════════════
@@ -1490,46 +1411,49 @@ function initTurnJs(){
   fb.style.display = 'block';
   fb.innerHTML = '';
 
-  /* rtlモード: 各見開きi の右ページ(=page 2i+1)→左ページ(=page 2i+2) の順で追加
-     page1=PAGES[0].right(表紙右・単独), page2=PAGES[0].left, page3=PAGES[1].right ... */
+  /* ltrモード: 各見開きi → 左ページ(page 2i+1)→右ページ(page 2i+2) の順で追加
+     page1=PAGES[0].left, page2=PAGES[0].right, page3=PAGES[1].left ... */
   PAGES.forEach((pg, i) => {
     const {left, right} = getPageHTML(i);
-    [right, left].forEach(html => {
+    [left, right].forEach(pageHtml => {
       const wrap = document.createElement('div');
       wrap.className = 'page';
       const inner = document.createElement('div');
       inner.className = 'page-content';
-      inner.innerHTML = html;
+      inner.innerHTML = pageHtml;
       wrap.appendChild(inner);
       fb.appendChild(wrap);
     });
   });
 
   console.log('[turn.js] init w='+w+' h='+h+' pages='+PAGES.length);
+
+  /* ltrモード: page1=左, page2=右, page3=左... (左から右へ)
+     見開きiのペア: 左=page(i*2+1), 右=page(i*2+2)
+     → PAGES[i].left を奇数ページ、PAGES[i].right を偶数ページに */
   $(fb).turn({
     width: w,
     height: h,
     display: 'double',
-    autoCenter: false,
+    autoCenter: true,
     acceleration: true,
     gradients: false,
     elevation: 100,
-    duration: 1000,
-    direction: 'rtl',
-    turnCorners: 'br',
-    'z-index': 50,
+    duration: 800,
+    direction: 'ltr',
+    turnCorners: 'bl,br',
     when: {
       turning: function(e, page){
-        /* めくり中: spineを隠す（めくりページが綴じ目の下をくぐらないよう） */
+        /* めくり中: spineを隠す */
         const sp = document.getElementById('spineEl');
-        if(sp) sp.style.display = 'none';
+        if(sp) sp.style.visibility = 'hidden';
       },
       turned: function(e, page){
         /* めくり完了: spineを再表示 */
         const sp = document.getElementById('spineEl');
-        if(sp) sp.style.display = 'block';
-        /* rtl page1スタート: 見開きidx = ceil(page/2) - 1 */
-        const ni = Math.max(0, Math.ceil(page / 2) - 1);
+        if(sp) sp.style.visibility = 'visible';
+        /* ltr page1スタート: 見開きidx = floor((page-1)/2) */
+        const ni = Math.max(0, Math.floor((page - 1) / 2));
         idx = ni;
         const p = PAGES[idx];
         if(p && p.type === 'month'){ curYear = p.year; curMonth = p.month; }
@@ -1540,13 +1464,28 @@ function initTurnJs(){
 
   /* pagesWrapを隠してflipbookを表示 */
   document.getElementById('pagesWrap').style.display = 'none';
-  $(fb).css({ width: w+'px', height: h+'px', position:'absolute', top:0, left:0 });
-  turnInitialized = true;
-  console.log('[turn.js] initialized successfully');
+  fb.style.display = 'block';
+  fb.style.position = 'absolute';
+  fb.style.inset = '0';
 
-  /* 綴じ目を表示 */
+  /* spineをflipbookの上にoverlayとして移動（turn.jsのz-indexより上） */
   const spineEl = document.getElementById('spineEl');
-  if(spineEl) spineEl.style.display = 'block';
+  if(spineEl){
+    /* bookの直接子として再配置 */
+    const bookEl2 = document.getElementById('book');
+    bookEl2.appendChild(spineEl);
+    spineEl.style.display = 'block';
+    spineEl.style.visibility = 'visible';
+    spineEl.style.zIndex = '200';
+    spineEl.style.position = 'absolute';
+    spineEl.style.left = '50%';
+    spineEl.style.top = '0';
+    spineEl.style.transform = 'translateX(-50%)';
+    spineEl.style.height = '100%';
+  }
+
+  turnInitialized = true;
+  console.log('[turn.js] initialized successfully, page='+$(fb).turn('page'));
 }
 
 /* PC: turn.jsでページ移動 */
@@ -1554,7 +1493,7 @@ function goPC(ni){
   if(!turnInitialized) return;
   const $ = jQuery;
   const fb = $(document.getElementById('flipbook'));
-  /* rtl: 見開きni の右ページ = page(ni*2+1) */
+  /* ltr: 見開きni の左ページ = page(ni*2+1) */
   const target = ni * 2 + 1;
   const current = fb.turn('page');
   if(target === current) return;
