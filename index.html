@@ -1236,28 +1236,33 @@ function initTurnJs(){
   if(turnInitialized || typeof $ === 'undefined' || !$.fn.turn) return;
   const bookEl = document.getElementById('book');
   const w = bookEl.offsetWidth;
-  const h = bookEl.offsetHeight;
+  /* aspect-ratio:4/3 なので高さを計算
+     ただし offsetHeight が0の場合は計算で求める */
+  const h = bookEl.offsetHeight > 0 ? bookEl.offsetHeight : Math.round(w * 3/4);
   const flipbook = document.getElementById('flipbook');
 
-  /* 全ページのdivを生成 */
+  /* 全ページのdivを生成
+     turn.js display:double では:
+     奇数ページ = 左ページ, 偶数ページ = 右ページ
+     見開きi → turn page (i*2+1)=左, (i*2+2)=右 */
   $(flipbook).empty();
-  PAGES.forEach((p, i) => {
+  PAGES.forEach((pg, i) => {
     const {left, right} = getPageHTML(i);
-    /* 左ページ */
+    /* 左ページ（奇数: i*2+1） */
     const lDiv = document.createElement('div');
     lDiv.className = 'page';
     const lContent = document.createElement('div');
     lContent.className = 'page-content';
-    lContent.style.padding = 'clamp(10px,1.6vw,20px) clamp(12px,1.8vw,22px)';
+    lContent.style.cssText = 'width:100%;height:100%;box-sizing:border-box;overflow:hidden;padding:clamp(10px,1.6vw,20px) clamp(12px,1.8vw,22px);';
     lContent.innerHTML = left;
     lDiv.appendChild(lContent);
     flipbook.appendChild(lDiv);
-    /* 右ページ */
+    /* 右ページ（偶数: i*2+2） */
     const rDiv = document.createElement('div');
     rDiv.className = 'page';
     const rContent = document.createElement('div');
     rContent.className = 'page-content';
-    rContent.style.padding = 'clamp(10px,1.6vw,20px) clamp(12px,1.8vw,22px)';
+    rContent.style.cssText = 'width:100%;height:100%;box-sizing:border-box;overflow:hidden;padding:clamp(10px,1.6vw,20px) clamp(12px,1.8vw,22px);';
     rContent.innerHTML = right;
     rDiv.appendChild(rContent);
     flipbook.appendChild(rDiv);
@@ -1271,9 +1276,13 @@ function initTurnJs(){
     gradients: true,
     duration: 700,
     page: 1,
+    direction: 'ltr',
     when: {
       turned: function(e, page){
-        const ni = Math.floor((page - 1) / 2);
+        /* turn.jsはpage1=右ページ単独, page2以降=見開き
+           左ページ=奇数, 右ページ=偶数
+           見開きインデックス = Math.ceil(page/2) - 1 */
+        const ni = Math.ceil(page / 2) - 1;
         if(ni !== idx){
           idx = ni;
           const p = PAGES[idx];
@@ -1286,16 +1295,23 @@ function initTurnJs(){
 
   /* pagesWrapを非表示にしてflipbookを表示 */
   document.getElementById('pagesWrap').style.display = 'none';
-  flipbook.style.display = 'block';
-  flipbook.style.width = w + 'px';
-  flipbook.style.height = h + 'px';
+  $(flipbook).css({
+    display: 'block',
+    width: w + 'px',
+    height: h + 'px',
+    position: 'absolute',
+    top: 0, left: 0
+  });
   turnInitialized = true;
+  /* bookのoverflowをhiddenに */
+  bookEl.style.overflow = 'hidden';
 }
 
 /* PCのgo()をturn.jsで上書き */
 function goPC(ni){
   if(turnInitialized){
-    const turnPage = ni * 2 + 1;
+    /* 見開きniの左ページ番号 = ni*2 + 1 */
+    const turnPage = ni === 0 ? 1 : ni * 2 + 1;
     $(document.getElementById('flipbook')).turn('page', turnPage);
   }
 }
@@ -1340,8 +1356,11 @@ function openBook(){
       setTimeout(initTurnJs, 50);
     }
   }
-  cover.addEventListener('animationend', revealBook, {once:true});
-  setTimeout(revealBook, 600);
+  let revealTimer = setTimeout(revealBook, 650);
+  cover.addEventListener('animationend', ()=>{
+    clearTimeout(revealTimer);
+    revealBook();
+  }, {once:true});
 }
 
 /* ─── 年タブ ───────────────────────────────── */
