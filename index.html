@@ -1218,6 +1218,20 @@ function openBook(){
     yearRow.classList.add('open');
     monthCol.classList.add('open');
     navRow.classList.add('open');
+    /* SP: 表紙を開いた直後は必ず左ページを表示 */
+    if(MOBILE()){
+      spSide='left';
+      /* ページを初期位置に直接セット（アニメなし） */
+      pageLeft.style.transition='none';
+      pageLeft.style.transform='translateX(0)';
+      pageLeft.style.opacity='1';
+      pageRight.style.transition='none';
+      pageRight.style.transform='translateX(100%)';
+      pageRight.style.opacity='0';
+      document.getElementById('book').classList.add('show-left');
+      document.getElementById('book').classList.remove('show-right');
+      syncSp();
+    }
   }
   cover.addEventListener('animationend', revealBook, {once:true});
   setTimeout(revealBook, 600);
@@ -1561,24 +1575,30 @@ let spDir = 'next';
 const SP_ANI_DUR = 300; /* スライドアニメ時間(ms) */
 
 function spSetPage(showEl, hideEl, fromDir){
-  /* showEl: 表示するページ要素, hideEl: 隠すページ要素
-     fromDir: 'right'(次へ) or 'left'(前へ) */
-  const startX = fromDir === 'right' ? '100%' : '-100%';
-  const hideX  = fromDir === 'right' ? '-100%' : '100%';
+  /* fromDir: 'right'(次へ) or 'left'(前へ)
+     次へ: 現在ページが左に消え、新ページが右から来る
+     前へ: 現在ページが右に消え、新ページが左から来る */
+  const showStartX = fromDir === 'right' ? '100%'  : '-100%';
+  const hideEndX   = fromDir === 'right' ? '-30%'  : '30%';
+  const ease = `transform ${SP_ANI_DUR}ms cubic-bezier(0.25,0.46,0.45,0.94), opacity ${SP_ANI_DUR}ms ease`;
 
-  /* 隠れる側を即座に画面外へ */
-  hideEl.style.transform  = hideX;
-  hideEl.style.opacity    = '0';
-
-  /* 表示側を開始位置に置いてからアニメ */
+  /* 両ページを現在位置に固定（transition:none） */
+  hideEl.style.transition = 'none';
+  hideEl.style.transform  = 'translateX(0)';
+  hideEl.style.opacity    = '1';
   showEl.style.transition = 'none';
-  showEl.style.transform  = startX;
-  showEl.style.opacity    = '0.2';
+  showEl.style.transform  = showStartX;
+  showEl.style.opacity    = '0';
 
-  /* 1フレーム後にアニメ開始 */
+  /* 2フレーム後にアニメ開始 */
   requestAnimationFrame(()=>{
     requestAnimationFrame(()=>{
-      showEl.style.transition = `transform ${SP_ANI_DUR}ms cubic-bezier(0.25,0.46,0.45,0.94), opacity ${SP_ANI_DUR}ms ease`;
+      /* 現在ページをスライドアウト */
+      hideEl.style.transition = ease;
+      hideEl.style.transform  = hideEndX;
+      hideEl.style.opacity    = '0';
+      /* 新ページをスライドイン */
+      showEl.style.transition = ease;
       showEl.style.transform  = 'translateX(0)';
       showEl.style.opacity    = '1';
     });
