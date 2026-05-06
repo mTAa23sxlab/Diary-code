@@ -1103,6 +1103,54 @@ body{
   overflow:hidden;
 }
 
+
+/* ─ turn.js: 左ページのめくりUIを完全に非表示 ─ */
+/* 左ページ（偶数）のコーナー折り返しを隠す */
+#flipbook .page:nth-child(even) .corner,
+#flipbook .page:nth-child(even) .cr,
+#flipbook .page:nth-child(even) .cl{
+  display:none !important;
+  pointer-events:none !important;
+}
+/* turn.jsが生成するb-shadowも左側は非表示 */
+#flipbook .b-shadow-f{
+  display:none !important;
+}
+/* ページめくりのホバー時の折り目を右側のみに */
+#flipbook .page.p{
+  cursor:default;
+}
+
+
+/* ─ turn.js コーナー制御 ─ */
+/* 左ページ（偶数インデックス）のコーナーを完全無効化 */
+#flipbook [page]:nth-child(even){
+  pointer-events:none;
+}
+#flipbook [page]:nth-child(odd){
+  pointer-events:auto;
+}
+/* ただし右ページ（奇数）のコンテンツはクリック可能に */
+#flipbook [page]:nth-child(odd) .page-content{
+  pointer-events:auto;
+}
+
+
+/* ─ turn.js 左ページのめくりを無効化 ─ */
+/* 偶数ページ（左ページ）のインタラクションを無効 */
+#flipbook .page-wrapper:nth-child(even){
+  pointer-events:none !important;
+}
+/* 奇数ページ（右ページ）のみめくれる */
+#flipbook .page-wrapper:nth-child(odd){
+  pointer-events:auto;
+}
+/* gradientシャドウも右側のみ */
+#flipbook .b-shadow-f,
+#flipbook .b-shadow-b{
+  pointer-events:none !important;
+}
+
 </style>
 <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
 <script src="js/turn.js"></script>
@@ -1147,8 +1195,8 @@ body{
               <div class="page page-left"  id="pageLeft"></div>
               <div class="page page-right" id="pageRight"></div>
             </div>
-            <!-- 綴じ目（常に表示） -->
-            <div class="spine" id="spineEl"></div>
+            <!-- 綴じ目（表紙タップ後に表示） -->
+            <div class="spine" id="spineEl" style="display:none;"></div>
 
             <!-- CSS 3D めくりパネル（SP用） -->
             <div class="flip-panel" id="flipPanel">
@@ -1292,8 +1340,7 @@ function initTurnJs(){
     duration: 700,
     page: 2,
     direction: 'ltr',
-    turnCorners: 'bl,br,tl,tr',
-    peel: false,
+    turnCorners: 'br,tr',
     when: {
       turned: function(e, page){
         console.log('turned: page='+page);
@@ -1352,6 +1399,7 @@ function openBook(){
   function revealBook(){
     if(done)return; done=true;
     cover.style.display='none';
+    document.getElementById('spineEl').style.display='block';
     yearRow.classList.add('open');
     monthCol.classList.add('open');
     navRow.classList.add('open');
