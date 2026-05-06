@@ -1236,22 +1236,22 @@ function initTurnJs(){
   if(turnInitialized || typeof $ === 'undefined' || !$.fn.turn) return;
   const bookEl = document.getElementById('book');
   const w = bookEl.offsetWidth;
-  /* aspect-ratio:4/3 なので高さを計算
-     ただし offsetHeight が0の場合は計算で求める */
   const h = bookEl.offsetHeight > 0 ? bookEl.offsetHeight : Math.round(w * 3/4);
   const flipbook = document.getElementById('flipbook');
 
-  /* 全ページのdivを生成
-     先頭に空のdiv(page1)を挿入して、以降を見開きに揃える
-     page1=空, page2=PAGES[0].left, page3=PAGES[0].right,
-     page4=PAGES[1].left, page5=PAGES[1].right, ... */
-  $(flipbook).empty();
-  /* page1: 空ページ（turn.jsの表紙用） */
-  const emptyDiv = document.createElement('div');
-  emptyDiv.className = 'page';
-  emptyDiv.style.background = 'transparent';
-  flipbook.appendChild(emptyDiv);
+  /* turn.jsを初期化する前にdisplay:blockにする */
+  flipbook.style.display = 'block';
+  flipbook.innerHTML = '';
 
+  console.log('[turn.js init] w='+w+' h='+h+' pages='+PAGES.length);
+
+  /* page1: 空ページ（turn.jsは最初のページを右側単独で表示する）
+     空divを置くことでpage2以降が正しく左右ペアになる */
+  const ph = document.createElement('div');
+  ph.className = 'page';
+  flipbook.appendChild(ph);
+
+  /* page2,3=PAGES[0].left/right, page4,5=PAGES[1].left/right ... */
   PAGES.forEach((pg, i) => {
     const {left, right} = getPageHTML(i);
     /* 左ページ（奇数: i*2+1） */
@@ -1281,10 +1281,11 @@ function initTurnJs(){
     acceleration: true,
     gradients: true,
     duration: 700,
-    page: 2,  /* page2から開始: 最初の見開きを左右両方表示 */
+    page: 2,
     direction: 'ltr',
     when: {
       turned: function(e, page){
+        console.log('turned: page='+page);
         /* page2開始: 見開きインデックス = Math.floor((page-2)/2) */
         const ni = Math.max(0, Math.floor((page - 2) / 2));
         if(ni !== idx){
@@ -1300,7 +1301,6 @@ function initTurnJs(){
   /* pagesWrapを非表示にしてflipbookを表示 */
   document.getElementById('pagesWrap').style.display = 'none';
   $(flipbook).css({
-    display: 'block',
     width: w + 'px',
     height: h + 'px',
     position: 'absolute',
@@ -1314,7 +1314,7 @@ function initTurnJs(){
 /* PCのgo()をturn.jsで上書き */
 function goPC(ni){
   if(turnInitialized){
-    /* page2開始: 見開きniの左ページ = ni*2 + 2 */
+    /* page2開始: 見開きni → page = ni*2 + 2 */
     const turnPage = ni * 2 + 2;
     $(document.getElementById('flipbook')).turn('page', turnPage);
   }
