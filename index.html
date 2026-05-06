@@ -1206,8 +1206,8 @@ cover.addEventListener('click',openBook);
 function openBook(){
   if(bookOpen)return;
   bookOpen=true;
+  /* SP: renderPage前に右ページを画面外に隠す（一瞬表示されるのを防ぐ） */
   if(MOBILE()){
-    /* SP: renderPage前に右ページを画面外に隠す */
     pageRight.style.transition='none';
     pageRight.style.transform='translateX(100%)';
     pageRight.style.opacity='0';
@@ -1217,12 +1217,8 @@ function openBook(){
     spSide='left';
     document.getElementById('book').classList.add('show-left');
     document.getElementById('book').classList.remove('show-right');
-    renderPage(0); updateUI();
-  } else {
-    /* PC: pagesWrapは使わない。turn.js初期化まで何も見せない */
-    document.getElementById('pagesWrap').style.display='none';
-    updateUI();
   }
+  renderPage(0); updateUI();
   cover.classList.add('closing');
   let done=false;
   function revealBook(){
@@ -1245,14 +1241,16 @@ function openBook(){
       document.getElementById('book').classList.remove('show-right');
       syncSp();
     } else {
-      /* PC: bookを透明にしてturn.jsを初期化、完了後フェードイン */
-      const bookEl = document.getElementById('book');
-      bookEl.style.opacity = '0';
+      /* PC: turn.jsを初期化
+         requestAnimationFrameを2回挟んでレイアウト確定後に実行 */
+      /* jQueryのreadyを待ってから初期化 */
       if(typeof jQuery !== 'undefined'){
         jQuery(function(){ initTurnJs(); });
       } else {
+        /* フォールバック: 少し待ってリトライ */
         setTimeout(()=>{
           if(typeof jQuery !== 'undefined') initTurnJs();
+          else console.error('[initTurnJs] jQuery still not available');
         }, 300);
       }
     }
@@ -1495,12 +1493,6 @@ function initTurnJs(){
 
   turnInitialized = true;
   console.log('[turn.js] initialized successfully, page='+$(fb).turn('page'));
-
-  /* bookをフェードイン（初期化完了後に表示） */
-  const bookEl3 = document.getElementById('book');
-  bookEl3.style.transition = 'opacity 0.25s ease';
-  bookEl3.style.opacity = '1';
-  setTimeout(()=>{ bookEl3.style.transition = ''; }, 300);
 
   /* 初期表示: page1（空）をスキップしてpage2へアニメなしでジャンプ
      data().opts.durationを直接0にして即時移動後に元に戻す */
