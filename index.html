@@ -15,7 +15,8 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="推し活日記 — いずれ菖蒲か杜若 2nd Anniversary Memory Book">
 <meta name="twitter:description" content="いずれ菖蒲か杜若のデビュー2周年を記念した個人制作のファン活動サイトです。">
-<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+<script src="js/jquery.min.js"></script>
+<script src="js/jquery-migrate.min.js"></script>
 <script src="js/turn.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Zen+Kurenaido&display=swap" rel="stylesheet">
@@ -265,7 +266,7 @@ body{
 /* 綴じ目 */
 .spine{
   position:absolute;left:50%;top:0;transform:translateX(-50%);
-  width:14px;height:100%;z-index:9999;pointer-events:none;
+  width:14px;height:100%;z-index:100;pointer-events:none;
   background:linear-gradient(90deg,
     #9888c4 0%,#b0a4d8 15%,#d0c8ec 40%,#e0daf4 50%,
     #d0c8ec 60%,#b0a4d8 85%,#9888c4 100%
@@ -1110,11 +1111,7 @@ body{
   display:none !important;
   pointer-events:none !important;
 }
-/* ページへの直接ドラッグを無効化（ボタン・スライダーのみ） */
-#flipbook .page,
-#flipbook .page-wrapper{
-  pointer-events:none !important;
-}
+/* ページ内リンクはクリック可能 */
 #flipbook .page a,
 #flipbook .page .clickable{
   pointer-events:auto;
@@ -1494,8 +1491,17 @@ function initTurnJs(){
     elevation: 100,
     duration: 1000,
     direction: 'rtl',
+    turnCorners: '',
     when: {
+      turning: function(e, page){
+        /* めくり中: spineを隠す（めくりページが綴じ目の下をくぐらないよう） */
+        const sp = document.getElementById('spineEl');
+        if(sp) sp.style.display = 'none';
+      },
       turned: function(e, page){
+        /* めくり完了: spineを再表示 */
+        const sp = document.getElementById('spineEl');
+        if(sp) sp.style.display = 'block';
         /* rtl page1スタート: 見開きidx = ceil(page/2) - 1 */
         const ni = Math.max(0, Math.ceil(page / 2) - 1);
         idx = ni;
