@@ -222,12 +222,12 @@ body{
   position:relative;
   perspective:2400px;
   border-radius:4px 10px 10px 4px;
-  overflow:visible; /* spineを表示するためvisibleに変更 */
+  overflow:visible; /* turn.jsめくりアニメがはみ出るためvisible */
   box-shadow:0 16px 48px rgba(60,40,110,0.28),0 4px 10px rgba(60,40,110,0.16);
 }
-/* book-outerでクリップ */
+/* book-outerもvisible: turn.jsのめくりが外にはみ出るため */
 .book-outer{
-  overflow:visible; /* turn.jsのめくりが外にはみ出るためvisibleに */
+  overflow:visible;
   border-radius:4px 10px 10px 4px;
 }
 
@@ -265,10 +265,8 @@ body{
   box-shadow:inset 8px 0 16px rgba(80,55,130,0.08);
 }
 
-/* 綴じ目
-   book-area基準で絶対配置。
-   JS(initTurnJs)でPC時の正確な位置・サイズを上書きする。
-   SP時はbook-areaの高さ100%に広がる（bookと同じサイズになる）。 */
+/* 綴じ目: bookの直接子として中央に絶対配置
+   z-index:9999でturn.jsの全要素より上に表示 */
 .spine{
   position:absolute;
   left:50%;top:0;
@@ -1110,38 +1108,28 @@ body{
 }
 
 
-/* ─ turn.js コーナー折り返し制御 ─ */
-/* すべてのコーナーUIを一旦消す */
+/* ─ turn.js: コーナー・シャドウ完全無効化 ─ */
 #flipbook .corner,
 #flipbook .cr,
-#flipbook .cl{
-  display:none !important;
-  pointer-events:none !important;
-}
-/* 右ページ（奇数: page1=空, page3,5,7...=右ページ）の右下コーナーのみ表示 */
-/* turn.jsはcorner要素に .c-b-r / .c-t-r などのクラスを付与する */
-#flipbook .page:nth-child(odd) .corner.c-b-r{
-  display:block !important;
-  pointer-events:auto !important;
-}
-/* 左ページ（偶数）は完全に操作無効 */
-#flipbook .page:nth-child(even){
-  pointer-events:none !important;
-}
-/* 右ページは操作有効 */
-#flipbook .page:nth-child(odd){
-  pointer-events:auto;
-}
-#flipbook .page:nth-child(odd) .page-content{
-  pointer-events:auto;
-}
-/* b-shadow は非表示 */
-#flipbook .b-shadow-f{
-  display:none !important;
-}
+#flipbook .cl,
 #flipbook .b-shadow-f,
-#flipbook .b-shadow-b{
+#flipbook .b-shadow-b,
+#flipbook .shadow{
+  display:none !important;
   pointer-events:none !important;
+}
+/* ページへの直接ドラッグ・クリックを無効化
+   （めくり操作はボタン/スライダーのみ。SP swipeはturn.js外で管理） */
+#flipbook .page,
+#flipbook .page-wrapper{
+  pointer-events:none !important;
+  cursor:default !important;
+}
+/* ページ内のリンク等はクリック可能にする */
+#flipbook .page a,
+#flipbook .page button,
+#flipbook .page .clickable{
+  pointer-events:auto;
 }
 
 </style>
@@ -1183,6 +1171,9 @@ body{
             <!-- turn.js フリップブック（PC用） -->
             <div id="flipbook" style="display:none;position:absolute;top:0;left:0;z-index:10;"></div>
 
+            <!-- 綴じ目（turn.jsより上のz-indexで常に表示） -->
+            <div class="spine" id="spineEl" style="display:none;"></div>
+
             <!-- ページ（SP用・PC初期表示） -->
             <div class="pages-wrap" id="pagesWrap">
               <div class="page page-left"  id="pageLeft"></div>
@@ -1219,9 +1210,6 @@ body{
             </div>
           </div>
         </div>
-
-        <!-- 綴じ目: book-area基準で絶対配置（turn.jsの重ね順から独立） -->
-        <div class="spine" id="spineEl" style="display:none;"></div>
 
         <button class="side-btn side-btn-right hidden" id="btnNext" aria-label="次のページ">
           <div class="side-btn-inner">▶</div>
@@ -1282,23 +1270,6 @@ const flipShadow = document.getElementById('flipShadow');
 cover.addEventListener('click',openBook);
 /* ─── turn.js初期化（PC用） ─────────────────── */
 let turnInitialized = false;
-/* 左ページ・空ページのコーナーUIを非表示にする（グローバル関数） */
-function suppressLeftCorners(){
-  const flipbook = document.getElementById('flipbook');
-  if(!flipbook) return;
-  const pages = flipbook.querySelectorAll('.page');
-  pages.forEach((pg, i) => {
-    /* 0-based: i=0は空ページ, i=1,3,5...が左ページ, i=2,4,6...が右ページ */
-    const isRightPage = (i % 2 === 0) && i > 0;
-    if(!isRightPage){
-      pg.querySelectorAll('.corner, .cr, .cl').forEach(el => {
-        el.style.display = 'none';
-        el.style.pointerEvents = 'none';
-      });
-    }
-  });
-}
-
 function initTurnJs(){
   if(turnInitialized || typeof $ === 'undefined' || !$.fn.turn) return;
   const bookEl = document.getElementById('book');
@@ -1310,35 +1281,27 @@ function initTurnJs(){
   flipbook.style.display = 'block';
   flipbook.innerHTML = '';
 
-  console.log('[turn.js init] w='+w+' h='+h+' pages='+PAGES.length);
+  /* rtl double mode のページ順:
+     page1=PAGES[0].right（表紙右・単独表示）
+     page2=PAGES[0].left, page3=PAGES[1].right（見開き）
+     page4=PAGES[1].left, page5=PAGES[2].right ...
+     → 各見開きi: 右ページ=page(i*2+1), 左ページ=page(i*2+2)
+     → 空ページ不要 */
+  function makePageDiv(html){
+    const d = document.createElement('div');
+    d.className = 'page';
+    const c = document.createElement('div');
+    c.className = 'page-content';
+    c.style.cssText = 'width:100%;height:100%;box-sizing:border-box;overflow:hidden;padding:clamp(10px,1.6vw,20px) clamp(12px,1.8vw,22px);';
+    c.innerHTML = html;
+    d.appendChild(c);
+    return d;
+  }
 
-  /* page1: 空ページ（turn.jsは最初のページを右側単独で表示する）
-     空divを置くことでpage2以降が正しく左右ペアになる */
-  const ph = document.createElement('div');
-  ph.className = 'page';
-  flipbook.appendChild(ph);
-
-  /* page2,3=PAGES[0].left/right, page4,5=PAGES[1].left/right ... */
   PAGES.forEach((pg, i) => {
     const {left, right} = getPageHTML(i);
-    /* 左ページ（奇数: i*2+1） */
-    const lDiv = document.createElement('div');
-    lDiv.className = 'page';
-    const lContent = document.createElement('div');
-    lContent.className = 'page-content';
-    lContent.style.cssText = 'width:100%;height:100%;box-sizing:border-box;overflow:hidden;padding:clamp(10px,1.6vw,20px) clamp(12px,1.8vw,22px);';
-    lContent.innerHTML = left;
-    lDiv.appendChild(lContent);
-    flipbook.appendChild(lDiv);
-    /* 右ページ（偶数: i*2+2） */
-    const rDiv = document.createElement('div');
-    rDiv.className = 'page';
-    const rContent = document.createElement('div');
-    rContent.className = 'page-content';
-    rContent.style.cssText = 'width:100%;height:100%;box-sizing:border-box;overflow:hidden;padding:clamp(10px,1.6vw,20px) clamp(12px,1.8vw,22px);';
-    rContent.innerHTML = right;
-    rDiv.appendChild(rContent);
-    flipbook.appendChild(rDiv);
+    flipbook.appendChild(makePageDiv(right)); /* 右ページ先 */
+    flipbook.appendChild(makePageDiv(left));  /* 左ページ後 */
   });
 
   $(flipbook).turn({
@@ -1346,26 +1309,20 @@ function initTurnJs(){
     height: h,
     display: 'double',
     acceleration: true,
-    gradients: true,
-    duration: 700,
-    page: 2,
-    direction: 'ltr',
-    turnCorners: 'br',
+    gradients: false,
+    duration: 800,
+    page: 1,
+    direction: 'rtl',
     when: {
       turned: function(e, page){
-        /* page2開始: 見開きインデックス = Math.floor((page-2)/2) */
-        const ni = Math.max(0, Math.floor((page - 2) / 2));
-        /* idxをturn.jsの実際のページに同期（go()での先行書き換えを上書き） */
+        /* rtl + page1スタート: 見開きインデックス計算
+           page1=PAGES[0]右, page2=PAGES[0]左+PAGES[1]右, ...
+           見開きidx = Math.ceil(page/2) - 1 */
+        const ni = Math.max(0, Math.ceil(page / 2) - 1);
         idx = ni;
         const p = PAGES[idx];
         if(p && p.type==='month'){curYear=p.year;curMonth=p.month;}
         renderYearTabs(); renderMonthTabs(); updateUI();
-        /* 左ページのコーナーUIを毎回消す */
-        suppressLeftCorners();
-      },
-      turning: function(e, page){
-        /* めくり中も左コーナーを抑制 */
-        setTimeout(suppressLeftCorners, 50);
       }
     }
   });
@@ -1381,40 +1338,29 @@ function initTurnJs(){
   turnInitialized = true;
   bookEl.style.overflow = 'visible';
 
-  /* 綴じ目: book-area内の独立要素として表示・サイズをbookに合わせる */
+  /* 綴じ目を表示（bookの直接子・z-index:9999で常に最前面） */
   const spineEl = document.getElementById('spineEl');
-  if(spineEl){
-    spineEl.style.display = 'block';
-    /* bookの位置に合わせてspineを重ねる */
-    const bookRect = bookEl.getBoundingClientRect();
-    const areaRect = bookEl.closest('.book-area').getBoundingClientRect();
-    spineEl.style.top  = (bookRect.top  - areaRect.top)  + 'px';
-    spineEl.style.left = (bookRect.left - areaRect.left + bookRect.width/2 - 7) + 'px';
-    spineEl.style.height = bookRect.height + 'px';
-    spineEl.style.transform = 'none';
-  }
+  if(spineEl) spineEl.style.display = 'block';
 
-  /* 初回コーナー抑制 */
-  setTimeout(suppressLeftCorners, 100);
 }
 
 /* PCのgo()をturn.jsで上書き */
 function goPC(ni){
   if(!turnInitialized) return;
   const fb = $(document.getElementById('flipbook'));
-  const targetPage = ni * 2 + 2; /* page2開始: 見開きni → page = ni*2+2 */
+  /* rtl + page1スタート: 見開きni → right page = ni*2+1 */
+  const targetPage = ni * 2 + 1;
   const currentPage = fb.turn('page');
   if(targetPage === currentPage) return;
-  /* 隣接1ページはアニメ付き、複数ページ飛ぶ場合は直接ジャンプ */
   const diff = Math.abs(targetPage - currentPage);
   if(diff <= 2){
+    /* rtl: next=ページ番号が増える方向（左へめくる）, previous=右へ戻る */
     if(targetPage > currentPage){
       fb.turn('next');
     } else {
       fb.turn('previous');
     }
   } else {
-    /* 複数見開き飛ばし: アニメなしで直接移動 */
     fb.turn('page', targetPage);
   }
 }
@@ -1443,10 +1389,8 @@ function openBook(){
     yearRow.classList.add('open');
     monthCol.classList.add('open');
     navRow.classList.add('open');
-    /* 綴じ目表示（SP: CSSレイアウト、PC: initTurnJsで位置調整） */
-    if(!MOBILE()){
-      /* PCはinitTurnJs完了後に表示するため、ここでは何もしない */
-    } else {
+    /* 綴じ目表示（SP: ここで表示、PC: initTurnJs内で表示） */
+    if(MOBILE()){
       const spineEl=document.getElementById('spineEl');
       if(spineEl) spineEl.style.display='block';
     }
