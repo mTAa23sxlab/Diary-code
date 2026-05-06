@@ -1014,36 +1014,34 @@ body{
     will-change:transform;
   }
   .spine{display:none !important;}
-  /* デフォルト: 両ページを表示位置に */
-  .page-left, .page-right{transform:translateX(0);opacity:1;}
-  /* show-left: 左ページのみ表示（右は右に隠れる） */
+  /* show-left: 左ページ表示（右ページは右に隠れる） */
   .book.show-left .page-left{transform:translateX(0) !important;opacity:1 !important;}
   .book.show-left .page-right{transform:translateX(100%) !important;opacity:0 !important;pointer-events:none !important;}
-  /* show-right: 右ページのみ表示（左は左に隠れる） */
+  /* show-right: 右ページ表示（左ページは左に隠れる） */
   .book.show-right .page-right{transform:translateX(0) !important;opacity:1 !important;}
   .book.show-right .page-left{transform:translateX(-100%) !important;opacity:0 !important;pointer-events:none !important;}
-  /* slide-forward: 次へ（現在が左に、新が右から来る） */
-  .book.slide-out-left .page-left{transform:translateX(-100%) !important;opacity:0 !important;}
-  .book.slide-in-right .page-right{animation:slideInRight 0.35s ease forwards;}
-  /* slide-back: 前へ（現在が右に、新が左から来る） */
-  .book.slide-out-right .page-right{transform:translateX(100%) !important;opacity:0 !important;}
-  .book.slide-in-left .page-left{animation:slideInLeft 0.35s ease forwards;}
-  @keyframes slideInRight{from{transform:translateX(100%);opacity:0;}to{transform:translateX(0);opacity:1;}}
-  @keyframes slideInLeft{from{transform:translateX(-100%);opacity:0;}to{transform:translateX(0);opacity:1;}}
+  /* 次へ方向クラス: 新ページを一旦右に配置してから0に戻す */
+  .book.dir-next.show-right .page-right{animation:slideFromRight 0.35s cubic-bezier(0.25,0.46,0.45,0.94) forwards !important;}
+  .book.dir-next.show-left .page-left{animation:slideFromRight 0.35s cubic-bezier(0.25,0.46,0.45,0.94) forwards !important;}
+  /* 前へ方向クラス: 新ページを一旦左に配置してから0に戻す */
+  .book.dir-prev.show-left .page-left{animation:slideFromLeft 0.35s cubic-bezier(0.25,0.46,0.45,0.94) forwards !important;}
+  .book.dir-prev.show-right .page-right{animation:slideFromLeft 0.35s cubic-bezier(0.25,0.46,0.45,0.94) forwards !important;}
+  @keyframes slideFromRight{from{transform:translateX(100%);opacity:0;}to{transform:translateX(0);opacity:1;}}
+  @keyframes slideFromLeft{from{transform:translateX(-100%);opacity:0;}to{transform:translateX(0);opacity:1;}}
   /* flipパネル: SP時は非表示（CSSで切り替え、アニメなし） */
   .flip-panel{display:none !important;}
   /* ページ余白 */
   .page{padding:4vw 5vw !important;}
   /* ミニ本 */
   .guide-book{width:clamp(55px,15vw,90px) !important;}
-  .toc-year-tab-mini{font-size:clamp(5px,1.5vw,7.5px);padding:1px 4px 2px;margin-left:clamp(14px,4vw,26px);}
+  .toc-year-tab-mini{font-size:clamp(4.5px,1.3vw,6.5px);padding:1px 3px 2px;margin-left:clamp(12px,3.5vw,22px);}
   .toc-month-tab-mini{font-size:clamp(5px,1.5vw,7.5px);padding:1px 2px;}
   .toc-guide-row{flex-direction:row;gap:2vw;align-items:flex-start;}
   .toc-how-ops{font-size:2.5vw !important;line-height:1.8;padding-top:clamp(14px,4vw,20px) !important;}
   /* テキストフォント */
   .toc-book-title{font-size:2.8vw;}
   .toc-title{font-size:2.8vw;margin-bottom:1.5vw;}
-  .toc-notice{font-size:2.2vw;line-height:1.65;}
+  .toc-notice{font-size:2vw;line-height:1.6;overflow:hidden;}
   .toc-notice a{font-size:2vw;}
   .toc-how-title{font-size:2.8vw;}
   .toc-divider{margin:1.5vw 0;}
@@ -1063,6 +1061,24 @@ body{
   .pickup-message{font-size:2.8vw;line-height:1.9;}
   .pickup-fanmark{font-size:6.5vw;}
   .side-btn{width:30px;}
+
+  /* Notice/How to Use の高さ調整 */
+  .toc-notice-block{
+    max-height:45% !important;
+    overflow:hidden !important;
+    flex-shrink:0 !important;
+  }
+  .toc-how-block{
+    flex:1 !important;
+    min-height:0 !important;
+    overflow:hidden !important;
+  }
+  .toc-left-new{
+    height:100%;
+    display:flex !important;
+    flex-direction:column !important;
+    overflow:hidden !important;
+  }
 }
 
 </style>
@@ -1546,18 +1562,21 @@ document.addEventListener('keydown',e=>{
 let spSide = 'left'; /* 'left' or 'right' */
 const MOBILE = () => window.innerWidth <= 600;
 
+let spDir = 'next'; /* 最後のページ移動方向 */
 function syncSp(){
   const book = document.getElementById('book');
   if(!MOBILE()){
-    book.classList.remove('show-left','show-right');
+    book.classList.remove('show-left','show-right','dir-next','dir-prev');
     slider.max = PAGES.length - 1;
     return;
   }
-  /* 現在のクラスを削除してから再設定（確実にtransitionが走る） */
-  book.classList.remove('show-left','show-right');
-  /* 1フレーム後に設定（transitionが確実に発火するため） */
+  /* クラスをリセットして再設定 */
+  book.classList.remove('show-left','show-right','dir-next','dir-prev');
   requestAnimationFrame(()=>{
     book.classList.add(spSide === 'left' ? 'show-left' : 'show-right');
+    book.classList.add(spDir === 'next' ? 'dir-next' : 'dir-prev');
+    /* アニメ完了後にdirクラスを削除 */
+    setTimeout(()=>book.classList.remove('dir-next','dir-prev'), 400);
   });
   /* スライダー: 1ページ単位 */
   slider.max = PAGES.length * 2 - 1;
@@ -1594,12 +1613,11 @@ function spSlide(toSide, newIdx, dir){
 }
 
 function spNext(){
+  spDir = 'next'; /* 次へ: 新ページが右から来る */
   if(spSide === 'left'){
-    /* 左→右ページ: 右からスライドイン */
     spSide = 'right';
     syncSp(); updateUI();
   } else if(idx < PAGES.length - 1){
-    /* 次の見開き左ページへ: 右からスライドイン */
     idx++;
     const p = PAGES[idx];
     if(p.type === 'month'){ curYear = p.year; curMonth = p.month; }
@@ -1610,12 +1628,11 @@ function spNext(){
 }
 
 function spPrev(){
+  spDir = 'prev'; /* 前へ: 新ページが左から来る */
   if(spSide === 'right'){
-    /* 右→左ページ: 左からスライドイン */
     spSide = 'left';
     syncSp(); updateUI();
   } else if(idx > 0){
-    /* 前の見開き右ページへ: 左からスライドイン */
     idx--;
     const p = PAGES[idx];
     if(p.type === 'month'){ curYear = p.year; curMonth = p.month; }
