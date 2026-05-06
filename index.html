@@ -990,7 +990,7 @@ body{
 .loading-sub{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:clamp(10px,1.4vw,14px);color:#8878b8;letter-spacing:.2em;}
 .loading-dot{position:relative;width:10px;height:10px;border-radius:5px;background:transparent;color:transparent;box-shadow:0 -22px 0 0 #9888c4,15.56px -15.56px 0 0 #9888c4,22px 0 0 0 #9888c4,15.56px 15.56px 0 0 rgba(152,136,196,0),0 22px 0 0 rgba(152,136,196,0),-15.56px 15.56px 0 0 rgba(152,136,196,0),-22px 0 0 0 rgba(152,136,196,0),-15.56px -15.56px 0 0 rgba(152,136,196,0);animation:loading-spin 1.5s infinite linear;}
 @keyframes loading-spin{0%,100%{box-shadow:0 -22px 0 0 #9888c4,15.56px -15.56px 0 0 #9888c4,22px 0 0 0 #9888c4,15.56px 15.56px 0 -5px rgba(152,136,196,0),0 22px 0 -5px rgba(152,136,196,0),-15.56px 15.56px 0 -5px rgba(152,136,196,0),-22px 0 0 -5px rgba(152,136,196,0),-15.56px -15.56px 0 -5px rgba(152,136,196,0);}12.5%{box-shadow:0 -22px 0 -5px rgba(152,136,196,0),15.56px -15.56px 0 0 #9888c4,22px 0 0 0 #9888c4,15.56px 15.56px 0 0 #9888c4,0 22px 0 -5px rgba(152,136,196,0),-15.56px 15.56px 0 -5px rgba(152,136,196,0),-22px 0 0 -5px rgba(152,136,196,0),-15.56px -15.56px 0 -5px rgba(152,136,196,0);}25%{box-shadow:0 -22px 0 -5px rgba(152,136,196,0),15.56px -15.56px 0 -5px rgba(152,136,196,0),22px 0 0 0 #9888c4,15.56px 15.56px 0 0 #9888c4,0 22px 0 0 #9888c4,-15.56px 15.56px 0 -5px rgba(152,136,196,0),-22px 0 0 -5px rgba(152,136,196,0),-15.56px -15.56px 0 -5px rgba(152,136,196,0);}37.5%{box-shadow:0 -22px 0 -5px rgba(152,136,196,0),15.56px -15.56px 0 -5px rgba(152,136,196,0),22px 0 0 -5px rgba(152,136,196,0),15.56px 15.56px 0 0 #9888c4,0 22px 0 0 #9888c4,-15.56px 15.56px 0 0 #9888c4,-22px 0 0 -5px rgba(152,136,196,0),-15.56px -15.56px 0 -5px rgba(152,136,196,0);}50%{box-shadow:0 -22px 0 -5px rgba(152,136,196,0),15.56px -15.56px 0 -5px rgba(152,136,196,0),22px 0 0 -5px rgba(152,136,196,0),15.56px 15.56px 0 -5px rgba(152,136,196,0),0 22px 0 0 #9888c4,-15.56px 15.56px 0 0 #9888c4,-22px 0 0 0 #9888c4,-15.56px -15.56px 0 -5px rgba(152,136,196,0);}62.5%{box-shadow:0 -22px 0 -5px rgba(152,136,196,0),15.56px -15.56px 0 -5px rgba(152,136,196,0),22px 0 0 -5px rgba(152,136,196,0),15.56px 15.56px 0 -5px rgba(152,136,196,0),0 22px 0 -5px rgba(152,136,196,0),-15.56px 15.56px 0 0 #9888c4,-22px 0 0 0 #9888c4,-15.56px -15.56px 0 0 #9888c4;}75%{box-shadow:0 -22px 0 0 #9888c4,15.56px -15.56px 0 -5px rgba(152,136,196,0),22px 0 0 -5px rgba(152,136,196,0),15.56px 15.56px 0 -5px rgba(152,136,196,0),0 22px 0 -5px rgba(152,136,196,0),-15.56px 15.56px 0 -5px rgba(152,136,196,0),-22px 0 0 0 #9888c4,-15.56px -15.56px 0 0 #9888c4;}87.5%{box-shadow:0 -22px 0 0 #9888c4,15.56px -15.56px 0 0 #9888c4,22px 0 0 -5px rgba(152,136,196,0),15.56px 15.56px 0 -5px rgba(152,136,196,0),0 22px 0 -5px rgba(152,136,196,0),-15.56px 15.56px 0 -5px rgba(152,136,196,0),-22px 0 0 -5px rgba(152,136,196,0),-15.56px -15.56px 0 0 #9888c4;}}
-.site-main{opacity:0;transition:opacity .5s ease;}
+.site-main{opacity:0;transition:opacity .5s ease;visibility:visible;}
 .site-main.loaded{opacity:1;}
 /* ════ スマホ横向き警告 ════ */
 #orientation-lock{display:none;position:fixed;inset:0;background:linear-gradient(135deg,#ede4fa,#cfc0ec);z-index:999999;align-items:center;justify-content:center;flex-direction:column;gap:clamp(12px,2vw,20px);text-align:center;padding:20px;}
@@ -1607,16 +1607,19 @@ $(window).on('resize', function(){
 
 }); // $(document).ready end
 
-/* ─── ローディング画面（ready外で確実に実行） ─── */
+/* ─── ローディング画面 ─── */
 (function(){
-  const ls=document.getElementById('loading-screen');
-  const sm=document.getElementById('siteMain');
-  let done=false;
-  function hide(){if(done)return;done=true;ls.classList.add('hidden');sm.classList.add('loaded');}
-  /* 最大2秒でフェードアウト */
-  const t=setTimeout(hide,2000);
-  if(document.fonts&&document.fonts.ready){
-    document.fonts.ready.then(()=>{clearTimeout(t);setTimeout(hide,300);});
+  function hideLoading(){
+    var ls = document.getElementById('loading-screen');
+    var sm = document.getElementById('siteMain');
+    if(ls){ ls.style.opacity='0'; ls.style.visibility='hidden'; ls.style.pointerEvents='none'; }
+    if(sm){ sm.style.opacity='1'; }
+  }
+  /* 500ms後に強制的に非表示 */
+  setTimeout(hideLoading, 500);
+  /* フォント読み込み完了後も非表示 */
+  if(document.fonts && document.fonts.ready){
+    document.fonts.ready.then(function(){ setTimeout(hideLoading, 200); });
   }
 })();
 
