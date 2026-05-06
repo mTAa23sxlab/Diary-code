@@ -1275,14 +1275,12 @@ function initTurnJs(){
     acceleration: true,
     gradients: true,
     duration: 700,
-    page: 1,
+    page: 2,  /* page2から開始: 最初の見開きを左右両方表示 */
     direction: 'ltr',
     when: {
       turned: function(e, page){
-        /* turn.jsはpage1=右ページ単独, page2以降=見開き
-           左ページ=奇数, 右ページ=偶数
-           見開きインデックス = Math.ceil(page/2) - 1 */
-        const ni = Math.ceil(page / 2) - 1;
+        /* page2開始: 見開きインデックス = Math.floor((page-2)/2) */
+        const ni = Math.max(0, Math.floor((page - 2) / 2));
         if(ni !== idx){
           idx = ni;
           const p = PAGES[idx];
@@ -1310,8 +1308,8 @@ function initTurnJs(){
 /* PCのgo()をturn.jsで上書き */
 function goPC(ni){
   if(turnInitialized){
-    /* 見開きniの左ページ番号 = ni*2 + 1 */
-    const turnPage = ni === 0 ? 1 : ni * 2 + 1;
+    /* page2開始: 見開きniの左ページ = ni*2 + 2 */
+    const turnPage = ni * 2 + 2;
     $(document.getElementById('flipbook')).turn('page', turnPage);
   }
 }
