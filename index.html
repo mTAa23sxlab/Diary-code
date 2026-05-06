@@ -1242,10 +1242,16 @@ function initTurnJs(){
   const flipbook = document.getElementById('flipbook');
 
   /* 全ページのdivを生成
-     turn.js display:double では:
-     奇数ページ = 左ページ, 偶数ページ = 右ページ
-     見開きi → turn page (i*2+1)=左, (i*2+2)=右 */
+     先頭に空のdiv(page1)を挿入して、以降を見開きに揃える
+     page1=空, page2=PAGES[0].left, page3=PAGES[0].right,
+     page4=PAGES[1].left, page5=PAGES[1].right, ... */
   $(flipbook).empty();
+  /* page1: 空ページ（turn.jsの表紙用） */
+  const emptyDiv = document.createElement('div');
+  emptyDiv.className = 'page';
+  emptyDiv.style.background = 'transparent';
+  flipbook.appendChild(emptyDiv);
+
   PAGES.forEach((pg, i) => {
     const {left, right} = getPageHTML(i);
     /* 左ページ（奇数: i*2+1） */
