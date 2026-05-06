@@ -1470,10 +1470,12 @@ let turnInitialized = false;
 
 function initTurnJs(){
   if(turnInitialized) return;
-  if(typeof $ === 'undefined'){
+  /* $ではなくjQueryを直接参照（$が上書きされていても確実に動く） */
+  if(typeof jQuery === 'undefined'){
     console.error('[initTurnJs] jQuery not loaded');
     return;
   }
+  const $ = jQuery; /* ローカルスコープで$を確保 */
   if(!$.fn.turn){
     console.error('[initTurnJs] turn.js not loaded');
     return;
@@ -1548,6 +1550,7 @@ function initTurnJs(){
 /* PC: turn.jsでページ移動 */
 function goPC(ni){
   if(!turnInitialized) return;
+  const $ = jQuery;
   const fb = $(document.getElementById('flipbook'));
   /* rtl: 見開きni の右ページ = page(ni*2+1) */
   const target = ni * 2 + 1;
@@ -1948,7 +1951,7 @@ window.addEventListener('resize', ()=>{
         const bookEl = document.getElementById('book');
         const w = bookEl.offsetWidth;
         const h = bookEl.offsetHeight > 0 ? bookEl.offsetHeight : Math.round(w*3/4);
-        const fb = $(document.getElementById('flipbook'));
+        const fb = jQuery(document.getElementById('flipbook'));
         fb.turn('size', w, h);
         fb.css({ width: w+'px', height: h+'px' });
       }, 200);
