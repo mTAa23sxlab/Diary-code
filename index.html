@@ -1133,48 +1133,46 @@ body{
    スマホ対応（600px以下）
    月タブを上部横並びに移動してページ幅を確保
 ════════════════════════════════════════ */
+
+
+/* 超小型スマホ（360px以下） */
+
+
+
+/* ════════════════════════════════════════
+   スマホ（600px以下）: 1ページ表示モード
+   PCはそのまま見開き
+════════════════════════════════════════ */
 @media(max-width:600px){
 
-  /* ─ 全体レイアウト ─ */
+  /* ─ body: 上下paddingなし ─ */
+  body{
+    padding:0;
+    align-items:flex-start;
+  }
   .desk-surface{
-    padding:1.5vw 2vw;
-  }
-  .mid{
-    flex-direction:column !important;
+    padding:2vw 2vw 2vw;
+    border-radius:10px;
   }
 
-  /* ─ 月タブを上部横並びに変更 ─ */
+  /* ─ 年タブ: padding-leftをリセット ─ */
+  .year-row{
+    padding-left:0 !important;
+    gap:2px;
+  }
+  .year-tab{
+    font-size:clamp(9px,2.8vw,12px);
+    padding:4px 10px 8px;
+  }
+
+  /* ─ midは通常のflexのまま（JS側で1ページ切り替え） ─ */
+
+  /* ─ 月タブ: SP時は非表示（タブはページ内に埋め込む） ─ */
   .month-col{
-    display:flex !important;
-    flex-direction:row !important;
-    width:100% !important;
-    margin-right:0 !important;
-    margin-bottom:-1px !important;
-    padding:0 !important;
-    gap:1px !important;
-    overflow-x:auto;
-    flex-wrap:nowrap !important;
-    -webkit-overflow-scrolling:touch;
-    align-items:flex-end !important;
-  }
-  .month-tab{
-    flex:1 !important;
-    min-width:clamp(20px,7.5vw,36px) !important;
-    width:auto !important;
-    height:clamp(24px,6.5vw,34px) !important;
-    min-height:0 !important;
-    border-radius:4px 4px 0 0 !important;
-    font-size:clamp(7px,2.2vw,10px) !important;
-    padding:0 2px !important;
-    white-space:nowrap !important;
-    letter-spacing:-.03em;
-    margin-right:0 !important;
-    box-shadow:0 -2px 4px rgba(80,55,130,0.12);
-    /* 縦並び防止 */
-    writing-mode:horizontal-tb !important;
+    display:none !important;
   }
 
-  /* ─ 本エリア: 月タブ横並び後はbook幅を100%に ─ */
+  /* ─ 本: 1ページ幅に変更 ─ */
   .book-area{
     width:100%;
   }
@@ -1182,138 +1180,115 @@ body{
     width:100%;
   }
   .book{
-    aspect-ratio:1/1.15 !important;
+    aspect-ratio:1/1.3 !important;
   }
 
-  /* ─ ページ余白を最小に ─ */
-  .page{
-    padding:2.5vw 3vw;
+  /* ─ 1ページ表示: 左か右のどちらかのみ見せる ─ */
+  .book.sp-show-left .page-right,
+  .book.sp-show-left .flip-panel.flip-next{
+    /* 右ページを隠す */
+    opacity:0;
+    pointer-events:none;
   }
-  .fp-front,.fp-back{
-    padding:2.5vw 3vw;
-  }
-
-  /* ─ 年タブ ─ */
-  .year-row{
-    padding-left:0 !important;
-    gap:2px;
-    justify-content:flex-start;
-  }
-  .year-tab{
-    font-size:clamp(9px,2.8vw,12px);
-    padding:4px 10px 8px;
+  .book.sp-show-right .page-left,
+  .book.sp-show-right .flip-panel.flip-prev{
+    /* 左ページを隠す */
+    opacity:0;
+    pointer-events:none;
   }
 
-  /* ─ ナビ下部 ─ */
+  /* ─ ページ内タブ（SPのみ表示） ─ */
+  .sp-tab-bar{
+    display:flex;
+    flex-direction:row;
+    flex-wrap:nowrap;
+    gap:1px;
+    margin-bottom:-1px;
+    position:relative;z-index:30;
+  }
+  .sp-tab-item{
+    flex:1;
+    height:clamp(22px,6.5vw,30px);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Shippori Mincho',serif;
+    font-size:clamp(7px,2.2vw,9.5px);
+    font-weight:500;
+    white-space:nowrap;
+    border-radius:4px 4px 0 0;
+    border:none;cursor:pointer;color:#4a3a6a;
+    letter-spacing:-.03em;
+    box-shadow:-2px 0 4px rgba(80,55,130,0.1);
+  }
+  .sp-tab-item.active{font-weight:600;filter:brightness(.82);}
+  .sp-tab-item.disabled{background:#c8c4d4!important;color:#999;cursor:not-allowed;}
+
+  /* ─ nav-row: padding-leftをリセット ─ */
   .nav-row{
     padding-left:0 !important;
   }
 
-  /* ─ 目次左ページ ─ */
-  .toc-book-title{
-    font-size:clamp(8px,2.5vw,11px);
-    letter-spacing:.08em;
+  /* ─ サイドボタン ─ */
+  .side-btn{width:28px;}
+
+  /* ─ ページ内容のフォントサイズをSP最適化 ─ */
+  .page{
+    padding:3vw 3.5vw;
   }
-  .toc-title{
-    font-size:clamp(8px,2.5vw,10px);
-    padding-bottom:2px;
-    margin-bottom:clamp(4px,1.2vw,7px);
-  }
-  .toc-notice{
-    font-size:clamp(7px,2.1vw,9px);
-    line-height:1.7;
-  }
-  .toc-notice a{
-    font-size:clamp(6.5px,2vw,8.5px);
-  }
-  .toc-divider{
-    margin:clamp(4px,1.2vw,7px) 0;
-  }
-  .toc-how-title{
-    font-size:clamp(8px,2.5vw,10px);
-    margin-bottom:2px;
+  .fp-front,.fp-back{
+    padding:3vw 3.5vw;
   }
 
-  /* ─ ミニ本：スマホでは非表示 ─ */
-  .toc-minibook-wrap{
-    display:none;
+  /* 目次ページ */
+  .toc-left-new,.toc-right{
+    height:100%;
+    overflow:hidden;
   }
-  /* ミニ本なしで操作説明のみ表示 */
-  .toc-guide-row{
-    flex-direction:column;
-    gap:clamp(3px,1vw,6px);
-  }
+  .toc-book-title{font-size:clamp(8px,2.5vw,11px);}
+  .toc-title{font-size:clamp(8px,2.5vw,10px);}
+  .toc-notice{font-size:clamp(7.5px,2.2vw,9.5px);line-height:1.7;}
+  .toc-notice a{font-size:clamp(7px,2vw,9px);}
+  .toc-divider{margin:clamp(4px,1.2vw,7px) 0;}
+  .toc-how-title{font-size:clamp(8px,2.5vw,10px);}
+  .toc-minibook-wrap{display:none;}
+  .toc-guide-row{flex-direction:column;gap:2px;}
   .toc-how-ops{
-    font-size:clamp(7px,2.1vw,9px);
-    line-height:1.7;
+    font-size:clamp(7.5px,2.2vw,9.5px);
+    line-height:1.75;
     padding-top:0;
   }
-  .toc-how-desc{
-    font-size:clamp(6.5px,2vw,8.5px);
-    line-height:1.6;
-    margin-top:clamp(3px,1vw,6px);
-    padding-top:clamp(3px,1vw,6px);
-  }
+  .toc-how-desc{font-size:clamp(7px,2vw,9px);line-height:1.65;}
 
-  /* ─ 目次右ページ（2周年おめでとう）─ */
-  .ann-wrap{
-    gap:clamp(5px,1.8vw,10px);
-    padding:1vw;
-  }
-  .ann-en{
-    font-size:clamp(9px,2.8vw,13px);
-  }
+  /* 2周年おめでとう */
+  .ann-wrap{gap:clamp(5px,2vw,10px);}
+  .ann-en{font-size:clamp(10px,3vw,14px);}
   .ann-main{
-    font-size:clamp(16px,5.5vw,26px);
+    font-size:clamp(18px,6vw,28px);
+    white-space:nowrap;
     letter-spacing:.05em;
-    line-height:1.3;
-    white-space:nowrap; /* 1行に収める */
   }
-  .flower-row{
-    gap:clamp(3px,1.2vw,7px);
-    flex-wrap:nowrap;
-  }
-  .flower{
-    font-size:clamp(12px,4vw,20px);
-  }
+  .flower-row{gap:clamp(4px,1.5vw,8px);flex-wrap:nowrap;}
+  .flower{font-size:clamp(14px,5vw,22px);}
 
-  /* ─ 最終ページ ─ */
+  /* 最終ページ */
   .final-spread-l,.final-spread-r{
-    gap:clamp(5px,1.8vw,10px);
-    padding:2.5vw 2vw;
+    gap:clamp(5px,2vw,10px);
+    padding:2.5vw;
   }
-  .final-en{
-    font-size:clamp(8px,2.5vw,12px);
-    letter-spacing:.05em;
-  }
+  .final-en{font-size:clamp(9px,2.8vw,12px);}
   .final-ja-big{
-    font-size:clamp(16px,5.5vw,26px);
+    font-size:clamp(18px,6vw,28px);
+    white-space:nowrap;
     letter-spacing:.04em;
-    white-space:nowrap; /* 1行に収める */
   }
-  .final-msg{
-    font-size:clamp(8px,2.5vw,12px);
-    line-height:2.0;
-  }
-  .final-flower-row{
-    gap:clamp(3px,1.2vw,7px);
-    flex-wrap:nowrap;
-  }
-  .final-flower{
-    font-size:clamp(12px,4vw,20px);
-  }
+  .final-msg{font-size:clamp(9px,2.8vw,12px);line-height:2.0;}
+  .final-flower-row{gap:clamp(4px,1.5vw,8px);flex-wrap:nowrap;}
+  .final-flower{font-size:clamp(14px,5vw,22px);}
 
-  /* ─ サイドボタン ─ */
-  .side-btn{
-    width:28px;
-  }
-}
-
-/* 超小型スマホ（360px以下） */
-@media(max-width:360px){
-  .toc-notice{font-size:6.5px;}
-  .ann-main,.final-ja-big{font-size:5vw;letter-spacing:.02em;}
-  .flower,.final-flower{font-size:3.8vw;}
+  /* 月ページ */
+  .pickup-month-label{font-size:clamp(9px,2.8vw,12px);}
+  .pickup-message{font-size:clamp(8px,2.5vw,10.5px);}
+  .photo-name{font-size:clamp(6px,1.8vw,8px);}
+  .pickup-fanmark{font-size:clamp(16px,5.5vw,24px);}
 }
 
 </style>
@@ -1522,19 +1497,14 @@ function go(ni){
   });
 }
 
-btnPrev.addEventListener('click',()=>{if(idx>0)go(idx-1);});
-btnNext.addEventListener('click',()=>{if(idx<PAGES.length-1)go(idx+1);});
+/* btnPrev/btnNext: SP対応版に移動済み */
 
 /* ─── スライダー ───────────────────────────── */
 let sliderDragging=false;
 slider.addEventListener('mousedown',()=>{sliderDragging=true;});
 slider.addEventListener('touchstart',()=>{sliderDragging=true;},{passive:true});
 slider.addEventListener('input',()=>updateSliderTrack(parseInt(slider.value)));
-slider.addEventListener('change',()=>{
-  sliderDragging=false;
-  const ni=parseInt(slider.value);
-  if(ni!==idx)go(ni);
-});
+/* slider change: SP対応版に移動済み */
 /* mouseup/touchend は document 全体で拾う（スライダー外で離しても確実にリセット） */
 document.addEventListener('mouseup',()=>{
   if(!sliderDragging)return;
@@ -1790,13 +1760,130 @@ document.addEventListener('keydown',e=>{
 
 /* ─── スワイプ ───────────────────────────────── */
 let tx=0;
-document.getElementById('book').addEventListener('touchstart',e=>{tx=e.touches[0].clientX;},{passive:true});
-document.getElementById('book').addEventListener('touchend',e=>{
-  if(!bookOpen)return;
-  const dx=e.changedTouches[0].clientX-tx;
-  if(dx<-50&&idx<PAGES.length-1)go(idx+1);
-  if(dx>50&&idx>0)go(idx-1);
-},{passive:true});
+/* touch: SP対応版に移動済み */
+
+/* ════════════════════════════════════════
+   スマホ 1ページ表示モード
+════════════════════════════════════════ */
+function isMobile(){ return window.innerWidth <= 600; }
+
+let spSide = 'left'; /* 現在見ているページ側 */
+
+/* SP用タブバー生成 */
+function renderSpTabs(){
+  if(!isMobile()) return;
+  const valid = VALID[curYear] || [];
+  let tabHtml = '';
+  for(let m=1; m<=12; m++){
+    const ok = valid.includes(m);
+    const act = ok && curMonth===m && idx>0;
+    const bg = ok ? MCOL[m] : '';
+    const dis = ok ? '' : 'disabled';
+    const actCls = act ? ' active' : '';
+    const onclick = ok ? `onclick="onMonth(${m})"` : '';
+    tabHtml += `<button class="sp-tab-item${actCls}${dis?' disabled':''}" style="background:${bg}" ${onclick}>${MN[m-1]}</button>`;
+  }
+  let bar = document.getElementById('sp-tab-bar');
+  if(!bar){
+    bar = document.createElement('div');
+    bar.id = 'sp-tab-bar';
+    bar.className = 'sp-tab-bar';
+    document.getElementById('bookArea').parentNode.insertBefore(bar, document.getElementById('bookArea'));
+  }
+  bar.innerHTML = tabHtml;
+  bar.style.display = 'flex';
+}
+
+/* SP表示更新 */
+function updateSpView(){
+  if(!isMobile()){
+    const b = document.getElementById('book');
+    b.classList.remove('sp-show-left','sp-show-right');
+    const bar = document.getElementById('sp-tab-bar');
+    if(bar) bar.style.display = 'none';
+    return;
+  }
+  const b = document.getElementById('book');
+  if(spSide === 'left'){
+    b.classList.add('sp-show-left'); b.classList.remove('sp-show-right');
+  } else {
+    b.classList.add('sp-show-right'); b.classList.remove('sp-show-left');
+  }
+  renderSpTabs();
+  /* ボタン表示 */
+  const atStart = (idx===0 && spSide==='left');
+  const atEnd   = (idx===PAGES.length-1 && spSide==='right');
+  btnPrev.classList.toggle('hidden', atStart);
+  btnNext.classList.toggle('hidden', atEnd);
+  /* スライダー */
+  slider.max = PAGES.length*2 - 1;
+  const spIdx = idx*2 + (spSide==='right'?1:0);
+  if(!sliderDragging){ slider.value=spIdx; updateSliderTrack(spIdx); }
+  /* ページ情報 */
+  const p = PAGES[idx];
+  const side = spSide==='left'?'（左）':'（右）';
+  pageInfo.textContent = (p.type==='toc'?'目次':p.type==='anniversary'?'2nd Anniversary':`${p.year}年 ${MN[p.month-1]}`) + side;
+}
+
+/* SP次ページ */
+function spGoNext(){
+  if(flipping) return;
+  if(spSide==='left'){ spSide='right'; updateSpView(); }
+  else if(idx<PAGES.length-1){ go(idx+1); spSide='left'; }
+}
+/* SP前ページ */
+function spGoPrev(){
+  if(flipping) return;
+  if(spSide==='right'){ spSide='left'; updateSpView(); }
+  else if(idx>0){ go(idx-1); spSide='right'; }
+}
+
+/* ボタン上書き */
+btnPrev.addEventListener('click', ()=>{ if(isMobile()) spGoPrev(); else if(idx>0) go(idx-1); });
+btnNext.addEventListener('click', ()=>{ if(isMobile()) spGoNext(); else if(idx<PAGES.length-1) go(idx+1); });
+
+/* スワイプ上書き（既存のを無効化してSP対応版に） */
+(function(){
+  let tx2=0;
+  const bk = document.getElementById('book');
+  bk.addEventListener('touchstart',e=>{tx2=e.touches[0].clientX;},{passive:true});
+  bk.addEventListener('touchend',e=>{
+    if(!bookOpen) return;
+    const dx = e.changedTouches[0].clientX - tx2;
+    if(Math.abs(dx)<40) return;
+    if(isMobile()){ dx<0?spGoNext():spGoPrev(); }
+    else { if(dx<-50&&idx<PAGES.length-1)go(idx+1); if(dx>50&&idx>0)go(idx-1); }
+  },{passive:true});
+})();
+
+/* スライダー上書き */
+slider.addEventListener('change', ()=>{
+  sliderDragging=false;
+  const val=parseInt(slider.value);
+  if(isMobile()){
+    const ni=Math.floor(val/2);
+    const ns=val%2===0?'left':'right';
+    if(ni!==idx){ const prevSide=ns; go(ni); spSide=prevSide; }
+    else if(ns!==spSide){ spSide=ns; updateSpView(); }
+  } else {
+    if(val!==idx) go(val);
+  }
+});
+
+/* updateUI を拡張 */
+const _ouiOrig = updateUI;
+updateUI = function(){
+  if(isMobile()){ updateSpView(); } else { _ouiOrig(); }
+};
+
+/* リサイズ対応 */
+window.addEventListener('resize', ()=>{
+  if(isMobile()){ slider.max=PAGES.length*2-1; updateSpView(); }
+  else{ slider.max=PAGES.length-1; document.getElementById('book').classList.remove('sp-show-left','sp-show-right'); const b=document.getElementById('sp-tab-bar'); if(b)b.style.display='none'; _ouiOrig(); }
+});
+
+/* 初期化 */
+if(isMobile()){ slider.max=PAGES.length*2-1; }
 
 /* ─── ローディング画面制御 ─────────────── */
 (function(){
