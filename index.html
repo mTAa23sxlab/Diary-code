@@ -222,8 +222,13 @@ body{
   position:relative;
   perspective:2400px;
   border-radius:4px 10px 10px 4px;
-  overflow:hidden;
+  overflow:visible; /* spineを表示するためvisibleに変更 */
   box-shadow:0 16px 48px rgba(60,40,110,0.28),0 4px 10px rgba(60,40,110,0.16);
+}
+/* book-outerでクリップ */
+.book-outer{
+  overflow:hidden;
+  border-radius:4px 10px 10px 4px;
 }
 
 /* ════════════════════════════════════════════════
@@ -263,7 +268,7 @@ body{
 /* 綴じ目 */
 .spine{
   position:absolute;left:50%;top:0;transform:translateX(-50%);
-  width:14px;height:100%;z-index:50;pointer-events:none;
+  width:14px;height:100%;z-index:200;pointer-events:none;
   background:linear-gradient(90deg,
     #9888c4 0%,#b0a4d8 15%,#d0c8ec 40%,#e0daf4 50%,
     #d0c8ec 60%,#b0a4d8 85%,#9888c4 100%
@@ -1079,10 +1084,12 @@ body{
 /* ─ turn.js フリップブック（PC用） ─ */
 #flipbook{
   position:absolute;top:0;left:0;
-  box-shadow:none; /* bookのshadowを使う */
+  box-shadow:none;
+  overflow:hidden;
 }
 #flipbook .page{
   overflow:hidden;
+  box-sizing:border-box;
   background:
     repeating-linear-gradient(0deg,transparent 0px,transparent 27px,
       rgba(175,155,215,0.055) 27px,rgba(175,155,215,0.055) 28px),
@@ -1283,6 +1290,7 @@ function initTurnJs(){
     duration: 700,
     page: 2,
     direction: 'ltr',
+    turnCorners: 'br,tr',
     when: {
       turned: function(e, page){
         console.log('turned: page='+page);
