@@ -1494,9 +1494,14 @@ function initTurnJs(){
   turnInitialized = true;
   console.log('[turn.js] initialized successfully, page='+$(fb).turn('page'));
 
-  /* 初期表示: page1（空）をスキップしてpage2（最初の見開き左）へ即座に移動
-     アニメなしで直接ジャンプする */
-  $(fb).turn('page', 2);
+  /* 初期表示: page1（空）をスキップしてpage2へアニメなしでジャンプ
+     data().opts.durationを直接0にして即時移動後に元に戻す */
+  const fbEl = $(fb);
+  const turnData = fbEl.data();
+  const origDuration = turnData.opts.duration;
+  turnData.opts.duration = 0;
+  fbEl.turn('page', 2);
+  turnData.opts.duration = origDuration;
 }
 
 /* PC: turn.jsでページ移動 */
