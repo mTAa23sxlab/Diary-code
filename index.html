@@ -1100,16 +1100,20 @@ body{
   box-sizing:border-box;overflow:hidden;
   padding:clamp(10px,1.6vw,20px) clamp(12px,1.8vw,22px);
 }
-/* コーナーUI・シャドウを完全に非表示 */
-#flipbook .corner,
-#flipbook .cr,
-#flipbook .cl,
+/* シャドウ・コーナーUI制御 */
+/* gradients:falseなのでシャドウ要素は不要 */
 #flipbook .b-shadow-f,
 #flipbook .b-shadow-b,
 #flipbook .shadow,
 #flipbook .page-wrapper .shadow{
   display:none !important;
   pointer-events:none !important;
+}
+/* コーナーホバーアニメ（折れ曲がりプレビュー）を非表示
+   めくりはボタン/スワイプのみ。コーナーをクリックしてもめくれるが
+   ホバー時のUIは出さない */
+#flipbook .page-wrapper .corner{
+  display:none !important;
 }
 /* ページ内リンクはクリック可能 */
 #flipbook .page a,
@@ -1491,7 +1495,8 @@ function initTurnJs(){
     elevation: 100,
     duration: 1000,
     direction: 'rtl',
-    turnCorners: '',
+    turnCorners: 'br',
+    'z-index': 50,
     when: {
       turning: function(e, page){
         /* めくり中: spineを隠す（めくりページが綴じ目の下をくぐらないよう） */
@@ -1872,7 +1877,7 @@ btnNext.addEventListener('click', ()=>{ if(MOBILE()) spNext(); else if(idx<PAGES
   bk.addEventListener('touchend', e=>{
     if(!bookOpen) return;
     const dx = e.changedTouches[0].clientX - stx;
-    if(Math.abs(dx) < 40) return;
+    if(Math.abs(dx) < 30) return;
     if(MOBILE()){ dx < 0 ? spNext() : spPrev(); }
     /* PCスワイプ: turn.js使用時はturn.js経由 */
     else { if(dx < -50 && idx < PAGES.length-1) go(idx+1); if(dx > 50 && idx > 0) go(idx-1); }
