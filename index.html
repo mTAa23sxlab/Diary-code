@@ -1211,8 +1211,7 @@ body{
   </div>
 </div>
 
-<script src="js/jquery.min.js"></script>
-<script src="js/jquery-migrate.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js" crossorigin="anonymous"></script>
 <script src="js/turn.js"></script>
 <script src="data.js"></script>
 <script>
@@ -1295,13 +1294,16 @@ function openBook(){
     } else {
       /* PC: turn.jsを初期化
          requestAnimationFrameを2回挟んでレイアウト確定後に実行 */
-      requestAnimationFrame(()=>{
-        requestAnimationFrame(()=>{
-          initTurnJs();
-          /* 念のため100ms後にも試みる */
-          if(!turnInitialized) setTimeout(initTurnJs, 100);
-        });
-      });
+      /* jQueryのreadyを待ってから初期化 */
+      if(typeof jQuery !== 'undefined'){
+        jQuery(function(){ initTurnJs(); });
+      } else {
+        /* フォールバック: 少し待ってリトライ */
+        setTimeout(()=>{
+          if(typeof jQuery !== 'undefined') initTurnJs();
+          else console.error('[initTurnJs] jQuery still not available');
+        }, 300);
+      }
     }
   }
   cover.addEventListener('animationend', revealBook, {once:true});
