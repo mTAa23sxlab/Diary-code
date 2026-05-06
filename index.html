@@ -15,6 +15,8 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="推し活日記 — いずれ菖蒲か杜若 2nd Anniversary Memory Book">
 <meta name="twitter:description" content="いずれ菖蒲か杜若のデビュー2周年を記念した個人制作のファン活動サイトです。">
+<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+<script src="js/turn.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Zen+Kurenaido&display=swap" rel="stylesheet">
 <style>
@@ -222,7 +224,7 @@ body{
   position:relative;
   perspective:2400px;
   border-radius:4px 10px 10px 4px;
-  overflow:hidden;
+  overflow:visible; /* turn.jsめくりアニメのため */
   box-shadow:0 16px 48px rgba(60,40,110,0.28),0 4px 10px rgba(60,40,110,0.16);
 }
 
@@ -1077,6 +1079,46 @@ body{
   }
 }
 
+/* ════════════════════════════════════════════════
+   turn.js フリップブック（PC専用）
+════════════════════════════════════════════════ */
+#flipbook{
+  position:absolute;top:0;left:0;
+  width:100%;height:100%;
+  display:none; /* JS初期化後に表示 */
+}
+#flipbook .page{
+  overflow:hidden;
+  background:
+    repeating-linear-gradient(0deg,transparent 0px,transparent 27px,
+      rgba(175,155,215,0.055) 27px,rgba(175,155,215,0.055) 28px),
+    linear-gradient(180deg,#fefcff 0%,#fdf9ff 60%,#fbf6fe 100%);
+}
+#flipbook .page-content{
+  width:100%;height:100%;
+  box-sizing:border-box;overflow:hidden;
+  padding:clamp(10px,1.6vw,20px) clamp(12px,1.8vw,22px);
+}
+/* コーナーUI・シャドウを完全に非表示 */
+#flipbook .corner,
+#flipbook .cr,
+#flipbook .cl,
+#flipbook .b-shadow-f,
+#flipbook .b-shadow-b,
+#flipbook .shadow,
+#flipbook .page-wrapper .shadow{
+  display:none !important;
+  pointer-events:none !important;
+}
+/* ページへの直接ドラッグを無効化（ボタン・スライダーのみ） */
+#flipbook .page,
+#flipbook .page-wrapper{
+  pointer-events:none !important;
+}
+#flipbook .page a,
+#flipbook .page .clickable{
+  pointer-events:auto;
+}
 </style>
 </head>
 <body>
@@ -1111,14 +1153,16 @@ body{
         <!-- 本の外枠（3D立体感用） -->
         <div class="book-outer">
           <div class="book" id="book">
-            <!-- ページ -->
-            <div class="pages-wrap">
+            <!-- turn.js フリップブック（PC用・JS初期化後に有効） -->
+            <div id="flipbook"></div>
+
+            <!-- ページ（SP用・PC初期表示用） -->
+            <div class="pages-wrap" id="pagesWrap">
               <div class="page page-left"  id="pageLeft"></div>
               <div class="page page-right" id="pageRight"></div>
-              <div class="spine" id="spineEl" style="display:none;"></div>
             </div>
 
-            <!-- CSS 3D めくりパネル -->
+            <!-- CSS 3D めくりパネル（SP用フォールバック） -->
             <div class="flip-panel" id="flipPanel">
               <div class="fp-front" id="fpFront"></div>
               <div class="fp-back"  id="fpBack"></div>
@@ -1126,6 +1170,9 @@ body{
 
             <!-- めくり中の落ち影 -->
             <div class="flip-shadow" id="flipShadow"></div>
+
+            <!-- 綴じ目（最前面・turn.jsの上） -->
+            <div class="spine" id="spineEl" style="display:none;"></div>
 
             <!-- 表紙 -->
             <div class="cover" id="cover">
@@ -1228,8 +1275,6 @@ function openBook(){
   function revealBook(){
     if(done)return; done=true;
     cover.style.display='none';
-    const spineEl=document.getElementById('spineEl');
-    if(spineEl) spineEl.style.display='block';
     yearRow.classList.add('open');
     monthCol.classList.add('open');
     navRow.classList.add('open');
@@ -1246,6 +1291,9 @@ function openBook(){
       document.getElementById('book').classList.add('show-left');
       document.getElementById('book').classList.remove('show-right');
       syncSp();
+    } else {
+      /* PC: turn.jsを初期化（少し遅らせてレイアウト確定後に実行） */
+      setTimeout(initTurnJs, 50);
     }
   }
   cover.addEventListener('animationend', revealBook, {once:true});
@@ -1294,21 +1342,29 @@ function fIdx(y,m){return PAGES.findIndex(p=>p.type==='month'&&p.year===y&&p.mon
 
 /* ─── ページ移動 ───────────────────────────── */
 function go(ni){
-  if(flipping||ni===idx)return;
-  /* SP: spNext/spPrevを使わずgo()が直接呼ばれた場合（タブからの遷移） */
-  if(window.innerWidth<=600){
+  if(ni===idx)return;
+  /* SP: スライド方式 */
+  if(MOBILE()){
+    if(flipping)return;
     idx=ni;
     const p=PAGES[idx];
     if(p.type==='month'){curYear=p.year;curMonth=p.month;}
-    spSide='left'; /* タブ遷移は常に左ページから */
+    spSide='left';
     renderPage(idx); renderYearTabs(); renderMonthTabs();
     syncSp();
     return;
   }
+  /* PC: turn.js初期化済みならturn.jsで移動
+     ★ idxはturnedイベントで同期するためここでは書き換えない */
+  if(turnInitialized){
+    goPC(ni);
+    return;
+  }
+  /* PC: turn.js未初期化（通常は起きない）→CSS 3Dフォールバック */
+  if(flipping)return;
   flipping=true;
   const dir=ni>idx?'next':'prev';
-  const oldIdx=idx;
-  idx=ni;
+  const oldIdx=idx; idx=ni;
   const p=PAGES[idx];
   if(p.type==='month'){curYear=p.year;curMonth=p.month;}
   flip3D(dir, oldIdx, idx, ()=>{
@@ -1396,6 +1452,84 @@ function flip3D(dir, oldIdx, newIdx, cb){
     flipping=false;
     cb();
   },{once:true});
+}
+
+/* ════════════════════════════════════════════════
+   turn.js 初期化（PC専用）
+════════════════════════════════════════════════ */
+let turnInitialized = false;
+
+function initTurnJs(){
+  if(turnInitialized || typeof $ === 'undefined' || !$.fn.turn) return;
+  const bookEl = document.getElementById('book');
+  const w = bookEl.offsetWidth;
+  const h = bookEl.offsetHeight > 0 ? bookEl.offsetHeight : Math.round(w * 3/4);
+  const fb = document.getElementById('flipbook');
+
+  fb.style.display = 'block';
+  fb.innerHTML = '';
+
+  /* rtlモード: 各見開きi の右ページ(=page 2i+1)→左ページ(=page 2i+2) の順で追加
+     page1=PAGES[0].right(表紙右・単独), page2=PAGES[0].left, page3=PAGES[1].right ... */
+  PAGES.forEach((pg, i) => {
+    const {left, right} = getPageHTML(i);
+    [right, left].forEach(html => {
+      const wrap = document.createElement('div');
+      wrap.className = 'page';
+      const inner = document.createElement('div');
+      inner.className = 'page-content';
+      inner.innerHTML = html;
+      wrap.appendChild(inner);
+      fb.appendChild(wrap);
+    });
+  });
+
+  $(fb).turn({
+    width: w,
+    height: h,
+    display: 'double',
+    autoCenter: false,
+    acceleration: true,
+    gradients: false,
+    elevation: 100,
+    duration: 1000,
+    direction: 'rtl',
+    when: {
+      turned: function(e, page){
+        /* rtl page1スタート: 見開きidx = ceil(page/2) - 1 */
+        const ni = Math.max(0, Math.ceil(page / 2) - 1);
+        idx = ni;
+        const p = PAGES[idx];
+        if(p && p.type === 'month'){ curYear = p.year; curMonth = p.month; }
+        renderYearTabs(); renderMonthTabs(); updateUI();
+      }
+    }
+  });
+
+  /* pagesWrapを隠してflipbookを表示 */
+  document.getElementById('pagesWrap').style.display = 'none';
+  $(fb).css({ width: w+'px', height: h+'px', position:'absolute', top:0, left:0 });
+  turnInitialized = true;
+
+  /* 綴じ目を表示 */
+  const spineEl = document.getElementById('spineEl');
+  if(spineEl) spineEl.style.display = 'block';
+}
+
+/* PC: turn.jsでページ移動 */
+function goPC(ni){
+  if(!turnInitialized) return;
+  const fb = $(document.getElementById('flipbook'));
+  /* rtl: 見開きni の右ページ = page(ni*2+1) */
+  const target = ni * 2 + 1;
+  const current = fb.turn('page');
+  if(target === current) return;
+  const diff = Math.abs(target - current);
+  if(diff <= 2){
+    target > current ? fb.turn('next') : fb.turn('previous');
+  } else {
+    fb.turn('page', target);
+  }
 }
 
 /* ─── ページHTML生成 ──────────────────────── */
@@ -1734,6 +1868,7 @@ btnNext.addEventListener('click', ()=>{ if(MOBILE()) spNext(); else if(idx<PAGES
     const dx = e.changedTouches[0].clientX - stx;
     if(Math.abs(dx) < 40) return;
     if(MOBILE()){ dx < 0 ? spNext() : spPrev(); }
+    /* PCスワイプ: turn.js使用時はturn.js経由 */
     else { if(dx < -50 && idx < PAGES.length-1) go(idx+1); if(dx > 50 && idx > 0) go(idx-1); }
   }, {passive:true});
 })();
@@ -1769,9 +1904,27 @@ updateUI = function(){
 };
 
 /* リサイズ対応 */
+let _resizeTimer = null;
 window.addEventListener('resize', ()=>{
-  if(MOBILE()){ slider.max = PAGES.length*2-1; syncSp(); }
-  else{ slider.max = PAGES.length-1; document.getElementById('book').classList.remove('show-left','show-right'); _ui(); }
+  if(MOBILE()){
+    slider.max = PAGES.length*2-1; syncSp();
+  } else {
+    slider.max = PAGES.length-1;
+    document.getElementById('book').classList.remove('show-left','show-right');
+    _ui();
+    /* turn.jsのサイズ更新 */
+    if(turnInitialized){
+      clearTimeout(_resizeTimer);
+      _resizeTimer = setTimeout(()=>{
+        const bookEl = document.getElementById('book');
+        const w = bookEl.offsetWidth;
+        const h = bookEl.offsetHeight > 0 ? bookEl.offsetHeight : Math.round(w*3/4);
+        const fb = $(document.getElementById('flipbook'));
+        fb.turn('size', w, h);
+        fb.css({ width: w+'px', height: h+'px' });
+      }, 200);
+    }
+  }
 });
 
 /* 初期化 */
