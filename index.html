@@ -992,128 +992,64 @@ body{
 @media screen and (max-width:900px) and (orientation:landscape){#orientation-lock{display:flex;}}
 /* ════ スマホ1ページ表示 ════ */
 @media(max-width:600px){
-  /* ── 全体レイアウト ── */
   .desk-surface{padding:2vw;}
   .year-row{padding-left:0 !important;}
   .nav-row{padding-left:0 !important;}
-
-  /* ── 月タブを横並びに ── */
-  .month-col{
-    flex-direction:row !important;
-    flex-wrap:nowrap !important;
-    width:100% !important;
-    margin-right:0 !important;
-    margin-bottom:-1px !important;
-    padding:0 !important;
-    gap:1px !important;
-    overflow-x:hidden !important;
-    align-items:flex-end !important;
-  }
-  .month-tab{
-    flex:1 !important;
-    width:auto !important;
-    min-width:0 !important;
-    height:clamp(22px,6vw,30px) !important;
-    border-radius:4px 4px 0 0 !important;
-    font-size:clamp(7px,2.2vw,9.5px) !important;
-    padding:0 !important;
-    letter-spacing:-.04em !important;
-    white-space:nowrap !important;
-    overflow:hidden !important;
-    writing-mode:horizontal-tb !important;
-    margin-right:0 !important;
-    line-height:1 !important;
-  }
-  .month-tab.active{padding-right:0 !important;}
-
-  /* ── book: 縦長1ページ表示 ── */
-  /* midを縦積みにして月タブを上に */
   .mid{flex-direction:column !important;}
-  /* book全体を縦長に変更（見開き→1ページ） */
-  .book-outer{width:100%;}
-  .book{
-    /* 縦長1ページのアスペクト比（参考サイトに合わせる） */
-    aspect-ratio:1/1.4 !important;
-  }
-  /* pages-wrap: 左右を縦に積む（上下に並ぶ） */
-  .pages-wrap{
-    flex-direction:column !important;
-  }
-  /* 左右ページそれぞれを全幅・全高に */
-  .page-left, .page-right{
-    flex:none !important;
-    width:100% !important;
-    height:100% !important;
-    position:absolute !important;
-    top:0; left:0;
+  .month-col{flex-direction:row !important;flex-wrap:nowrap !important;width:100% !important;margin-right:0 !important;margin-bottom:-1px !important;padding:0 !important;gap:1px !important;overflow-x:hidden !important;align-items:flex-end !important;}
+  .month-tab{flex:1 !important;width:auto !important;min-width:0 !important;height:clamp(22px,6vw,30px) !important;border-radius:4px 4px 0 0 !important;font-size:clamp(7px,2.2vw,9.5px) !important;padding:0 !important;letter-spacing:-.04em !important;white-space:nowrap !important;overflow:hidden !important;writing-mode:horizontal-tb !important;margin-right:0 !important;line-height:1 !important;}
+  .month-tab.active{padding-right:0 !important;}
+  .book-area,.book-outer{width:100%;}
+  .book{aspect-ratio:1/1.4 !important;}
+  /* ページ: 絶対配置で重ね合わせ */
+  .pages-wrap{display:block !important;position:absolute !important;inset:0 !important;}
+  .page-left,.page-right{
+    position:absolute !important;top:0 !important;left:0 !important;
+    width:100% !important;height:100% !important;
+    transition:transform 0.35s ease,opacity 0.35s ease;
     border-radius:4px 10px 10px 4px !important;
-    transition:transform 0.35s ease, opacity 0.35s ease;
-    box-shadow:inset 8px 0 16px rgba(80,55,130,0.06) !important;
+    box-shadow:none !important;
   }
-  /* 綴じ目を非表示（1ページ表示時は不要） */
   .spine{display:none !important;}
-  /* flipパネルも全幅に */
-  .flip-panel.flip-next,
-  .flip-panel.flip-prev{
-    width:100% !important;
-    right:auto !important;
-    left:0 !important;
-  }
-  /* show-right: 左を画面外に、右を前面に */
-  .book.show-right .page-left{
-    transform:translateX(-100%) !important;
-    opacity:0 !important;
-    pointer-events:none !important;
-  }
-  .book.show-right .page-right{
-    transform:translateX(0) !important;
-    opacity:1 !important;
-  }
-  /* show-left: 右を画面外に（デフォルト） */
-  .book.show-left .page-right{
-    transform:translateX(100%) !important;
-    opacity:0 !important;
-    pointer-events:none !important;
-  }
-  .book.show-left .page-left{
-    transform:translateX(0) !important;
-    opacity:1 !important;
-  }
-  /* ページ余白をSP最適化 */
+  /* show-left: 左ページ表示 */
+  .book.show-left .page-left{transform:translateX(0) !important;opacity:1 !important;}
+  .book.show-left .page-right{transform:translateX(100%) !important;opacity:0 !important;pointer-events:none !important;}
+  /* show-right: 右ページ表示 */
+  .book.show-right .page-right{transform:translateX(0) !important;opacity:1 !important;}
+  .book.show-right .page-left{transform:translateX(-100%) !important;opacity:0 !important;pointer-events:none !important;}
+  /* flipパネル: SP時は非表示（CSSで切り替え、アニメなし） */
+  .flip-panel{display:none !important;}
+  /* ページ余白 */
   .page{padding:4vw 5vw !important;}
-  .fp-front,.fp-back{padding:4vw 5vw !important;}
-
-  /* ── ページ内容のフォントをSP最適化 ── */
-  /* 目次 */
-  .toc-book-title{font-size:2.5vw;}
-  .toc-title{font-size:2.5vw;margin-bottom:1.5vw;}
-  .toc-notice{font-size:2.4vw;line-height:1.75;}
-  .toc-notice a{font-size:2.2vw;}
-  .toc-how-title{font-size:2.5vw;}
+  /* ミニ本 */
+  .guide-book{width:clamp(55px,15vw,90px) !important;}
+  .toc-year-tab-mini{font-size:clamp(5px,1.5vw,7.5px);padding:1px 4px 2px;margin-left:clamp(14px,4vw,26px);}
+  .toc-month-tab-mini{font-size:clamp(5px,1.5vw,7.5px);padding:1px 2px;}
+  .toc-guide-row{flex-direction:row;gap:2vw;align-items:flex-start;}
+  .toc-how-ops{font-size:2.5vw !important;line-height:1.8;padding-top:clamp(14px,4vw,20px) !important;}
+  /* テキストフォント */
+  .toc-book-title{font-size:2.8vw;}
+  .toc-title{font-size:2.8vw;margin-bottom:1.5vw;}
+  .toc-notice{font-size:2.5vw;line-height:1.75;}
+  .toc-notice a{font-size:2.3vw;}
+  .toc-how-title{font-size:2.8vw;}
   .toc-divider{margin:1.5vw 0;}
-  .toc-minibook-wrap{display:none !important;}
-  .toc-guide-row{flex-direction:column;gap:0;}
-  .toc-how-ops{font-size:2.4vw !important;line-height:1.8;padding-top:0 !important;}
-  .toc-how-desc{font-size:2.2vw;line-height:1.7;}
-  /* 2周年おめでとう */
-  .ann-wrap{gap:2vw;}
-  .ann-en{font-size:3.2vw;}
-  .ann-main{font-size:7vw;white-space:nowrap;letter-spacing:.04em;}
+  .toc-how-desc{font-size:2.3vw;line-height:1.7;}
+  .ann-wrap{gap:2.5vw;}
+  .ann-en{font-size:3.5vw;}
+  .ann-main{font-size:7.5vw;white-space:nowrap;letter-spacing:.04em;}
   .flower-row{gap:2vw;flex-wrap:nowrap;}
-  .flower{font-size:6vw;}
-  /* 最終ページ */
+  .flower{font-size:6.5vw;}
   .final-spread-l,.final-spread-r{gap:2.5vw;padding:3vw;}
   .final-en{font-size:3vw;}
-  .final-ja-big{font-size:7vw;white-space:nowrap;letter-spacing:.04em;}
+  .final-ja-big{font-size:7.5vw;white-space:nowrap;letter-spacing:.04em;}
   .final-msg{font-size:3vw;line-height:2.1;}
   .final-flower-row{gap:2vw;flex-wrap:nowrap;}
-  .final-flower{font-size:6vw;}
-  /* 月ページ */
+  .final-flower{font-size:6.5vw;}
   .pickup-month-label{font-size:3vw;}
   .pickup-message{font-size:2.8vw;line-height:1.9;}
-  .pickup-fanmark{font-size:6vw;}
-  /* サイドボタン */
-  .side-btn{width:28px;}
+  .pickup-fanmark{font-size:6.5vw;}
+  .side-btn{width:30px;}
 }
 
 </style>
@@ -1250,6 +1186,10 @@ function openBook(){
   if(bookOpen)return;
   bookOpen=true;
   renderPage(0); updateUI();
+  /* SP: show-left を初期設定 */
+  if(window.innerWidth<=600){
+    document.getElementById('book').classList.add('show-left');
+  }
   cover.classList.add('closing');
   let done=false;
   function revealBook(){
@@ -1306,6 +1246,16 @@ function fIdx(y,m){return PAGES.findIndex(p=>p.type==='month'&&p.year===y&&p.mon
 /* ─── ページ移動 ───────────────────────────── */
 function go(ni){
   if(flipping||ni===idx)return;
+  /* SP: アニメなしで即座に切り替え */
+  if(window.innerWidth<=600){
+    idx=ni;
+    const p=PAGES[idx];
+    if(p.type==='month'){curYear=p.year;curMonth=p.month;}
+    renderPage(idx); renderYearTabs(); renderMonthTabs(); updateUI();
+    return;
+  }
+  flipping=true;
+  syncCanvas();
   const dir=ni>idx?'next':'prev';
   const oldIdx=idx;
   idx=ni;
