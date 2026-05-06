@@ -15,9 +15,6 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="推し活日記 — いずれ菖蒲か杜若 2nd Anniversary Memory Book">
 <meta name="twitter:description" content="いずれ菖蒲か杜若のデビュー2周年を記念した個人制作のファン活動サイトです。">
-<script src="js/jquery.min.js"></script>
-<script src="js/jquery-migrate.min.js"></script>
-<script src="js/turn.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Zen+Kurenaido&display=swap" rel="stylesheet">
 <style>
@@ -1214,6 +1211,9 @@ body{
   </div>
 </div>
 
+<script src="js/jquery.min.js"></script>
+<script src="js/jquery-migrate.min.js"></script>
+<script src="js/turn.js"></script>
 <script src="data.js"></script>
 <script>
 'use strict';
@@ -1293,8 +1293,15 @@ function openBook(){
       document.getElementById('book').classList.remove('show-right');
       syncSp();
     } else {
-      /* PC: turn.jsを初期化（少し遅らせてレイアウト確定後に実行） */
-      setTimeout(initTurnJs, 50);
+      /* PC: turn.jsを初期化
+         requestAnimationFrameを2回挟んでレイアウト確定後に実行 */
+      requestAnimationFrame(()=>{
+        requestAnimationFrame(()=>{
+          initTurnJs();
+          /* 念のため100ms後にも試みる */
+          if(!turnInitialized) setTimeout(initTurnJs, 100);
+        });
+      });
     }
   }
   cover.addEventListener('animationend', revealBook, {once:true});
@@ -1361,7 +1368,8 @@ function go(ni){
     goPC(ni);
     return;
   }
-  /* PC: turn.js未初期化（通常は起きない）→CSS 3Dフォールバック */
+  /* PC: turn.js未初期化 → CSS 3Dフォールバック */
+  console.warn('[go] turn.js not initialized, falling back to CSS 3D');
   if(flipping)return;
   flipping=true;
   const dir=ni>idx?'next':'prev';
@@ -1461,7 +1469,15 @@ function flip3D(dir, oldIdx, newIdx, cb){
 let turnInitialized = false;
 
 function initTurnJs(){
-  if(turnInitialized || typeof $ === 'undefined' || !$.fn.turn) return;
+  if(turnInitialized) return;
+  if(typeof $ === 'undefined'){
+    console.error('[initTurnJs] jQuery not loaded');
+    return;
+  }
+  if(!$.fn.turn){
+    console.error('[initTurnJs] turn.js not loaded');
+    return;
+  }
   const bookEl = document.getElementById('book');
   const w = bookEl.offsetWidth;
   const h = bookEl.offsetHeight > 0 ? bookEl.offsetHeight : Math.round(w * 3/4);
@@ -1485,6 +1501,7 @@ function initTurnJs(){
     });
   });
 
+  console.log('[turn.js] init w='+w+' h='+h+' pages='+PAGES.length);
   $(fb).turn({
     width: w,
     height: h,
@@ -1521,6 +1538,7 @@ function initTurnJs(){
   document.getElementById('pagesWrap').style.display = 'none';
   $(fb).css({ width: w+'px', height: h+'px', position:'absolute', top:0, left:0 });
   turnInitialized = true;
+  console.log('[turn.js] initialized successfully');
 
   /* 綴じ目を表示 */
   const spineEl = document.getElementById('spineEl');
