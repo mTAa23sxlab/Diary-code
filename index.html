@@ -1204,6 +1204,7 @@ body{
 
 <script src="data.js"></script>
 <script>
+$(document).ready(function(){
 'use strict';
 
 /* ─── 定数 ─────────────────────────────── */
@@ -1211,23 +1212,12 @@ const VALID={2024:[6,7,8,9,10,11,12],2025:[1,2,3,4,5,6,7,8,9,10,11,12],2026:[1,2
 const MCOL={1:'#FFE36C',2:'#DDD0F0',3:'#FFC6E2',4:'#63AED9',5:'#846FC7',6:'#DDD0F0',7:'#DDD0F0',8:'#DDD0F0',9:'#DDD0F0',10:'#D8E9FC',11:'#DDD0F0',12:'#DDD0F0'};
 const MN=['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
 
-/* ─── ページ定義 ────────────────────────── */
-/* turn.jsは1ページ=1div。見開きで2divが1組。
-   PC(double): 2div = 左右1見開き
-   SP(single): 1div = 1ページ
-   各見開きを {left, right} で管理 */
-const SPREADS=[{type:'toc'}]; // 見開き単位
+/* ─── 見開き定義 ──────────────────────── */
+const SPREADS=[{type:'toc'}];
 [2024,2025,2026].forEach(y=>VALID[y].forEach(m=>{
   if(y===2026&&m===6) SPREADS.push({type:'anniversary'});
   else SPREADS.push({type:'month',year:y,month:m});
 }));
-
-/* turn.js用フラット単ページ配列（各見開きを left/right に展開）*/
-const TURN_PAGES = []; // [{side:'left'|'right', spreadIdx}]
-SPREADS.forEach((s,i)=>{
-  TURN_PAGES.push({side:'left',  spreadIdx:i});
-  TURN_PAGES.push({side:'right', spreadIdx:i});
-});
 
 /* ─── 状態 ─────────────────────────────── */
 let curSpreadIdx=0, bookOpen=false, curYear=2024, curMonth=6;
@@ -1245,151 +1235,26 @@ const navRow     = document.getElementById('navRow');
 const bookOuter  = document.getElementById('bookOuter');
 const flipbookEl = document.getElementById('flipbook');
 
-/* ─── ページHTML生成 ───────────────────── */
-/* getTocHTML / getMonthHTML / getAnnHTML は既存のまま使用 */
-
-function getPageHTML(spreadIdx, side){
-  const sp = SPREADS[spreadIdx];
-  let html;
-  if(sp.type==='toc')        html = getTocHTML();
-  else if(sp.type==='anniversary') html = getAnnHTML();
-  else html = getMonthHTML(sp.year, sp.month);
-  return side==='left' ? html.left : html.right;
-}
-
-/* ─── turn.js サイズ計算 ───────────────── */
+/* ─── isMobile ─────────────────────────── */
 function isMobile(){ return window.innerWidth <= 600; }
 
+/* ─── ページサイズ ──────────────────────── */
 function getBookSize(){
-  /* book-areaの幅を基準にサイズ計算 */
   const area = document.getElementById('bookArea');
-  const w = area ? area.offsetWidth : window.innerWidth * 0.8;
+  const aw   = area ? area.offsetWidth : window.innerWidth * 0.8;
   if(isMobile()){
-    return { width: w, height: Math.round(w * 1.4) };
+    /* SP: 1ページ縦長 */
+    const w = aw;
+    return { w, h: Math.round(w * 1.4), pageW: w, pageH: Math.round(w * 1.4) };
   } else {
-    /* PC: 見開き(左右各ページの幅=w/2, 高さ=w/2*1.05) */
-    return { width: w, height: Math.round(w * 0.525) };
+    /* PC: 見開き。turn.jsのwidthは両ページ合計 */
+    const w = aw;
+    const h = Math.round(w * 0.52);
+    return { w, h, pageW: Math.round(w/2), pageH: h };
   }
 }
 
-/* ─── フリップブック初期化 ─────────────── */
-function initFlipbook(){
-  const size = getBookSize();
-  const sp   = isMobile() ? 'single' : 'double';
-
-  /* flipbookにページdivを生成 */
-  flipbookEl.innerHTML = '';
-  TURN_PAGES.forEach((tp, i) => {
-    const div = document.createElement('div');
-    div.className = 'page';
-    div.id = 'turn-page-' + i;
-    const content = document.createElement('div');
-    content.className = 'page-content';
-    content.innerHTML = getPageHTML(tp.spreadIdx, tp.side);
-    div.appendChild(content);
-    /* 最終ページ（anniversary）は綴じ目非表示 */
-    if(SPREADS[tp.spreadIdx].type==='anniversary'){
-      div.classList.add('final-page');
-    }
-    flipbookEl.appendChild(div);
-  });
-
-  /* turn.js 初期化 */
-  $(flipbookEl).turn({
-    width:  size.width,
-    height: size.height,
-    display: sp,
-    acceleration: true,
-    gradients: true,
-    duration: 700,
-    page: 1,
-    when: {
-      turned: function(e, page, view){
-        /* めくり完了時のコールバック */
-        const pageIdx = page - 1;
-        const tp = TURN_PAGES[pageIdx];
-        if(tp){
-          curSpreadIdx = tp.spreadIdx;
-          const sp2 = SPREADS[curSpreadIdx];
-          if(sp2 && sp2.type==='month'){
-            curYear  = sp2.year;
-            curMonth = sp2.month;
-          }
-        }
-        updateUI();
-        renderYearTabs();
-        renderMonthTabs();
-      },
-      turning: function(e, page){
-        /* めくり中：最終・最初ページの制御 */
-      }
-    }
-  });
-
-  /* flipbook と cover のサイズを設定 */
-  $(flipbookEl).css({ width: size.width, height: size.height });
-  /* coverを同じサイズに */
-  cover.style.width  = size.width  + 'px';
-  cover.style.height = size.height + 'px';
-  cover.style.position = 'absolute';
-  cover.style.top = '0'; cover.style.left = '0';
-}
-
-/* ─── 表紙を開く ────────────────────────── */
-/* coverの初期サイズを設定（クリック前から正しいサイズに） */
-(function setCoverSize(){
-  const area = document.getElementById('bookArea');
-  if(!area) return;
-  const w = area.offsetWidth;
-  const h = window.innerWidth<=600 ? Math.round(w*1.4) : Math.round(w*0.525);
-  cover.style.width  = w + 'px';
-  cover.style.height = h + 'px';
-  cover.style.position = 'relative';
-})();
-/* リサイズ時にもcoverサイズを更新 */
-window.addEventListener('resize',()=>{
-  if(bookOpen) return;
-  const area = document.getElementById('bookArea');
-  if(!area) return;
-  const w = area.offsetWidth;
-  const h = window.innerWidth<=600 ? Math.round(w*1.4) : Math.round(w*0.525);
-  cover.style.width  = w + 'px';
-  cover.style.height = h + 'px';
-});
-
-cover.addEventListener('click', openBook);
-function openBook(){
-  if(bookOpen) return;
-  bookOpen = true;
-  cover.classList.add('closing');
-  let done = false;
-  function revealBook(){
-    if(done) return; done = true;
-    cover.style.display = 'none';
-    flipbookEl.style.display = 'block';
-    initFlipbook();
-    yearRow.classList.add('open');
-    monthCol.classList.add('open');
-    navRow.classList.add('open');
-    updateUI();
-    renderYearTabs();
-    renderMonthTabs();
-    /* スライダー設定 */
-    updateSliderMax();
-  }
-  cover.addEventListener('animationend', revealBook, {once:true});
-  setTimeout(revealBook, 600);
-}
-
-/* ─── スライダー最大値 ─────────────────── */
-function updateSliderMax(){
-  if(isMobile()){
-    slider.max = TURN_PAGES.length - 1;
-  } else {
-    slider.max = SPREADS.length - 1;
-  }
-}
-
+/* ─── ページHTML生成関数 ────────────────── */
 /* ─── 目次 ─────────────────────────────────── */
 function getTocHTML(){
   const left=`
@@ -1646,6 +1511,165 @@ document.addEventListener('touchend',()=>{
 btnPrev.addEventListener('click',()=>goToSpread(curSpreadIdx-1));
 btnNext.addEventListener('click',()=>goToSpread(curSpreadIdx+1));
 
+
+
+/* ─── turn.js 初期化 ────────────────────── */
+function initFlipbook(){
+  const sz = getBookSize();
+  const displayMode = isMobile() ? 'single' : 'double';
+
+  /* 全ページのdivを生成 */
+  $(flipbookEl).empty();
+  SPREADS.forEach((sp, si) => {
+    /* 左ページ */
+    const lDiv = $('<div>').addClass('page').attr('id','tp-'+(si*2));
+    const lContent = $('<div>').addClass('page-content');
+    let html;
+    if(sp.type==='toc')             html = getTocHTML();
+    else if(sp.type==='anniversary') html = getAnnHTML();
+    else html = getMonthHTML(sp.year, sp.month);
+    lContent.html(html.left);
+    lDiv.append(lContent);
+    if(sp.type==='anniversary') lDiv.addClass('final-page');
+    $(flipbookEl).append(lDiv);
+
+    /* 右ページ */
+    const rDiv = $('<div>').addClass('page').attr('id','tp-'+(si*2+1));
+    const rContent = $('<div>').addClass('page-content');
+    rContent.html(html.right);
+    rDiv.append(rContent);
+    if(sp.type==='anniversary') rDiv.addClass('final-page');
+    $(flipbookEl).append(rDiv);
+  });
+
+  /* turn.js 初期化 */
+  $(flipbookEl).turn({
+    width:  sz.w,
+    height: sz.h,
+    display: displayMode,
+    acceleration: true,
+    gradients: true,
+    duration: 700,
+    page: 1,
+    when: {
+      turned: function(e, page){
+        const si = Math.floor((page - 1) / 2);
+        curSpreadIdx = Math.min(si, SPREADS.length - 1);
+        const sp2 = SPREADS[curSpreadIdx];
+        if(sp2 && sp2.type==='month'){ curYear=sp2.year; curMonth=sp2.month; }
+        renderYearTabs(); renderMonthTabs(); updateUI();
+      }
+    }
+  });
+
+  $(flipbookEl).css({ width: sz.w + 'px', height: sz.h + 'px' });
+}
+
+/* ─── 表紙クリック ──────────────────────── */
+$(cover).on('click', openBook);
+function openBook(){
+  if(bookOpen) return;
+  bookOpen = true;
+  cover.classList.add('closing');
+  let done = false;
+  function revealBook(){
+    if(done) return; done = true;
+    cover.style.display = 'none';
+    $(flipbookEl).css('display','block');
+    initFlipbook();
+    yearRow.classList.add('open');
+    monthCol.classList.add('open');
+    navRow.classList.add('open');
+    renderYearTabs(); renderMonthTabs();
+    slider.max = SPREADS.length - 1;
+    updateUI();
+  }
+  cover.addEventListener('animationend', revealBook, {once:true});
+  setTimeout(revealBook, 600);
+}
+
+/* ─── coverのサイズ設定 ─────────────────── */
+function setCoverSize(){
+  const area = document.getElementById('bookArea');
+  if(!area) return;
+  const sz = getBookSize();
+  $(cover).css({ width: sz.w + 'px', height: sz.h + 'px' });
+}
+setCoverSize();
+$(window).on('resize', function(){
+  if(!bookOpen) setCoverSize();
+});
+
+/* ─── ページ移動 ────────────────────────── */
+function goToSpread(si){
+  if(!bookOpen) return;
+  const clamped = Math.max(0, Math.min(SPREADS.length - 1, si));
+  const turnPage = clamped * 2 + 1;
+  $(flipbookEl).turn('page', turnPage);
+}
+
+/* ─── 年/月タブ ─────────────────────────── */
+function renderYearTabs(){
+  yearRow.innerHTML='';
+  [2024,2025,2026].forEach(y=>{
+    const b=document.createElement('button');
+    b.className='year-tab'+(y===curYear?' active':'');
+    b.textContent=y+'年'; b.onclick=()=>onYear(y);
+    yearRow.appendChild(b);
+  });
+}
+function renderMonthTabs(){
+  monthCol.innerHTML='';
+  const valid=VALID[curYear]||[];
+  for(let m=1;m<=12;m++){
+    const ok=valid.includes(m);
+    const act=ok&&curMonth===m&&curSpreadIdx>0;
+    const b=document.createElement('button');
+    b.className='month-tab'+(ok?'':' disabled')+(act?' active':'');
+    b.textContent=MN[m-1]; b.style.background=ok?MCOL[m]:'';
+    if(ok) b.onclick=()=>onMonth(m);
+    monthCol.appendChild(b);
+  }
+}
+function onYear(y){
+  curYear=y;
+  const valid=VALID[y];
+  const m=valid.includes(curMonth)?curMonth:valid[0];
+  if(y===2026&&m===6){ goToSpread(SPREADS.findIndex(s=>s.type==='anniversary')); return; }
+  goToSpread(SPREADS.findIndex(s=>s.type==='month'&&s.year===y&&s.month===m));
+}
+function onMonth(m){
+  if(curYear===2026&&m===6){ goToSpread(SPREADS.findIndex(s=>s.type==='anniversary')); return; }
+  goToSpread(SPREADS.findIndex(s=>s.type==='month'&&s.year===curYear&&s.month===m));
+}
+
+/* ─── UI更新 ────────────────────────────── */
+function updateSliderTrack(val){
+  const max=parseInt(slider.max)||1;
+  slider.style.setProperty('--pct',(val/max*100).toFixed(1)+'%');
+}
+function updateUI(){
+  if(!bookOpen) return;
+  btnPrev.classList.toggle('hidden', curSpreadIdx===0);
+  btnNext.classList.toggle('hidden', curSpreadIdx===SPREADS.length-1);
+  const sp=SPREADS[curSpreadIdx];
+  if(!sp) return;
+  pageInfo.textContent=sp.type==='toc'?'目次':sp.type==='anniversary'?'2nd Anniversary':`${sp.year}年 ${MN[sp.month-1]}`;
+  if(!sliderDragging){ slider.value=curSpreadIdx; updateSliderTrack(curSpreadIdx); }
+}
+
+/* ─── スライダー ────────────────────────── */
+slider.addEventListener('mousedown',()=>{sliderDragging=true;});
+slider.addEventListener('touchstart',()=>{sliderDragging=true;},{passive:true});
+slider.addEventListener('input',()=>updateSliderTrack(parseInt(slider.value)));
+slider.addEventListener('change',()=>{ sliderDragging=false; goToSpread(parseInt(slider.value)); });
+document.addEventListener('mouseup',()=>{ if(!sliderDragging)return; sliderDragging=false; goToSpread(parseInt(slider.value)); });
+document.addEventListener('touchend',()=>{ if(!sliderDragging)return; sliderDragging=false; goToSpread(parseInt(slider.value)); },{passive:true});
+
+/* ─── ボタン ────────────────────────────── */
+btnPrev.addEventListener('click',()=>goToSpread(curSpreadIdx-1));
+btnNext.addEventListener('click',()=>goToSpread(curSpreadIdx+1));
+
 /* ─── キーボード ────────────────────────── */
 document.addEventListener('keydown',e=>{
   if(!bookOpen) return;
@@ -1655,28 +1679,24 @@ document.addEventListener('keydown',e=>{
 
 /* ─── リサイズ ──────────────────────────── */
 let resizeTimer;
-window.addEventListener('resize',()=>{
+$(window).on('resize',function(){
   clearTimeout(resizeTimer);
-  resizeTimer = setTimeout(()=>{
+  resizeTimer=setTimeout(function(){
     if(!bookOpen) return;
-    const size = getBookSize();
-    const sp   = isMobile() ? 'single' : 'double';
-    $(flipbookEl).turn('size', size.width, size.height);
-    $(flipbookEl).turn('display', sp);
-    $(flipbookEl).css({ width: size.width, height: size.height });
-    updateSliderMax();
+    const sz=getBookSize();
+    const dm=isMobile()?'single':'double';
+    $(flipbookEl).turn('size',sz.w,sz.h);
+    $(flipbookEl).turn('display',dm);
+    $(flipbookEl).css({width:sz.w+'px',height:sz.h+'px'});
     updateUI();
-  }, 200);
+  },200);
 });
 
 /* ─── 初期化 ────────────────────────────── */
-(function init(){
-  slider.max = SPREADS.length - 1;
-  updateSliderTrack(0);
-  /* タブは表紙オープン後に表示するので初期化のみ */
-})();
+slider.max = SPREADS.length - 1;
+updateSliderTrack(0);
 
-/* ─── ローディング画面制御 ──────────────── */
+/* ─── ローディング画面 ─────────────────── */
 (function(){
   const ls=document.getElementById('loading-screen');
   const sm=document.getElementById('siteMain');
@@ -1686,6 +1706,7 @@ window.addEventListener('resize',()=>{
   if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{clearTimeout(t);setTimeout(hide,300);});
 })();
 
+}); // $(document).ready end
 </script>
 </div><!-- /site-main -->
 </body>
