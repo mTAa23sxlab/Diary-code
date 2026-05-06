@@ -194,13 +194,7 @@ body{
 .book-outer{
   flex:1;min-width:0;
   position:relative;
-}
-/* turn.js フリップブック */
-#flipbook{
-  position:relative;
-  box-shadow:0 16px 48px rgba(60,40,110,0.28),0 4px 10px rgba(60,40,110,0.16);
-  border-radius:4px 10px 10px 4px;
-  overflow:hidden;
+  /* filterはz-indexを壊すため使用しない */
 }
 
 /* 本の背表紙（右端の厚み） */
@@ -334,10 +328,7 @@ body{
    表紙
 ════════════════════════════════════════════════ */
 .cover{
-  position:relative;
-  width:100%;
-  aspect-ratio:4/3;
-  z-index:60;
+  position:absolute;inset:0;z-index:60;
   border-radius:4px 10px 10px 4px;
   background:
     radial-gradient(ellipse at 30% 40%, rgba(180,165,230,0.4) 0%, transparent 60%),
@@ -990,7 +981,7 @@ body{
 .loading-sub{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:clamp(10px,1.4vw,14px);color:#8878b8;letter-spacing:.2em;}
 .loading-dot{position:relative;width:10px;height:10px;border-radius:5px;background:transparent;color:transparent;box-shadow:0 -22px 0 0 #9888c4,15.56px -15.56px 0 0 #9888c4,22px 0 0 0 #9888c4,15.56px 15.56px 0 0 rgba(152,136,196,0),0 22px 0 0 rgba(152,136,196,0),-15.56px 15.56px 0 0 rgba(152,136,196,0),-22px 0 0 0 rgba(152,136,196,0),-15.56px -15.56px 0 0 rgba(152,136,196,0);animation:loading-spin 1.5s infinite linear;}
 @keyframes loading-spin{0%,100%{box-shadow:0 -22px 0 0 #9888c4,15.56px -15.56px 0 0 #9888c4,22px 0 0 0 #9888c4,15.56px 15.56px 0 -5px rgba(152,136,196,0),0 22px 0 -5px rgba(152,136,196,0),-15.56px 15.56px 0 -5px rgba(152,136,196,0),-22px 0 0 -5px rgba(152,136,196,0),-15.56px -15.56px 0 -5px rgba(152,136,196,0);}12.5%{box-shadow:0 -22px 0 -5px rgba(152,136,196,0),15.56px -15.56px 0 0 #9888c4,22px 0 0 0 #9888c4,15.56px 15.56px 0 0 #9888c4,0 22px 0 -5px rgba(152,136,196,0),-15.56px 15.56px 0 -5px rgba(152,136,196,0),-22px 0 0 -5px rgba(152,136,196,0),-15.56px -15.56px 0 -5px rgba(152,136,196,0);}25%{box-shadow:0 -22px 0 -5px rgba(152,136,196,0),15.56px -15.56px 0 -5px rgba(152,136,196,0),22px 0 0 0 #9888c4,15.56px 15.56px 0 0 #9888c4,0 22px 0 0 #9888c4,-15.56px 15.56px 0 -5px rgba(152,136,196,0),-22px 0 0 -5px rgba(152,136,196,0),-15.56px -15.56px 0 -5px rgba(152,136,196,0);}37.5%{box-shadow:0 -22px 0 -5px rgba(152,136,196,0),15.56px -15.56px 0 -5px rgba(152,136,196,0),22px 0 0 -5px rgba(152,136,196,0),15.56px 15.56px 0 0 #9888c4,0 22px 0 0 #9888c4,-15.56px 15.56px 0 0 #9888c4,-22px 0 0 -5px rgba(152,136,196,0),-15.56px -15.56px 0 -5px rgba(152,136,196,0);}50%{box-shadow:0 -22px 0 -5px rgba(152,136,196,0),15.56px -15.56px 0 -5px rgba(152,136,196,0),22px 0 0 -5px rgba(152,136,196,0),15.56px 15.56px 0 -5px rgba(152,136,196,0),0 22px 0 0 #9888c4,-15.56px 15.56px 0 0 #9888c4,-22px 0 0 0 #9888c4,-15.56px -15.56px 0 -5px rgba(152,136,196,0);}62.5%{box-shadow:0 -22px 0 -5px rgba(152,136,196,0),15.56px -15.56px 0 -5px rgba(152,136,196,0),22px 0 0 -5px rgba(152,136,196,0),15.56px 15.56px 0 -5px rgba(152,136,196,0),0 22px 0 -5px rgba(152,136,196,0),-15.56px 15.56px 0 0 #9888c4,-22px 0 0 0 #9888c4,-15.56px -15.56px 0 0 #9888c4;}75%{box-shadow:0 -22px 0 0 #9888c4,15.56px -15.56px 0 -5px rgba(152,136,196,0),22px 0 0 -5px rgba(152,136,196,0),15.56px 15.56px 0 -5px rgba(152,136,196,0),0 22px 0 -5px rgba(152,136,196,0),-15.56px 15.56px 0 -5px rgba(152,136,196,0),-22px 0 0 0 #9888c4,-15.56px -15.56px 0 0 #9888c4;}87.5%{box-shadow:0 -22px 0 0 #9888c4,15.56px -15.56px 0 0 #9888c4,22px 0 0 -5px rgba(152,136,196,0),15.56px 15.56px 0 -5px rgba(152,136,196,0),0 22px 0 -5px rgba(152,136,196,0),-15.56px 15.56px 0 -5px rgba(152,136,196,0),-22px 0 0 -5px rgba(152,136,196,0),-15.56px -15.56px 0 0 #9888c4;}}
-.site-main{opacity:0;transition:opacity .5s ease;visibility:visible;}
+.site-main{opacity:0;transition:opacity .5s ease;}
 .site-main.loaded{opacity:1;}
 /* ════ スマホ横向き警告 ════ */
 #orientation-lock{display:none;position:fixed;inset:0;background:linear-gradient(135deg,#ede4fa,#cfc0ec);z-index:999999;align-items:center;justify-content:center;flex-direction:column;gap:clamp(12px,2vw,20px);text-align:center;padding:20px;}
@@ -1083,45 +1074,25 @@ body{
     flex-direction:column !important;
     overflow:hidden !important;
   }
-
-  .cover{aspect-ratio:1/1.4 !important;}
 }
 
 
-/* ════ turn.js フリップブック ════ */
+/* ─ turn.js フリップブック（PC用） ─ */
 #flipbook{
-  position:relative;
-  /* サイズはJSで設定 */
+  position:absolute;top:0;left:0;
+  box-shadow:none; /* bookのshadowを使う */
 }
 #flipbook .page{
-  /* turn.jsがposition:absoluteで管理 */
   overflow:hidden;
   background:
-    repeating-linear-gradient(
-      0deg,transparent 0px,transparent 27px,
-      rgba(175,155,215,0.055) 27px,rgba(175,155,215,0.055) 28px
-    ),
+    repeating-linear-gradient(0deg,transparent 0px,transparent 27px,
+      rgba(175,155,215,0.055) 27px,rgba(175,155,215,0.055) 28px),
     linear-gradient(180deg,#fefcff 0%,#fdf9ff 60%,#fbf6fe 100%);
 }
 #flipbook .page-content{
   width:100%;height:100%;
-  padding:clamp(10px,1.6vw,20px) clamp(12px,1.8vw,22px);
   box-sizing:border-box;
   overflow:hidden;
-  position:relative;
-}
-/* turn.jsが生成するグラデーション影 */
-#flipbook .gradient{
-  position:absolute;
-  z-index:100;
-  pointer-events:none;
-}
-/* 綴じ目 */
-#flipbook .b-shadow-f,
-#flipbook .b-shadow-b{
-  position:absolute;
-  z-index:50;
-  pointer-events:none;
 }
 
 </style>
@@ -1157,31 +1128,48 @@ body{
           <div class="side-btn-inner">◀</div>
         </button>
 
-        <!-- turn.js フリップブック -->
-        <div class="book-outer" id="bookOuter">
-          <!-- 表紙（turn.js起動前に表示） -->
-          <div class="cover" id="cover">
-            <div class="cover-inner">
-              <div class="cover-unit">いずれ菖蒲か杜若</div>
-              <div class="cover-en">2nd Anniversary Memory Book</div>
-              <div class="cover-deco">✦ ✦ ✦</div>
-              <div class="cover-title">推し活日記</div>
-              <div class="cover-sub">2024.06 — 2026.05</div>
-              <div class="cover-hint">— タップして開く —</div>
-              <div class="cover-members">
-                <div class="cover-members-row1">
-                  <span>綺沙良</span>
-                  <span class="cover-members-sub">司賀りこ</span>
-                  <span>ルンルン</span>
-                  <span class="cover-members-sub">珠乃井ナナ</span>
-                  <span>梢桃音</span>
+        <!-- 本の外枠（3D立体感用） -->
+        <div class="book-outer">
+          <div class="book" id="book">
+            <!-- turn.js フリップブック（PC用） -->
+            <div id="flipbook" style="display:none;position:absolute;top:0;left:0;z-index:10;"></div>
+
+            <!-- ページ（SP用・PC初期表示） -->
+            <div class="pages-wrap" id="pagesWrap">
+              <div class="page page-left"  id="pageLeft"></div>
+              <div class="page page-right" id="pageRight"></div>
+              <div class="spine"></div>
+            </div>
+
+            <!-- CSS 3D めくりパネル（SP用） -->
+            <div class="flip-panel" id="flipPanel">
+              <div class="fp-front" id="fpFront"></div>
+              <div class="fp-back"  id="fpBack"></div>
+            </div>
+
+            <!-- めくり中の落ち影 -->
+            <div class="flip-shadow" id="flipShadow"></div>
+
+            <!-- 表紙 -->
+            <div class="cover" id="cover">
+              <div class="cover-inner">
+                <div class="cover-unit">いずれ菖蒲か杜若</div>
+                <div class="cover-en">2nd Anniversary Memory Book</div>
+                <div class="cover-deco">✦ ✦ ✦</div>
+                <div class="cover-title">推し活日記</div>
+                <div class="cover-sub">2024.06 — 2026.05</div>
+                <div class="cover-hint">— タップして開く —</div>
+                <div class="cover-members">
+                  <div class="cover-members-row1">
+                    <span>綺沙良</span>
+                    <span class="cover-members-sub">司賀りこ</span>
+                    <span>ルンルン</span>
+                    <span class="cover-members-sub">珠乃井ナナ</span>
+                    <span>梢桃音</span>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-          <!-- フリップブック本体（表紙オープン後に表示） -->
-          <div id="flipbook" style="display:none;">
-            <!-- ページはJSで動的生成 -->
           </div>
         </div>
 
@@ -1203,58 +1191,330 @@ body{
 
 <script src="data.js"></script>
 <script>
-
-$(document).ready(function(){
 'use strict';
-
-/* ─── 定数 ─────────────────────────────── */
+/* ─── 定数 ────────────────────────────────── */
 const VALID={2024:[6,7,8,9,10,11,12],2025:[1,2,3,4,5,6,7,8,9,10,11,12],2026:[1,2,3,4,5,6]};
 const MCOL={1:'#FFE36C',2:'#DDD0F0',3:'#FFC6E2',4:'#63AED9',5:'#846FC7',6:'#DDD0F0',7:'#DDD0F0',8:'#DDD0F0',9:'#DDD0F0',10:'#D8E9FC',11:'#DDD0F0',12:'#DDD0F0'};
 const MN=['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
 
-/* ─── 見開き定義 ──────────────────────── */
-const SPREADS=[{type:'toc'}];
+const PAGES=[{type:'toc'}];
 [2024,2025,2026].forEach(y=>VALID[y].forEach(m=>{
-  if(y===2026&&m===6) SPREADS.push({type:'anniversary'});
-  else SPREADS.push({type:'month',year:y,month:m});
+  if(y===2026&&m===6) PAGES.push({type:'anniversary'});
+  else PAGES.push({type:'month',year:y,month:m});
 }));
 
-/* ─── 状態 ─────────────────────────────── */
-let curSpreadIdx=0, bookOpen=false, curYear=2024, curMonth=6;
-let sliderDragging=false;
+/* ─── 状態 ─────────────────────────────────── */
+let idx=0,flipping=false,bookOpen=false,curYear=2024,curMonth=6;
 
-/* ─── DOM ──────────────────────────────── */
+/* ─── DOM ──────────────────────────────────── */
 const cover      = document.getElementById('cover');
 const yearRow    = document.getElementById('yearRow');
 const monthCol   = document.getElementById('monthCol');
+const pageLeft   = document.getElementById('pageLeft');
+const pageRight  = document.getElementById('pageRight');
 const btnPrev    = document.getElementById('btnPrev');
 const btnNext    = document.getElementById('btnNext');
 const pageInfo   = document.getElementById('pageInfo');
 const slider     = document.getElementById('pageSlider');
 const navRow     = document.getElementById('navRow');
-const bookOuter  = document.getElementById('bookOuter');
-const flipbookEl = document.getElementById('flipbook');
+const flipPanel  = document.getElementById('flipPanel');
+const fpFront    = document.getElementById('fpFront');
+const fpBack     = document.getElementById('fpBack');
+const flipShadow = document.getElementById('flipShadow');
 
-/* ─── isMobile ─────────────────────────── */
-function isMobile(){ return window.innerWidth <= 600; }
+/* ─── 初期化 ──────────────────────────────── */
+(function init(){
+  slider.max=PAGES.length-1;
+  renderYearTabs(); renderMonthTabs(); updateSliderTrack(0);
+})();
 
-/* ─── ページサイズ ──────────────────────── */
-function getBookSize(){
-  const area = document.getElementById('bookArea');
-  const aw   = area ? area.offsetWidth : window.innerWidth * 0.8;
-  if(isMobile()){
-    /* SP: 1ページ縦長 */
-    const w = aw;
-    return { w, h: Math.round(w * 1.4), pageW: w, pageH: Math.round(w * 1.4) };
-  } else {
-    /* PC: 見開き。turn.jsのwidthは両ページ合計 */
-    const w = aw;
-    const h = Math.round(w * 0.52);
-    return { w, h, pageW: Math.round(w/2), pageH: h };
+/* ─── 表紙を開く ──────────────────────────── */
+cover.addEventListener('click',openBook);
+/* ─── turn.js初期化（PC用） ─────────────────── */
+let turnInitialized = false;
+function initTurnJs(){
+  if(turnInitialized || typeof $ === 'undefined' || !$.fn.turn) return;
+  const bookEl = document.getElementById('book');
+  const w = bookEl.offsetWidth;
+  const h = bookEl.offsetHeight;
+  const flipbook = document.getElementById('flipbook');
+
+  /* 全ページのdivを生成 */
+  $(flipbook).empty();
+  PAGES.forEach((p, i) => {
+    const {left, right} = getPageHTML(i);
+    /* 左ページ */
+    const lDiv = document.createElement('div');
+    lDiv.className = 'page';
+    const lContent = document.createElement('div');
+    lContent.className = 'page-content';
+    lContent.style.padding = 'clamp(10px,1.6vw,20px) clamp(12px,1.8vw,22px)';
+    lContent.innerHTML = left;
+    lDiv.appendChild(lContent);
+    flipbook.appendChild(lDiv);
+    /* 右ページ */
+    const rDiv = document.createElement('div');
+    rDiv.className = 'page';
+    const rContent = document.createElement('div');
+    rContent.className = 'page-content';
+    rContent.style.padding = 'clamp(10px,1.6vw,20px) clamp(12px,1.8vw,22px)';
+    rContent.innerHTML = right;
+    rDiv.appendChild(rContent);
+    flipbook.appendChild(rDiv);
+  });
+
+  $(flipbook).turn({
+    width: w,
+    height: h,
+    display: 'double',
+    acceleration: true,
+    gradients: true,
+    duration: 700,
+    page: 1,
+    when: {
+      turned: function(e, page){
+        const ni = Math.floor((page - 1) / 2);
+        if(ni !== idx){
+          idx = ni;
+          const p = PAGES[idx];
+          if(p && p.type==='month'){curYear=p.year;curMonth=p.month;}
+          renderYearTabs(); renderMonthTabs(); updateUI();
+        }
+      }
+    }
+  });
+
+  /* pagesWrapを非表示にしてflipbookを表示 */
+  document.getElementById('pagesWrap').style.display = 'none';
+  flipbook.style.display = 'block';
+  flipbook.style.width = w + 'px';
+  flipbook.style.height = h + 'px';
+  turnInitialized = true;
+}
+
+/* PCのgo()をturn.jsで上書き */
+function goPC(ni){
+  if(turnInitialized){
+    const turnPage = ni * 2 + 1;
+    $(document.getElementById('flipbook')).turn('page', turnPage);
   }
 }
 
-/* ─── ページHTML生成関数 ────────────────── */
+function openBook(){
+  if(bookOpen)return;
+  bookOpen=true;
+  /* SP: renderPage前に右ページを画面外に隠す（一瞬表示されるのを防ぐ） */
+  if(MOBILE()){
+    pageRight.style.transition='none';
+    pageRight.style.transform='translateX(100%)';
+    pageRight.style.opacity='0';
+    pageLeft.style.transition='none';
+    pageLeft.style.transform='translateX(0)';
+    pageLeft.style.opacity='1';
+    spSide='left';
+    document.getElementById('book').classList.add('show-left');
+    document.getElementById('book').classList.remove('show-right');
+  }
+  renderPage(0); updateUI();
+  cover.classList.add('closing');
+  let done=false;
+  function revealBook(){
+    if(done)return; done=true;
+    cover.style.display='none';
+    yearRow.classList.add('open');
+    monthCol.classList.add('open');
+    navRow.classList.add('open');
+    if(MOBILE()){
+      spSide='left';
+      pageLeft.style.transition='none';
+      pageLeft.style.transform='translateX(0)';
+      pageLeft.style.opacity='1';
+      pageRight.style.transition='none';
+      pageRight.style.transform='translateX(100%)';
+      pageRight.style.opacity='0';
+      document.getElementById('book').classList.add('show-left');
+      document.getElementById('book').classList.remove('show-right');
+      syncSp();
+    } else {
+      /* PC: turn.jsを初期化 */
+      setTimeout(initTurnJs, 50);
+    }
+  }
+  cover.addEventListener('animationend', revealBook, {once:true});
+  setTimeout(revealBook, 600);
+}
+
+/* ─── 年タブ ───────────────────────────────── */
+function renderYearTabs(){
+  yearRow.innerHTML='';
+  [2024,2025,2026].forEach(y=>{
+    const b=document.createElement('button');
+    b.className='year-tab'+(y===curYear?' active':'');
+    b.textContent=y+'年'; b.onclick=()=>onYear(y);
+    yearRow.appendChild(b);
+  });
+}
+/* ─── 月タブ ───────────────────────────────── */
+function renderMonthTabs(){
+  monthCol.innerHTML='';
+  const valid=VALID[curYear]||[];
+  for(let m=1;m<=12;m++){
+    const ok=valid.includes(m);
+    const act=ok&&curMonth===m&&idx>0;
+    const b=document.createElement('button');
+    b.className='month-tab'+(ok?'':' disabled')+(act?' active':'');
+    b.textContent=MN[m-1]; b.style.background=ok?MCOL[m]:'';
+    if(ok) b.onclick=()=>onMonth(m);
+    monthCol.appendChild(b);
+  }
+}
+
+/* ─── 年/月クリック ────────────────────────── */
+function onYear(y){
+  curYear=y;
+  const valid=VALID[y];
+  const m=idx===0?valid[0]:(valid.includes(curMonth)?curMonth:valid[0]);
+  if(y===2026&&m===6){goAnn();return;}
+  const ni=fIdx(y,m); if(ni!==-1)go(ni);
+}
+function onMonth(m){
+  if(curYear===2026&&m===6){goAnn();return;}
+  const ni=fIdx(curYear,m); if(ni!==-1)go(ni);
+}
+function goAnn(){const ni=PAGES.findIndex(p=>p.type==='anniversary');if(ni!==-1)go(ni);}
+function fIdx(y,m){return PAGES.findIndex(p=>p.type==='month'&&p.year===y&&p.month===m);}
+
+/* ─── ページ移動 ───────────────────────────── */
+function go(ni){
+  if(ni===idx)return;
+  /* SP: スライド方式 */
+  if(MOBILE()){
+    if(flipping)return;
+    idx=ni;
+    const p=PAGES[idx];
+    if(p.type==='month'){curYear=p.year;curMonth=p.month;}
+    spSide='left';
+    renderPage(idx); renderYearTabs(); renderMonthTabs();
+    syncSp();
+    return;
+  }
+  /* PC: turn.jsが初期化済みならturn.jsで移動 */
+  if(turnInitialized){
+    idx=ni;
+    const p=PAGES[idx];
+    if(p.type==='month'){curYear=p.year;curMonth=p.month;}
+    goPC(ni);
+    renderYearTabs(); renderMonthTabs(); updateUI();
+    return;
+  }
+  /* PC: turn.js未初期化（通常は起きない） */
+  if(flipping)return;
+  flipping=true;
+  const dir=ni>idx?'next':'prev';
+  const oldIdx=idx;
+  idx=ni;
+  const p=PAGES[idx];
+  if(p.type==='month'){curYear=p.year;curMonth=p.month;}
+  flip3D(dir, oldIdx, idx, ()=>{
+    renderYearTabs(); renderMonthTabs(); updateUI();
+  });
+}
+
+/* btnPrev/btnNext: SP統合版に移行済み */
+
+/* ─── スライダー ───────────────────────────── */
+let sliderDragging=false;
+slider.addEventListener('mousedown',()=>{sliderDragging=true;});
+slider.addEventListener('touchstart',()=>{sliderDragging=true;},{passive:true});
+slider.addEventListener('input',()=>updateSliderTrack(parseInt(slider.value)));
+/* slider change: SP統合版に移行済み */
+/* mouseup/touchend は document 全体で拾う（スライダー外で離しても確実にリセット） */
+document.addEventListener('mouseup',()=>{
+  if(!sliderDragging)return;
+  sliderDragging=false;
+  const ni=parseInt(slider.value);
+  if(ni!==idx)go(ni);
+});
+document.addEventListener('touchend',()=>{
+  if(!sliderDragging)return;
+  sliderDragging=false;
+  const ni=parseInt(slider.value);
+  if(ni!==idx)go(ni);
+},{passive:true});
+function updateSliderTrack(val){
+  const max=parseInt(slider.max)||1;
+  slider.style.setProperty('--pct',(val/max*100).toFixed(1)+'%');
+}
+
+/* ─── UI更新 ───────────────────────────────── */
+function updateUI(){
+  btnPrev.classList.toggle('hidden',idx===0);
+  btnNext.classList.toggle('hidden',idx===PAGES.length-1);
+  const p=PAGES[idx];
+  pageInfo.textContent=p.type==='toc'?'目次':p.type==='anniversary'?'2nd Anniversary':`${p.year}年 ${MN[p.month-1]}`;
+  if(!sliderDragging){slider.value=idx;updateSliderTrack(idx);}
+}
+
+/* ══════════════════════════════════════════
+   CSS 3D ページめくり
+══════════════════════════════════════════ */
+function flip3D(dir, oldIdx, newIdx, cb){
+  flipping=true;
+  const isNext=(dir==='next');
+  const dur=680;
+  const {left:oldL, right:oldR} = getPageHTML(oldIdx);
+  const {left:newL, right:newR} = getPageHTML(newIdx);
+
+  pageLeft.innerHTML  = oldL;
+  pageRight.innerHTML = oldR;
+
+  flipPanel.className        = 'flip-panel flipping '+(isNext?'flip-next':'flip-prev');
+  flipPanel.style.transition = 'none';
+  flipPanel.style.transform  = 'rotateY(0deg)';
+
+  fpFront.innerHTML = isNext ? oldR : oldL;
+  fpFront.className = 'fp-front '+(isNext?'page-right':'page-left');
+  fpBack.innerHTML  = isNext ? newL : newR;
+  fpBack.className  = 'fp-back ' +(isNext?'page-left':'page-right');
+  /* flipShadow disabled */
+
+
+  let midTimer=null;
+  requestAnimationFrame(()=>{
+    flipPanel.style.transition=`transform ${dur}ms cubic-bezier(0.645,0.045,0.355,1.000)`;
+    flipPanel.style.transform = isNext?'rotateY(-180deg)':'rotateY(180deg)';
+    midTimer=setTimeout(()=>{
+      if(isNext){ pageRight.innerHTML=newR; }
+      else      { pageLeft.innerHTML =newL; }
+    }, dur*0.48);
+  });
+
+  flipPanel.addEventListener('transitionend',()=>{
+    clearTimeout(midTimer);
+    flipPanel.className       ='flip-panel';
+    flipPanel.style.transform ='rotateY(0deg)';
+    /* flipShadow disabled */
+
+    pageLeft.innerHTML =newL;
+    pageRight.innerHTML=newR;
+    flipping=false;
+    cb();
+  },{once:true});
+}
+
+/* ─── ページHTML生成 ──────────────────────── */
+function getPageHTML(i){
+  const p=PAGES[i];
+  if(p.type==='toc')        return getTocHTML();
+  if(p.type==='anniversary') return getAnnHTML();
+  return getMonthHTML(p.year,p.month);
+}
+function renderPage(i){
+  const {left,right}=getPageHTML(i);
+  pageLeft.innerHTML=left;
+  pageRight.innerHTML=right;
+}
+
 /* ─── 目次 ─────────────────────────────────── */
 function getTocHTML(){
   const left=`
@@ -1414,214 +1674,222 @@ function getAnnHTML(){
   return {left,right};
 }
 
-
-
-/* ─── ページ移動 ────────────────────────── */
-function goToSpread(si){
-  if(!bookOpen) return;
-  const clipped = Math.max(0, Math.min(SPREADS.length-1, si));
-  curSpreadIdx = clipped;
-  if(isMobile()){
-    /* SP: 左ページ（偶数番目）に移動 */
-    const turnPage = clipped * 2 + 1;
-    $(flipbookEl).turn('page', turnPage);
-  } else {
-    /* PC: 左ページ（奇数）に移動 */
-    const turnPage = clipped * 2 + 1;
-    $(flipbookEl).turn('page', turnPage);
-  }
-}
-
-/* ─── 年タブ ────────────────────────────── */
-function renderYearTabs(){
-  yearRow.innerHTML='';
-  [2024,2025,2026].forEach(y=>{
-    const b=document.createElement('button');
-    b.className='year-tab'+(y===curYear?' active':'');
-    b.textContent=y+'年'; b.onclick=()=>onYear(y);
-    yearRow.appendChild(b);
-  });
-}
-/* ─── 月タブ ────────────────────────────── */
-function renderMonthTabs(){
-  monthCol.innerHTML='';
-  const valid=VALID[curYear]||[];
-  for(let m=1;m<=12;m++){
-    const ok=valid.includes(m);
-    const act=ok&&curMonth===m&&curSpreadIdx>0;
-    const b=document.createElement('button');
-    b.className='month-tab'+(ok?'':' disabled')+(act?' active':'');
-    b.textContent=MN[m-1]; b.style.background=ok?MCOL[m]:'';
-    if(ok) b.onclick=()=>onMonth(m);
-    monthCol.appendChild(b);
-  }
-}
-
-/* ─── 年/月クリック ─────────────────────── */
-function onYear(y){
-  curYear=y;
-  const valid=VALID[y];
-  const m=valid.includes(curMonth)?curMonth:valid[0];
-  if(y===2026&&m===6){ goToSpread(SPREADS.findIndex(s=>s.type==='anniversary')); return; }
-  goToSpread(SPREADS.findIndex(s=>s.type==='month'&&s.year===y&&s.month===m));
-}
-function onMonth(m){
-  if(curYear===2026&&m===6){ goToSpread(SPREADS.findIndex(s=>s.type==='anniversary')); return; }
-  goToSpread(SPREADS.findIndex(s=>s.type==='month'&&s.year===curYear&&s.month===m));
-}
-
-/* ─── UI更新 ────────────────────────────── */
-function updateUI(){
-  if(!bookOpen) return;
-  btnPrev.classList.toggle('hidden', curSpreadIdx===0);
-  btnNext.classList.toggle('hidden', curSpreadIdx===SPREADS.length-1);
-  const sp=SPREADS[curSpreadIdx];
-  if(!sp) return;
-  pageInfo.textContent=sp.type==='toc'?'目次':sp.type==='anniversary'?'2nd Anniversary':`${sp.year}年 ${MN[sp.month-1]}`;
-  if(!sliderDragging){
-    slider.value=curSpreadIdx;
-    updateSliderTrack(curSpreadIdx);
-  }
-}
-
-/* ─── スライダー ────────────────────────── */
-function updateSliderTrack(val){
-  const max=parseInt(slider.max)||1;
-  slider.style.setProperty('--pct',(val/max*100).toFixed(1)+'%');
-}
-slider.addEventListener('mousedown',()=>{sliderDragging=true;});
-slider.addEventListener('touchstart',()=>{sliderDragging=true;},{passive:true});
-slider.addEventListener('input',()=>updateSliderTrack(parseInt(slider.value)));
-slider.addEventListener('change',()=>{
-  sliderDragging=false;
-  goToSpread(parseInt(slider.value));
+/* ─── キーボード ─────────────────────────────── */
+document.addEventListener('keydown',e=>{
+  if(!bookOpen)return;
+  if(e.key==='ArrowLeft'&&idx<PAGES.length-1)go(idx+1);
+  if(e.key==='ArrowRight'&&idx>0)go(idx-1);
 });
-document.addEventListener('mouseup',()=>{
-  if(!sliderDragging) return;
-  sliderDragging=false;
-  goToSpread(parseInt(slider.value));
-});
-document.addEventListener('touchend',()=>{
-  if(!sliderDragging) return;
-  sliderDragging=false;
-  goToSpread(parseInt(slider.value));
-},{passive:true});
 
-/* ─── ボタン ────────────────────────────── */
-btnPrev.addEventListener('click',()=>goToSpread(curSpreadIdx-1));
-btnNext.addEventListener('click',()=>goToSpread(curSpreadIdx+1));
+/* ─── スワイプ ───────────────────────────────── */
+/* touch: SP統合版に移行済み */
+/* book touchend: SP統合版に移行済み */
 
+/* ════ スマホ1ページ表示 ════ */
+/* spSideをグローバルで管理してgo()完了後も正しく動くようにする */
+let spSide = 'left'; /* 'left' or 'right' */
+const MOBILE = () => window.innerWidth <= 600;
 
+let spDir = 'next';
+const SP_ANI_DUR = 300; /* スライドアニメ時間(ms) */
 
-/* ─── turn.js 初期化 ────────────────────── */
-function initFlipbook(){
-  const sz = getBookSize();
-  const displayMode = isMobile() ? 'single' : 'double';
+function spSetPage(showEl, hideEl, fromDir){
+  /* fromDir: 'right'(次へ) or 'left'(前へ)
+     次へ: 現在ページが左に消え、新ページが右から来る
+     前へ: 現在ページが右に消え、新ページが左から来る */
+  const showStartX = fromDir === 'right' ? '100%'  : '-100%';
+  const hideEndX   = fromDir === 'right' ? '-30%'  : '30%';
+  const ease = `transform ${SP_ANI_DUR}ms cubic-bezier(0.25,0.46,0.45,0.94), opacity ${SP_ANI_DUR}ms ease`;
 
-  /* 全ページのdivを生成 */
-  $(flipbookEl).empty();
-  SPREADS.forEach((sp, si) => {
-    /* 左ページ */
-    const lDiv = $('<div>').addClass('page').attr('id','tp-'+(si*2));
-    const lContent = $('<div>').addClass('page-content');
-    let pageHtml;
-    if(sp.type==='toc')              pageHtml = getTocHTML();
-    else if(sp.type==='anniversary') pageHtml = getAnnHTML();
-    else pageHtml = getMonthHTML(sp.year, sp.month);
-    lContent.html(pageHtml.left);
-    lDiv.append(lContent);
-    if(sp.type==='anniversary') lDiv.addClass('final-page');
-    $(flipbookEl).append(lDiv);
+  /* 両ページを現在位置に固定（transition:none） */
+  hideEl.style.transition = 'none';
+  hideEl.style.transform  = 'translateX(0)';
+  hideEl.style.opacity    = '1';
+  showEl.style.transition = 'none';
+  showEl.style.transform  = showStartX;
+  showEl.style.opacity    = '0';
 
-    /* 右ページ */
-    const rDiv = $('<div>').addClass('page').attr('id','tp-'+(si*2+1));
-    const rContent = $('<div>').addClass('page-content');
-    rContent.html(pageHtml.right);
-    rDiv.append(rContent);
-    if(sp.type==='anniversary') rDiv.addClass('final-page');
-    $(flipbookEl).append(rDiv);
+  /* 2フレーム後にアニメ開始 */
+  requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>{
+      /* 現在ページをスライドアウト */
+      hideEl.style.transition = ease;
+      hideEl.style.transform  = hideEndX;
+      hideEl.style.opacity    = '0';
+      /* 新ページをスライドイン */
+      showEl.style.transition = ease;
+      showEl.style.transform  = 'translateX(0)';
+      showEl.style.opacity    = '1';
+    });
   });
-
-  /* turn.js 初期化 */
-  $(flipbookEl).turn({
-    width:  sz.w,
-    height: sz.h,
-    display: displayMode,
-    acceleration: true,
-    gradients: true,
-    duration: 700,
-    page: 1,
-    when: {
-      turned: function(e, page){
-        const si = Math.floor((page - 1) / 2);
-        curSpreadIdx = Math.min(si, SPREADS.length - 1);
-        const sp2 = SPREADS[curSpreadIdx];
-        if(sp2 && sp2.type==='month'){ curYear=sp2.year; curMonth=sp2.month; }
-        renderYearTabs(); renderMonthTabs(); updateUI();
-      }
-    }
-  });
-
-  $(flipbookEl).css({ width: sz.w + 'px', height: sz.h + 'px' });
 }
 
-/* ─── 表紙クリック ──────────────────────── */
-$(cover).on('click', openBook);
-function openBook(){
-  if(bookOpen) return;
-  bookOpen = true;
-  cover.classList.add('closing');
-  let done = false;
-  function revealBook(){
-    if(done) return; done = true;
-    cover.style.display = 'none';
-    $(flipbookEl).css('display','block');
-    initFlipbook();
-    yearRow.classList.add('open');
-    monthCol.classList.add('open');
-    navRow.classList.add('open');
-    renderYearTabs(); renderMonthTabs();
-    slider.max = SPREADS.length - 1;
+function syncSp(){
+  const book = document.getElementById('book');
+  if(!MOBILE()){
+    book.classList.remove('show-left','show-right');
+    /* PCではstyleをリセット */
+    pageLeft.style.transform  = '';
+    pageLeft.style.opacity    = '';
+    pageLeft.style.transition = '';
+    pageRight.style.transform  = '';
+    pageRight.style.opacity    = '';
+    pageRight.style.transition = '';
+    slider.max = PAGES.length - 1;
+    return;
+  }
+  book.classList.toggle('show-left',  spSide === 'left');
+  book.classList.toggle('show-right', spSide === 'right');
+  /* スライダー: 1ページ単位 */
+  slider.max = PAGES.length * 2 - 1;
+  const sv = idx * 2 + (spSide === 'right' ? 1 : 0);
+  if(!sliderDragging){ slider.value = sv; updateSliderTrack(sv); }
+  /* ページ情報 */
+  const p = PAGES[idx];
+  const label = p.type==='toc' ? '目次' : p.type==='anniversary' ? '2nd Anniversary' : `${p.year}年 ${MN[p.month-1]}`;
+  pageInfo.textContent = label + (spSide === 'right' ? ' ▶' : '');
+  /* ボタン表示 */
+  btnPrev.classList.toggle('hidden', idx === 0 && spSide === 'left');
+  btnNext.classList.toggle('hidden', idx === PAGES.length - 1 && spSide === 'right');
+}
+
+/* SP: ページスライドアニメーション付き切り替え */
+function spSlide(toSide, newIdx, dir){
+  /* dir: 'forward'(左→右へ進む) or 'back'(右→左へ戻る) */
+  const book = document.getElementById('book');
+  const dur = 350;
+
+  if(newIdx !== null && newIdx !== idx){
+    /* 見開きをまたぐ場合: 新ページを先にレンダリング */
+    idx = newIdx;
+    const p = PAGES[idx];
+    if(p.type === 'month'){ curYear = p.year; curMonth = p.month; }
+    renderPage(idx); renderYearTabs(); renderMonthTabs();
+  }
+  spSide = toSide;
+
+  /* transitionを一時的に無効にしてから適用 */
+  book.style.setProperty('--sp-dur', dur + 'ms');
+  syncSp();
+  updateUI();
+}
+
+let spAnim = false;
+
+function spNext(){
+  if(spAnim) return;
+  spAnim = true;
+
+  if(spSide === 'left'){
+    /* 左→右: 右ページが右からスライドイン */
+    spSide = 'right';
+    spSetPage(pageRight, pageLeft, 'right');
     updateUI();
+  } else if(idx < PAGES.length - 1){
+    /* 次の見開き左ページへ: 左ページが右からスライドイン */
+    idx++;
+    const p = PAGES[idx];
+    if(p.type === 'month'){ curYear = p.year; curMonth = p.month; }
+    renderPage(idx); renderYearTabs(); renderMonthTabs();
+    spSide = 'left';
+    spSetPage(pageLeft, pageRight, 'right');
+    updateUI();
+  } else {
+    spAnim = false; return;
   }
-  cover.addEventListener('animationend', revealBook, {once:true});
-  setTimeout(revealBook, 600);
+  setTimeout(()=>{ spAnim = false; }, SP_ANI_DUR + 50);
 }
 
-/* ─── coverのサイズ設定 ─────────────────── */
-function setCoverSize(){
-  const area = document.getElementById('bookArea');
-  if(!area) return;
-  const sz = getBookSize();
-  $(cover).css({ width: sz.w + 'px', height: sz.h + 'px' });
+function spPrev(){
+  if(spAnim) return;
+  spAnim = true;
+
+  if(spSide === 'right'){
+    /* 右→左: 左ページが左からスライドイン */
+    spSide = 'left';
+    spSetPage(pageLeft, pageRight, 'left');
+    updateUI();
+  } else if(idx > 0){
+    /* 前の見開き右ページへ: 右ページが左からスライドイン */
+    idx--;
+    const p = PAGES[idx];
+    if(p.type === 'month'){ curYear = p.year; curMonth = p.month; }
+    renderPage(idx); renderYearTabs(); renderMonthTabs();
+    spSide = 'right';
+    spSetPage(pageRight, pageLeft, 'left');
+    updateUI();
+  } else {
+    spAnim = false; return;
+  }
+  setTimeout(()=>{ spAnim = false; }, SP_ANI_DUR + 50);
 }
-setCoverSize();
-/* DOMContentLoaded時点でwidthが0の場合、loadで再設定 */
-$(window).on('load', function(){
-  if(!bookOpen) setCoverSize();
-});
-$(window).on('resize', function(){
-  if(!bookOpen) setCoverSize();
-});
 
-}); // $(document).ready end
+/* ボタン */
+btnPrev.addEventListener('click', ()=>{ if(MOBILE()) spPrev(); else if(idx>0) go(idx-1); });
+btnNext.addEventListener('click', ()=>{ if(MOBILE()) spNext(); else if(idx<PAGES.length-1) go(idx+1); });
 
-/* ─── ローディング画面 ─── */
+/* スワイプ */
 (function(){
-  function hideLoading(){
-    var ls = document.getElementById('loading-screen');
-    var sm = document.getElementById('siteMain');
-    if(ls){ ls.style.opacity='0'; ls.style.visibility='hidden'; ls.style.pointerEvents='none'; }
-    if(sm){ sm.style.opacity='1'; }
-  }
-  /* 500ms後に強制的に非表示 */
-  setTimeout(hideLoading, 500);
-  /* フォント読み込み完了後も非表示 */
-  if(document.fonts && document.fonts.ready){
-    document.fonts.ready.then(function(){ setTimeout(hideLoading, 200); });
-  }
+  let stx = 0;
+  const bk = document.getElementById('book');
+  bk.addEventListener('touchstart', e=>{ stx = e.touches[0].clientX; }, {passive:true});
+  bk.addEventListener('touchend', e=>{
+    if(!bookOpen) return;
+    const dx = e.changedTouches[0].clientX - stx;
+    if(Math.abs(dx) < 40) return;
+    if(MOBILE()){ dx < 0 ? spNext() : spPrev(); }
+    else { if(dx < -50 && idx < PAGES.length-1) go(idx+1); if(dx > 50 && idx > 0) go(idx-1); }
+  }, {passive:true});
 })();
 
+/* スライダー */
+slider.addEventListener('change', ()=>{
+  sliderDragging = false;
+  const val = parseInt(slider.value);
+  if(MOBILE()){
+    const ni = Math.floor(val / 2);
+    const ns = val % 2 === 0 ? 'left' : 'right';
+    if(ni !== idx){
+      idx = ni;
+      const p = PAGES[idx];
+      if(p.type === 'month'){ curYear = p.year; curMonth = p.month; }
+      renderPage(idx); renderYearTabs(); renderMonthTabs();
+      spSide = ns;
+      syncSp();
+    } else if(ns !== spSide){
+      spSide = ns;
+      syncSp();
+    }
+  } else {
+    if(val !== idx) go(val);
+  }
+});
+
+/* updateUI に同期処理を追加 */
+const _ui = updateUI;
+updateUI = function(){
+  _ui();
+  if(MOBILE()) syncSp();
+};
+
+/* リサイズ対応 */
+window.addEventListener('resize', ()=>{
+  if(MOBILE()){ slider.max = PAGES.length*2-1; syncSp(); }
+  else{ slider.max = PAGES.length-1; document.getElementById('book').classList.remove('show-left','show-right'); _ui(); }
+});
+
+/* 初期化 */
+if(MOBILE()) slider.max = PAGES.length * 2 - 1;
+
+/* ════ ローディング画面制御 ════ */
+(function(){
+  const ls=document.getElementById('loading-screen');
+  const sm=document.getElementById('siteMain');
+  let done=false;
+  function hide(){if(done)return;done=true;ls.classList.add('hidden');sm.classList.add('loaded');}
+  const t=setTimeout(hide,1500);
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{clearTimeout(t);setTimeout(hide,300);});
+})();
 
 </script>
 </div><!-- /site-main -->
