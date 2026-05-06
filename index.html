@@ -274,6 +274,8 @@ body{
     #d0c8ec 60%,#b0a4d8 85%,#9888c4 100%
   );
   box-shadow:0 0 12px rgba(80,55,130,0.2);
+  /* 初期は非表示（表紙が開いた後にJSで表示） */
+  display:none;
 }
 /* 綴じ目の縫い目風 */
 .spine::after{
@@ -1290,7 +1292,8 @@ function initTurnJs(){
     duration: 700,
     page: 2,
     direction: 'ltr',
-    turnCorners: 'br,tr',
+    turnCorners: 'bl,br,tl,tr',
+    peel: false,
     when: {
       turned: function(e, page){
         console.log('turned: page='+page);
@@ -1352,6 +1355,9 @@ function openBook(){
     yearRow.classList.add('open');
     monthCol.classList.add('open');
     navRow.classList.add('open');
+    /* 綴じ目を表示 */
+    const spineEl=document.getElementById('spineEl');
+    if(spineEl) spineEl.style.display='block';
     if(MOBILE()){
       spSide='left';
       pageLeft.style.transition='none';
