@@ -1006,28 +1006,61 @@ body{
   .page-left,.page-right{
     position:absolute !important;top:0 !important;left:0 !important;
     width:100% !important;height:100% !important;
-    /* transitionはここで一元管理 */
-    transition:transform 0.35s cubic-bezier(0.25,0.46,0.45,0.94),
-               opacity 0.35s ease;
+    /* SP: transitionなし（keyframesで制御） */
+    transition:none !important;
     border-radius:4px 10px 10px 4px !important;
     box-shadow:none !important;
     will-change:transform;
   }
   .spine{display:none !important;}
-  /* show-left: 左ページ表示（右ページは右に隠れる） */
-  .book.show-left .page-left{transform:translateX(0) !important;opacity:1 !important;}
-  .book.show-left .page-right{transform:translateX(100%) !important;opacity:0 !important;pointer-events:none !important;}
-  /* show-right: 右ページ表示（左ページは左に隠れる） */
-  .book.show-right .page-right{transform:translateX(0) !important;opacity:1 !important;}
-  .book.show-right .page-left{transform:translateX(-100%) !important;opacity:0 !important;pointer-events:none !important;}
-  /* 次へ方向クラス: 新ページを一旦右に配置してから0に戻す */
-  .book.dir-next.show-right .page-right{animation:slideFromRight 0.35s cubic-bezier(0.25,0.46,0.45,0.94) forwards !important;}
-  .book.dir-next.show-left .page-left{animation:slideFromRight 0.35s cubic-bezier(0.25,0.46,0.45,0.94) forwards !important;}
-  /* 前へ方向クラス: 新ページを一旦左に配置してから0に戻す */
-  .book.dir-prev.show-left .page-left{animation:slideFromLeft 0.35s cubic-bezier(0.25,0.46,0.45,0.94) forwards !important;}
-  .book.dir-prev.show-right .page-right{animation:slideFromLeft 0.35s cubic-bezier(0.25,0.46,0.45,0.94) forwards !important;}
-  @keyframes slideFromRight{from{transform:translateX(100%);opacity:0;}to{transform:translateX(0);opacity:1;}}
-  @keyframes slideFromLeft{from{transform:translateX(-100%);opacity:0;}to{transform:translateX(0);opacity:1;}}
+  /* SP: transitionを無効化（keyframesのみで制御） */
+  .page-left,.page-right{transition:none !important;}
+  /* show-left: 左ページを即座に表示位置に固定 */
+  .book.show-left .page-left{
+    transform:translateX(0) !important;
+    opacity:1 !important;
+    animation:none !important;
+  }
+  .book.show-left .page-right{
+    transform:translateX(100%) !important;
+    opacity:0 !important;
+    pointer-events:none !important;
+    animation:none !important;
+  }
+  /* show-right: 右ページを即座に表示位置に固定 */
+  .book.show-right .page-right{
+    transform:translateX(0) !important;
+    opacity:1 !important;
+    animation:none !important;
+  }
+  .book.show-right .page-left{
+    transform:translateX(-100%) !important;
+    opacity:0 !important;
+    pointer-events:none !important;
+    animation:none !important;
+  }
+  /* dir-next: 表示ページが右からスライドイン */
+  .book.dir-next.show-right .page-right{
+    animation:spSlideFromRight 0.32s cubic-bezier(0.25,0.46,0.45,0.94) forwards !important;
+  }
+  .book.dir-next.show-left .page-left{
+    animation:spSlideFromRight 0.32s cubic-bezier(0.25,0.46,0.45,0.94) forwards !important;
+  }
+  /* dir-prev: 表示ページが左からスライドイン */
+  .book.dir-prev.show-left .page-left{
+    animation:spSlideFromLeft 0.32s cubic-bezier(0.25,0.46,0.45,0.94) forwards !important;
+  }
+  .book.dir-prev.show-right .page-right{
+    animation:spSlideFromLeft 0.32s cubic-bezier(0.25,0.46,0.45,0.94) forwards !important;
+  }
+  @keyframes spSlideFromRight{
+    from{transform:translateX(100%);opacity:0.3;}
+    to{transform:translateX(0);opacity:1;}
+  }
+  @keyframes spSlideFromLeft{
+    from{transform:translateX(-100%);opacity:0.3;}
+    to{transform:translateX(0);opacity:1;}
+  }
   /* flipパネル: SP時は非表示（CSSで切り替え、アニメなし） */
   .flip-panel{display:none !important;}
   /* ページ余白 */
@@ -1570,14 +1603,14 @@ function syncSp(){
     slider.max = PAGES.length - 1;
     return;
   }
-  /* クラスをリセットして再設定 */
+  /* dir/showクラスを確実にリセットしてから設定 */
   book.classList.remove('show-left','show-right','dir-next','dir-prev');
-  requestAnimationFrame(()=>{
-    book.classList.add(spSide === 'left' ? 'show-left' : 'show-right');
-    book.classList.add(spDir === 'next' ? 'dir-next' : 'dir-prev');
-    /* アニメ完了後にdirクラスを削除 */
-    setTimeout(()=>book.classList.remove('dir-next','dir-prev'), 400);
-  });
+  /* void でリフローを強制（クラス削除を確定させる） */
+  void book.offsetWidth;
+  book.classList.add(spSide === 'left' ? 'show-left' : 'show-right');
+  book.classList.add(spDir === 'next' ? 'dir-next' : 'dir-prev');
+  /* アニメ完了後にdirクラスを削除 */
+  setTimeout(()=>book.classList.remove('dir-next','dir-prev'), 380);
   /* スライダー: 1ページ単位 */
   slider.max = PAGES.length * 2 - 1;
   const sv = idx * 2 + (spSide === 'right' ? 1 : 0);
