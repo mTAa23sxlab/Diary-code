@@ -1006,17 +1006,30 @@ body{
   .page-left,.page-right{
     position:absolute !important;top:0 !important;left:0 !important;
     width:100% !important;height:100% !important;
-    transition:transform 0.35s ease,opacity 0.35s ease;
+    /* transitionはここで一元管理 */
+    transition:transform 0.35s cubic-bezier(0.25,0.46,0.45,0.94),
+               opacity 0.35s ease;
     border-radius:4px 10px 10px 4px !important;
     box-shadow:none !important;
+    will-change:transform;
   }
   .spine{display:none !important;}
-  /* show-left: 左ページ表示 */
+  /* デフォルト: 両ページを表示位置に */
+  .page-left, .page-right{transform:translateX(0);opacity:1;}
+  /* show-left: 左ページのみ表示（右は右に隠れる） */
   .book.show-left .page-left{transform:translateX(0) !important;opacity:1 !important;}
   .book.show-left .page-right{transform:translateX(100%) !important;opacity:0 !important;pointer-events:none !important;}
-  /* show-right: 右ページ表示 */
+  /* show-right: 右ページのみ表示（左は左に隠れる） */
   .book.show-right .page-right{transform:translateX(0) !important;opacity:1 !important;}
   .book.show-right .page-left{transform:translateX(-100%) !important;opacity:0 !important;pointer-events:none !important;}
+  /* slide-forward: 次へ（現在が左に、新が右から来る） */
+  .book.slide-out-left .page-left{transform:translateX(-100%) !important;opacity:0 !important;}
+  .book.slide-in-right .page-right{animation:slideInRight 0.35s ease forwards;}
+  /* slide-back: 前へ（現在が右に、新が左から来る） */
+  .book.slide-out-right .page-right{transform:translateX(100%) !important;opacity:0 !important;}
+  .book.slide-in-left .page-left{animation:slideInLeft 0.35s ease forwards;}
+  @keyframes slideInRight{from{transform:translateX(100%);opacity:0;}to{transform:translateX(0);opacity:1;}}
+  @keyframes slideInLeft{from{transform:translateX(-100%);opacity:0;}to{transform:translateX(0);opacity:1;}}
   /* flipパネル: SP時は非表示（CSSで切り替え、アニメなし） */
   .flip-panel{display:none !important;}
   /* ページ余白 */
@@ -1030,8 +1043,8 @@ body{
   /* テキストフォント */
   .toc-book-title{font-size:2.8vw;}
   .toc-title{font-size:2.8vw;margin-bottom:1.5vw;}
-  .toc-notice{font-size:2.5vw;line-height:1.75;}
-  .toc-notice a{font-size:2.3vw;}
+  .toc-notice{font-size:2.2vw;line-height:1.65;}
+  .toc-notice a{font-size:2vw;}
   .toc-how-title{font-size:2.8vw;}
   .toc-divider{margin:1.5vw 0;}
   .toc-how-desc{font-size:2.3vw;line-height:1.7;}
@@ -1540,9 +1553,12 @@ function syncSp(){
     slider.max = PAGES.length - 1;
     return;
   }
-  /* show-left / show-right を設定 */
-  book.classList.toggle('show-left',  spSide === 'left');
-  book.classList.toggle('show-right', spSide === 'right');
+  /* 現在のクラスを削除してから再設定（確実にtransitionが走る） */
+  book.classList.remove('show-left','show-right');
+  /* 1フレーム後に設定（transitionが確実に発火するため） */
+  requestAnimationFrame(()=>{
+    book.classList.add(spSide === 'left' ? 'show-left' : 'show-right');
+  });
   /* スライダー: 1ページ単位 */
   slider.max = PAGES.length * 2 - 1;
   const sv = idx * 2 + (spSide === 'right' ? 1 : 0);
@@ -1556,35 +1572,56 @@ function syncSp(){
   btnNext.classList.toggle('hidden', idx === PAGES.length - 1 && spSide === 'right');
 }
 
+/* SP: ページスライドアニメーション付き切り替え */
+function spSlide(toSide, newIdx, dir){
+  /* dir: 'forward'(左→右へ進む) or 'back'(右→左へ戻る) */
+  const book = document.getElementById('book');
+  const dur = 350;
+
+  if(newIdx !== null && newIdx !== idx){
+    /* 見開きをまたぐ場合: 新ページを先にレンダリング */
+    idx = newIdx;
+    const p = PAGES[idx];
+    if(p.type === 'month'){ curYear = p.year; curMonth = p.month; }
+    renderPage(idx); renderYearTabs(); renderMonthTabs();
+  }
+  spSide = toSide;
+
+  /* transitionを一時的に無効にしてから適用 */
+  book.style.setProperty('--sp-dur', dur + 'ms');
+  syncSp();
+  updateUI();
+}
+
 function spNext(){
-  /* 左ページ表示中 → 右ページへ（同じ見開き） */
   if(spSide === 'left'){
+    /* 左→右ページ: 右からスライドイン */
     spSide = 'right';
-    syncSp();
-  /* 右ページ表示中 → 次の見開きの左ページへ */
+    syncSp(); updateUI();
   } else if(idx < PAGES.length - 1){
+    /* 次の見開き左ページへ: 右からスライドイン */
     idx++;
     const p = PAGES[idx];
     if(p.type === 'month'){ curYear = p.year; curMonth = p.month; }
     renderPage(idx); renderYearTabs(); renderMonthTabs();
     spSide = 'left';
-    syncSp();
+    syncSp(); updateUI();
   }
 }
 
 function spPrev(){
-  /* 右ページ表示中 → 左ページへ（同じ見開き） */
   if(spSide === 'right'){
+    /* 右→左ページ: 左からスライドイン */
     spSide = 'left';
-    syncSp();
-  /* 左ページ表示中 → 前の見開きの右ページへ */
+    syncSp(); updateUI();
   } else if(idx > 0){
+    /* 前の見開き右ページへ: 左からスライドイン */
     idx--;
     const p = PAGES[idx];
     if(p.type === 'month'){ curYear = p.year; curMonth = p.month; }
     renderPage(idx); renderYearTabs(); renderMonthTabs();
     spSide = 'right';
-    syncSp();
+    syncSp(); updateUI();
   }
 }
 
