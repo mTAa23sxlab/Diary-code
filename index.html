@@ -577,12 +577,17 @@ body{
 
 .pickup-area{display:flex;flex-direction:column;height:100%;gap:clamp(4px,.8vw,8px);}
 .pickup-fanmark{
-  text-align:center;
-  font-size:clamp(14px,2vw,22px);
-  line-height:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:clamp(4px,.6vw,8px);
   flex-shrink:0;
-  letter-spacing:.2em;
-  opacity:0.85;
+  opacity:0.88;
+  font-size:clamp(14px,1.8vw,20px);
+  line-height:1;
+}
+.pickup-fanmark svg{
+  filter:drop-shadow(0 1px 3px rgba(100,60,150,0.18));
 }
 .pickup-month-label{
   font-family:'Cormorant Garamond',serif;font-style:italic;
@@ -1075,6 +1080,267 @@ body{
 #flipbook .page .clickable{
   pointer-events:auto;
 }
+
+/* ════════════════════════════════════════════════
+   花イラスト共通
+════════════════════════════════════════════════ */
+.member-flower-row{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:clamp(6px,1.2vw,14px);
+  flex-wrap:nowrap;
+  flex-shrink:0;
+}
+.member-flower-item{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  line-height:1;
+  filter:drop-shadow(0 1px 3px rgba(100,60,150,0.18));
+  transition:transform .25s cubic-bezier(.22,.68,0,1.3), filter .25s;
+}
+.member-flower-item:hover{
+  transform:scale(1.18) rotate(-5deg);
+  filter:drop-shadow(0 2px 6px rgba(100,60,150,0.28));
+}
+
+/* ════════════════════════════════════════════════
+   最終ページ: 左（お祝い）
+════════════════════════════════════════════════ */
+.final-left-wrap{
+  height:100%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:space-between;
+  padding:clamp(8px,1.5vw,16px) clamp(6px,1.2vw,14px);
+  gap:0;
+}
+.final-ann-block{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:clamp(5px,0.9vw,10px);
+  text-align:center;
+  padding:clamp(6px,1vw,12px) 0;
+}
+.final-ann-en{
+  font-family:'DM Serif Display','Cormorant Garamond',serif;
+  font-style:italic;
+  font-size:clamp(10px,1.5vw,17px);
+  color:#8878b8;
+  letter-spacing:.18em;
+  opacity:0.88;
+}
+.final-ann-date{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(8px,1.1vw,12px);
+  color:#9888b8;
+  letter-spacing:.2em;
+  opacity:0.72;
+}
+.final-ann-title-wrap{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:clamp(4px,.7vw,8px);
+  width:100%;
+  padding:clamp(4px,.7vw,8px) 0;
+}
+.final-ann-line{
+  width:clamp(50px,9vw,100px);
+  height:5px;
+  border-top:1px solid rgba(140,118,195,0.48);
+  border-bottom:1px solid rgba(140,118,195,0.22);
+  position:relative;
+}
+.final-ann-line::after{
+  content:'';position:absolute;top:2px;left:0;right:0;
+  height:1px;background:rgba(180,155,225,0.15);
+}
+.final-ann-main-ja{
+  font-family:'Zen Old Mincho','Shippori Mincho',serif;
+  font-weight:900;
+  font-size:clamp(18px,3.5vw,44px);
+  color:#1e1238;
+  letter-spacing:.1em;
+  line-height:1.2;
+  text-shadow:0 1px 0 rgba(255,255,255,0.4), 0 3px 14px rgba(60,40,110,.12);
+}
+.final-ann-omedetou{
+  font-family:'Zen Old Mincho','Shippori Mincho',serif;
+  font-weight:900;
+  font-size:clamp(14px,2.6vw,34px);
+  color:#3a286a;
+  letter-spacing:.18em;
+  line-height:1.2;
+  text-shadow:0 1px 0 rgba(255,255,255,0.35);
+  opacity:0.88;
+}
+.final-ann-body{
+  font-family:'Shippori Mincho',serif;
+  font-size:clamp(8px,1.05vw,12px);
+  color:#2a1848;
+  line-height:2.2;
+  opacity:0.82;
+  letter-spacing:.04em;
+}
+
+/* ════════════════════════════════════════════════
+   最終ページ: 右（便箋）
+════════════════════════════════════════════════ */
+.final-right-wrap{
+  height:100%;
+  display:flex;
+  flex-direction:column;
+  padding:clamp(8px,1.5vw,16px) clamp(8px,1.4vw,16px);
+  gap:clamp(6px,1vw,12px);
+  /* 便箋の淡い罫線ベース色 */
+  background:linear-gradient(180deg,
+    rgba(237,230,252,0.18) 0%,
+    rgba(230,220,248,0.12) 100%
+  );
+}
+.final-letter-header{
+  flex-shrink:0;
+  text-align:center;
+  padding-bottom:clamp(4px,.6vw,7px);
+  border-bottom:1px solid rgba(140,118,195,0.25);
+}
+.final-letter-title{
+  font-family:'DM Serif Display','Cormorant Garamond',serif;
+  font-style:italic;
+  font-size:clamp(10px,1.4vw,15px);
+  color:#9888b8;
+  letter-spacing:.2em;
+  opacity:0.85;
+}
+.final-letter-body{
+  flex:1;
+  min-height:0;
+  position:relative;
+  overflow:hidden;
+  /* 横線を等間隔のbackground-imageで描く
+     文字のline-heightに合わせて間隔を統一 */
+  --line-h: clamp(22px, 3.2vw, 32px);
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent calc(var(--line-h) - 1px),
+    rgba(160,140,200,0.2) calc(var(--line-h) - 1px),
+    rgba(160,140,200,0.2) var(--line-h)
+  );
+  background-position: 0 0;
+  padding-top: calc(var(--line-h) * 0.1);
+}
+/* 旧方式のlines要素は非表示 */
+.final-letter-lines{
+  display:none;
+}
+.final-letter-line{
+  display:none;
+}
+.final-letter-placeholder{
+  display:none; /* テキストが入ったので非表示 */
+}
+.final-letter-text{
+  position:absolute;
+  inset:0;
+  padding: 0 clamp(6px,1vw,12px);
+  pointer-events:none;
+  /* 最初の行を横線の1本目に揃える */
+  padding-top: calc(clamp(22px, 3.2vw, 32px) * 0.15);
+}
+.final-letter-text p{
+  font-family:'Shippori Mincho',serif;
+  font-size:clamp(8.5px,1.1vw,12px);
+  /* line-heightを横線の間隔にぴったり合わせる */
+  line-height: clamp(22px, 3.2vw, 32px);
+  color:#2a1848;
+  margin:0;
+  opacity:0.85;
+  letter-spacing:.02em;
+}
+/* 段落間の空行（横線1本分の高さ） */
+.final-letter-text p.letter-spacer{
+  display:block;
+  height: clamp(22px, 3.2vw, 32px);
+  line-height: clamp(22px, 3.2vw, 32px);
+}
+@media(max-width:600px){
+  .final-letter-body{ --line-h: 7vw; }
+  .final-letter-text{ padding-top: calc(7vw * 0.15); }
+  .final-letter-text p{ font-size:3vw; line-height:7vw; }
+  .final-letter-text p.letter-spacer{ height:7vw; line-height:7vw; }
+}
+.final-letter-footer{
+  flex-shrink:0;
+  padding-top:clamp(4px,.6vw,7px);
+  border-top:1px solid rgba(140,118,195,0.2);
+}
+.final-letter-members{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:clamp(8px,1.5vw,18px);
+  flex-wrap:nowrap;
+}
+.final-member-item{
+  display:inline-flex;
+  flex-direction:column;
+  align-items:center;
+  gap:2px;
+  filter:drop-shadow(0 1px 2px rgba(100,60,150,0.15));
+}
+.final-member-mark{
+  font-size:clamp(8px,1.1vw,12px);
+  line-height:1;
+  opacity:0.82;
+}
+
+/* スマホ対応 */
+@media(max-width:600px){
+  .final-ann-main-ja{font-size:7vw;}
+  .final-ann-omedetou{font-size:5.5vw;}
+  .final-ann-body{font-size:2.8vw;line-height:2;}
+  .member-flower-row{gap:3vw;}
+  .final-letter-members{gap:4vw;}
+  .final-member-mark{font-size:2.8vw;}
+}
+
+/* ════════════════════════════════════════════════
+   誕生日月の花びら散布アニメ
+════════════════════════════════════════════════ */
+.petal-canvas{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  overflow:hidden;
+  z-index:3;
+  border-radius:inherit;
+}
+.petal-svg{
+  position:absolute;
+  top:-40px;
+  animation: petal-drift linear forwards;
+  will-change:transform,opacity;
+  pointer-events:none;
+}
+@keyframes petal-drift{
+  0%{
+    transform: translateY(0) rotate(0deg) scale(1);
+    opacity:0;
+  }
+  8%{ opacity:0.85; }
+  85%{ opacity:0.7; }
+  100%{
+    transform: translateY(110%) rotate(540deg) scale(0.6);
+    opacity:0;
+  }
+}
 </style>
 </head>
 <body>
@@ -1275,7 +1541,9 @@ function renderMonthTabs(){
   const valid=VALID[curYear]||[];
   for(let m=1;m<=12;m++){
     const ok=valid.includes(m);
-    const act=ok&&curMonth===m&&idx>0;
+    const p=PAGES[idx];
+    const isAnn = p && p.type==='anniversary';
+    const act=ok&&curMonth===m&&idx>0&&(!isAnn||(isAnn&&m===6));
     const b=document.createElement('button');
     b.className='month-tab'+(ok?'':' disabled')+(act?' active':'');
     b.textContent=MN[m-1]; b.style.background=ok?MCOL[m]:'';
@@ -1464,7 +1732,10 @@ function initTurnJs(){
         idx = ni;
         const p = PAGES[idx];
         if(p && p.type === 'month'){ curYear = p.year; curMonth = p.month; }
+        else if(p && p.type === 'anniversary'){ curYear = 2026; curMonth = 6; }
         renderYearTabs(); renderMonthTabs(); updateUI();
+        /* 誕生日月の花びら（PCはめくり完了後に起動） */
+        setTimeout(checkAndSpawnBirthdayPetals, 100);
       }
     }
   });
@@ -1532,6 +1803,8 @@ function renderPage(i){
   const {left,right}=getPageHTML(i);
   pageLeft.innerHTML=left;
   pageRight.innerHTML=right;
+  /* 誕生日月なら花びらを散らす（SPのみ: PCはturnedイベントから） */
+  if(MOBILE()) setTimeout(checkAndSpawnBirthdayPetals, 50);
 }
 
 /* ─── 目次 ─────────────────────────────────── */
@@ -1593,26 +1866,133 @@ function getTocHTML(){
 </div>`;
 
   /* 右ページ: 2周年おめでとう */
+  const tocFlowerBand = memberFlowerRow(24);
   const right=`
 <div class="ann-wrap">
-  <div class="flower-row">
-    <span class="flower">🌸</span><!-- 芍薬 -->
-    <span class="flower">🌼</span><!-- 蝋梅 -->
-    <span class="flower">🌼</span><!-- 金木犀 -->
-    <span class="flower">🤍</span><!-- ジャスミン -->
-    <span class="flower">🌸</span><!-- 桃の花 -->
-  </div>
+  ${tocFlowerBand}
   <div class="ann-en">2nd Anniversary</div>
   <div class="ann-main">デビュー2周年<br>おめでとう</div>
-  <div class="flower-row">
-    <span class="flower">🌸</span>
-    <span class="flower">🌼</span>
-    <span class="flower">🌼</span>
-    <span class="flower">🤍</span>
-    <span class="flower">🌸</span>
-  </div>
+  ${tocFlowerBand}
 </div>`;
   return {left,right};
+}
+
+
+/* ─── 誕生日月の花びら散布 ──────────────────────
+   各メンバーの誕生日月にそのモチーフの花びらを散らす
+   司賀りこ:1月  梢桃音:3月  珠乃井ナナ:4月  綺沙良:5月  ルンルン:10月
+──────────────────────────────────────────────── */
+const BIRTHDAY_MONTHS = {
+  1:  'roubai',     /* 司賀りこ */
+  3:  'momo',       /* 梢桃音 */
+  4:  'jasmine',    /* 珠乃井ナナ */
+  5:  'shakyaku',   /* 綺沙良 */
+  10: 'kinmokusei', /* ルンルン */
+};
+
+/* ページ内の .petal-canvas に花びらを降らせる */
+function spawnPetals(container, flowerType){
+  /* 既存のキャンバスがあれば削除 */
+  container.querySelectorAll('.petal-canvas').forEach(c=>c.remove());
+
+  const canvas = document.createElement('div');
+  canvas.className = 'petal-canvas';
+  container.appendChild(canvas);
+
+  const count = 14; /* 花びらの枚数 */
+  for(let i=0; i<count; i++){
+    setTimeout(()=>{
+      const petal = document.createElement('div');
+      petal.className = 'petal-svg';
+
+      /* ランダムな位置・サイズ・速度 */
+      const x      = Math.random() * 100;        /* 左からの%位置 */
+      const size   = 12 + Math.random() * 14;    /* 12〜26px */
+      const dur    = 4.5 + Math.random() * 4;    /* 4.5〜8.5秒 */
+      const delay  = Math.random() * 0.5;        /* 0〜0.5秒の開始遅延 */
+      const swing  = (Math.random()-0.5)*60;     /* 横揺れ量 */
+
+      petal.style.cssText = `
+        left: ${x}%;
+        width: ${size}px;
+        height: ${size}px;
+        animation-duration: ${dur}s;
+        animation-delay: ${delay}s;
+        filter: drop-shadow(0 1px 2px rgba(100,60,150,0.15));
+        transform: translateX(${swing}px);
+      `;
+      petal.innerHTML = flowerSVG(flowerType, size);
+      canvas.appendChild(petal);
+
+      /* アニメ終了後に削除して再生成（ループ） */
+      petal.addEventListener('animationend', ()=>{
+        petal.remove();
+        /* 少し間隔を開けて再生成 */
+        setTimeout(()=>{
+          if(canvas.isConnected) spawnOnePetal(canvas, flowerType);
+        }, Math.random() * 2000);
+      }, {once:true});
+    }, i * 300 + Math.random() * 200);
+  }
+}
+
+function spawnOnePetal(canvas, flowerType){
+  const petal = document.createElement('div');
+  petal.className = 'petal-svg';
+  const x    = Math.random() * 100;
+  const size = 12 + Math.random() * 14;
+  const dur  = 4.5 + Math.random() * 4;
+  const swing = (Math.random()-0.5)*60;
+  petal.style.cssText = `left:${x}%;width:${size}px;height:${size}px;animation-duration:${dur}s;filter:drop-shadow(0 1px 2px rgba(100,60,150,0.15));transform:translateX(${swing}px);`;
+  petal.innerHTML = flowerSVG(flowerType, size);
+  canvas.appendChild(petal);
+  petal.addEventListener('animationend', ()=>{
+    petal.remove();
+    if(canvas.isConnected) setTimeout(()=>spawnOnePetal(canvas,flowerType), Math.random()*2000);
+  },{once:true});
+}
+
+/* renderPage後に誕生日チェックをして花びらを起動 */
+function checkAndSpawnBirthdayPetals(){
+  const p = PAGES[idx];
+  if(!p || p.type !== 'month') return;
+
+  /* 既存のキャンバスをすべてクリア */
+  document.querySelectorAll('.petal-canvas').forEach(c=>c.remove());
+
+  const flowerType = BIRTHDAY_MONTHS[p.month];
+  if(!flowerType) return;
+
+  if(!MOBILE() && turnInitialized){
+    const $ = jQuery;
+    const fb = $(document.getElementById('flipbook'));
+    /* 現在表示中の見開きページ番号を取得 */
+    const view = fb.turn('view'); /* [左page番号, 右page番号] */
+    const fbEl = document.getElementById('flipbook');
+    if(!fbEl) return;
+    /* turn.jsが生成するpage-wrapperのdata-page属性でページを特定 */
+    view.forEach(pageNum => {
+      if(!pageNum) return;
+      /* page-wrapperはattr page="N" を持つ */
+      const wrapper = fbEl.querySelector('[page="'+pageNum+'"]');
+      if(wrapper){
+        const pc = wrapper.querySelector('.page-content');
+        if(pc) spawnPetals(pc, flowerType);
+      }
+    });
+    /* fallback: page-wrapperが見つからない場合は全page-contentに */
+    if(!fbEl.querySelector('[page]')){
+      const allPc = fbEl.querySelectorAll('.page-content');
+      /* 現在見開きに対応するのは (idx*2+1)番目と(idx*2+2)番目 */
+      const li = idx * 2; /* 0-based */
+      [allPc[li], allPc[li+1]].forEach(pc => { if(pc) spawnPetals(pc, flowerType); });
+    }
+  } else {
+    const pL = document.getElementById('pageLeft');
+    const pR = document.getElementById('pageRight');
+    if(pL) spawnPetals(pL, flowerType);
+    if(pR) spawnPetals(pR, flowerType);
+  }
 }
 
 /* ─── 月ページ ──────────────────────────────── */
@@ -1637,8 +2017,11 @@ function getMonthHTML(year,month){
   const pat=patterns[patIdx];
   const left=`<div class="photo-grid ${pat}${five?' five':''}" style="height:100%;">${ph}</div>`;
   const pu=data&&data.pickup;
-  const FAN_MARKS={'綺沙良':'🪞','司賀りこ':'📒','ルンルン':'🥨🍚','珠乃井ナナ':'🛼','梢桃音':'🪷'};
-  const fanMark = pu&&pu.member ? (FAN_MARKS[pu.member]||'') : '';
+  /* ファンマーク: 花SVG＋アイコン */
+  const MEMBER_MAP = {};
+  MEMBER_FLOWERS.forEach(m=>{ MEMBER_MAP[m.name]=m; });
+  const mInfo = pu&&pu.member ? MEMBER_MAP[pu.member] : null;
+  const fanMark = mInfo ? flowerSVG(mInfo.type, 24) + '<span style="font-size:1.2em;opacity:.85;">' + mInfo.mark + '</span>' : '';
   const right=`
 <div class="pickup-area">
   <div class="pickup-month-label">${label}</div>
@@ -1651,45 +2034,298 @@ function getMonthHTML(year,month){
   return {left,right};
 }
 
-/* ─── 最終ページ（見開き全体でメッセージ） ── */
+
+/* ─── 花のSVGイラスト生成 ───────────────────────
+   5人のモチーフ花をそれぞれの特徴で描き分ける
+   size: px単位の幅・高さ
+──────────────────────────────────────────────── */
+function flowerSVG(type, size=32){
+  const s = size;
+  const svgs = {
+
+    /* 芍薬（綺沙良）: 八重咲きの大輪
+       メイン:#846FC7 サブ:#9394B2 → 紫〜薄紫の重なり */
+    shakyaku: `<svg width="${s}" height="${s}" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+      <g transform="translate(16,16)">
+        <!-- 外側5弁 -->
+        <ellipse rx="5.5" ry="8.5" fill="#846FC7" opacity="0.72" transform="rotate(0) translate(0,-6)"/>
+        <ellipse rx="5.5" ry="8.5" fill="#9394B2" opacity="0.72" transform="rotate(72) translate(0,-6)"/>
+        <ellipse rx="5.5" ry="8.5" fill="#846FC7" opacity="0.72" transform="rotate(144) translate(0,-6)"/>
+        <ellipse rx="5.5" ry="8.5" fill="#9394B2" opacity="0.72" transform="rotate(216) translate(0,-6)"/>
+        <ellipse rx="5.5" ry="8.5" fill="#846FC7" opacity="0.72" transform="rotate(288) translate(0,-6)"/>
+        <!-- 中間5弁 -->
+        <ellipse rx="4.5" ry="7" fill="#b8b0d8" opacity="0.82" transform="rotate(36) translate(0,-4.5)"/>
+        <ellipse rx="4.5" ry="7" fill="#a89cc8" opacity="0.82" transform="rotate(108) translate(0,-4.5)"/>
+        <ellipse rx="4.5" ry="7" fill="#b8b0d8" opacity="0.82" transform="rotate(180) translate(0,-4.5)"/>
+        <ellipse rx="4.5" ry="7" fill="#a89cc8" opacity="0.82" transform="rotate(252) translate(0,-4.5)"/>
+        <ellipse rx="4.5" ry="7" fill="#b8b0d8" opacity="0.82" transform="rotate(324) translate(0,-4.5)"/>
+        <!-- 内側5弁 -->
+        <ellipse rx="3.2" ry="5" fill="#dcd8f0" opacity="0.9" transform="rotate(18) translate(0,-3)"/>
+        <ellipse rx="3.2" ry="5" fill="#ccc8e8" opacity="0.9" transform="rotate(90) translate(0,-3)"/>
+        <ellipse rx="3.2" ry="5" fill="#dcd8f0" opacity="0.9" transform="rotate(162) translate(0,-3)"/>
+        <ellipse rx="3.2" ry="5" fill="#ccc8e8" opacity="0.9" transform="rotate(234) translate(0,-3)"/>
+        <ellipse rx="3.2" ry="5" fill="#dcd8f0" opacity="0.9" transform="rotate(306) translate(0,-3)"/>
+        <!-- 中心：サブカラーの黄み -->
+        <circle r="3.2" fill="#e8e6f4"/>
+        <circle r="1.8" fill="#9394B2"/>
+        <circle r="0.7" fill="#fff"/>
+      </g>
+    </svg>`,
+
+    /* 蝋梅（司賀りこ）: 半透明感のある蠟細工。6弁
+       メイン:#FFE36C サブ:#839DDE → 黄金×ブルーの内弁 */
+    roubai: `<svg width="${s}" height="${s}" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+      <g transform="translate(16,16)">
+        <!-- 外側6弁：メインの黄 -->
+        <ellipse rx="4.5" ry="9" fill="#FFE36C" opacity="0.72" transform="rotate(0) translate(0,-5.5)"/>
+        <ellipse rx="4.5" ry="9" fill="#f5d44a" opacity="0.72" transform="rotate(60) translate(0,-5.5)"/>
+        <ellipse rx="4.5" ry="9" fill="#FFE36C" opacity="0.72" transform="rotate(120) translate(0,-5.5)"/>
+        <ellipse rx="4.5" ry="9" fill="#f5d44a" opacity="0.72" transform="rotate(180) translate(0,-5.5)"/>
+        <ellipse rx="4.5" ry="9" fill="#FFE36C" opacity="0.72" transform="rotate(240) translate(0,-5.5)"/>
+        <ellipse rx="4.5" ry="9" fill="#f5d44a" opacity="0.72" transform="rotate(300) translate(0,-5.5)"/>
+        <!-- 内弁：サブカラーの青紫がにじむ -->
+        <ellipse rx="3" ry="5.5" fill="#c4d4ef" opacity="0.65" transform="rotate(30) translate(0,-3.2)"/>
+        <ellipse rx="3" ry="5.5" fill="#839DDE" opacity="0.5" transform="rotate(90) translate(0,-3.2)"/>
+        <ellipse rx="3" ry="5.5" fill="#c4d4ef" opacity="0.65" transform="rotate(150) translate(0,-3.2)"/>
+        <ellipse rx="3" ry="5.5" fill="#839DDE" opacity="0.5" transform="rotate(210) translate(0,-3.2)"/>
+        <ellipse rx="3" ry="5.5" fill="#c4d4ef" opacity="0.65" transform="rotate(270) translate(0,-3.2)"/>
+        <ellipse rx="3" ry="5.5" fill="#839DDE" opacity="0.5" transform="rotate(330) translate(0,-3.2)"/>
+        <!-- 中心：黄みがかった金色 -->
+        <circle r="3" fill="#fcd34d"/>
+        <circle r="1.8" fill="#f59e0b"/>
+        <!-- しべ：青紫の点 -->
+        <circle r="0.6" fill="#839DDE" transform="translate(0,-1.8)"/>
+        <circle r="0.6" fill="#839DDE" transform="translate(1.56,-0.9)"/>
+        <circle r="0.6" fill="#839DDE" transform="translate(1.56,0.9)"/>
+        <circle r="0.6" fill="#839DDE" transform="translate(0,1.8)"/>
+        <circle r="0.6" fill="#839DDE" transform="translate(-1.56,0.9)"/>
+        <circle r="0.6" fill="#839DDE" transform="translate(-1.56,-0.9)"/>
+      </g>
+    </svg>`,
+
+    /* 金木犀（ルンルン）: 4弁の小花が密集
+       メイン:#D8E9FC サブ:#F6F9FF → 水色×白の淡い小花群 */
+    kinmokusei: `<svg width="${s}" height="${s}" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+      <g transform="translate(16,16)">
+        <!-- 小花のクラスター: 9輪 -->
+        <!-- 中央の花 -->
+        <g transform="translate(0,0)">
+          <ellipse rx="2.8" ry="4.2" fill="#D8E9FC" opacity="0.92" transform="rotate(0) translate(0,-2.5)"/>
+          <ellipse rx="2.8" ry="4.2" fill="#b8d4f4" opacity="0.92" transform="rotate(90) translate(0,-2.5)"/>
+          <ellipse rx="2.8" ry="4.2" fill="#D8E9FC" opacity="0.92" transform="rotate(180) translate(0,-2.5)"/>
+          <ellipse rx="2.8" ry="4.2" fill="#b8d4f4" opacity="0.92" transform="rotate(270) translate(0,-2.5)"/>
+          <circle r="1.2" fill="#F6F9FF"/>
+        </g>
+        <!-- 周囲の花 8輪：水色グラデ -->
+        <g transform="translate(0,-8.5)">
+          <ellipse rx="2.2" ry="3.2" fill="#D8E9FC" opacity="0.88" transform="rotate(0) translate(0,-2)"/>
+          <ellipse rx="2.2" ry="3.2" fill="#b8d4f4" opacity="0.88" transform="rotate(90) translate(0,-2)"/>
+          <ellipse rx="2.2" ry="3.2" fill="#D8E9FC" opacity="0.88" transform="rotate(180) translate(0,-2)"/>
+          <ellipse rx="2.2" ry="3.2" fill="#b8d4f4" opacity="0.88" transform="rotate(270) translate(0,-2)"/>
+          <circle r="1" fill="#F6F9FF"/>
+        </g>
+        <g transform="translate(8.5,0)">
+          <ellipse rx="2.2" ry="3.2" fill="#c8e0f8" opacity="0.88" transform="rotate(45) translate(0,-2)"/>
+          <ellipse rx="2.2" ry="3.2" fill="#D8E9FC" opacity="0.88" transform="rotate(135) translate(0,-2)"/>
+          <ellipse rx="2.2" ry="3.2" fill="#c8e0f8" opacity="0.88" transform="rotate(225) translate(0,-2)"/>
+          <ellipse rx="2.2" ry="3.2" fill="#D8E9FC" opacity="0.88" transform="rotate(315) translate(0,-2)"/>
+          <circle r="1" fill="#F6F9FF"/>
+        </g>
+        <g transform="translate(0,8.5)">
+          <ellipse rx="2.2" ry="3.2" fill="#D8E9FC" opacity="0.88" transform="rotate(0) translate(0,-2)"/>
+          <ellipse rx="2.2" ry="3.2" fill="#b8d4f4" opacity="0.88" transform="rotate(90) translate(0,-2)"/>
+          <ellipse rx="2.2" ry="3.2" fill="#D8E9FC" opacity="0.88" transform="rotate(180) translate(0,-2)"/>
+          <ellipse rx="2.2" ry="3.2" fill="#b8d4f4" opacity="0.88" transform="rotate(270) translate(0,-2)"/>
+          <circle r="1" fill="#F6F9FF"/>
+        </g>
+        <g transform="translate(-8.5,0)">
+          <ellipse rx="2.2" ry="3.2" fill="#c8e0f8" opacity="0.88" transform="rotate(45) translate(0,-2)"/>
+          <ellipse rx="2.2" ry="3.2" fill="#D8E9FC" opacity="0.88" transform="rotate(135) translate(0,-2)"/>
+          <ellipse rx="2.2" ry="3.2" fill="#c8e0f8" opacity="0.88" transform="rotate(225) translate(0,-2)"/>
+          <ellipse rx="2.2" ry="3.2" fill="#D8E9FC" opacity="0.88" transform="rotate(315) translate(0,-2)"/>
+          <circle r="1" fill="#F6F9FF"/>
+        </g>
+        <g transform="translate(6,-6)">
+          <ellipse rx="1.8" ry="2.8" fill="#D8E9FC" opacity="0.82" transform="rotate(0) translate(0,-1.6)"/>
+          <ellipse rx="1.8" ry="2.8" fill="#b8d4f4" opacity="0.82" transform="rotate(90) translate(0,-1.6)"/>
+          <ellipse rx="1.8" ry="2.8" fill="#D8E9FC" opacity="0.82" transform="rotate(180) translate(0,-1.6)"/>
+          <ellipse rx="1.8" ry="2.8" fill="#b8d4f4" opacity="0.82" transform="rotate(270) translate(0,-1.6)"/>
+          <circle r="0.9" fill="#F6F9FF"/>
+        </g>
+        <g transform="translate(-6,-6)">
+          <ellipse rx="1.8" ry="2.8" fill="#c8e0f8" opacity="0.82" transform="rotate(0) translate(0,-1.6)"/>
+          <ellipse rx="1.8" ry="2.8" fill="#D8E9FC" opacity="0.82" transform="rotate(90) translate(0,-1.6)"/>
+          <ellipse rx="1.8" ry="2.8" fill="#c8e0f8" opacity="0.82" transform="rotate(180) translate(0,-1.6)"/>
+          <ellipse rx="1.8" ry="2.8" fill="#D8E9FC" opacity="0.82" transform="rotate(270) translate(0,-1.6)"/>
+          <circle r="0.9" fill="#F6F9FF"/>
+        </g>
+        <g transform="translate(6,6)">
+          <ellipse rx="1.8" ry="2.8" fill="#D8E9FC" opacity="0.82" transform="rotate(0) translate(0,-1.6)"/>
+          <ellipse rx="1.8" ry="2.8" fill="#b8d4f4" opacity="0.82" transform="rotate(90) translate(0,-1.6)"/>
+          <ellipse rx="1.8" ry="2.8" fill="#D8E9FC" opacity="0.82" transform="rotate(180) translate(0,-1.6)"/>
+          <ellipse rx="1.8" ry="2.8" fill="#b8d4f4" opacity="0.82" transform="rotate(270) translate(0,-1.6)"/>
+          <circle r="0.9" fill="#F6F9FF"/>
+        </g>
+        <g transform="translate(-6,6)">
+          <ellipse rx="1.8" ry="2.8" fill="#c8e0f8" opacity="0.82" transform="rotate(0) translate(0,-1.6)"/>
+          <ellipse rx="1.8" ry="2.8" fill="#D8E9FC" opacity="0.82" transform="rotate(90) translate(0,-1.6)"/>
+          <ellipse rx="1.8" ry="2.8" fill="#c8e0f8" opacity="0.82" transform="rotate(180) translate(0,-1.6)"/>
+          <ellipse rx="1.8" ry="2.8" fill="#D8E9FC" opacity="0.82" transform="rotate(270) translate(0,-1.6)"/>
+          <circle r="0.9" fill="#F6F9FF"/>
+        </g>
+      </g>
+    </svg>`,
+
+    /* ジャスミン（珠乃井ナナ）: 5弁花。細長い花びら
+       メイン:#63AED9 サブ:#FFC547 → 白×水色の筋、金の中心 */
+    jasmine: `<svg width="${s}" height="${s}" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+      <g transform="translate(16,16)">
+        <!-- 外側5弁：白に水色のエッジ -->
+        <ellipse rx="3.2" ry="9.5" fill="#f0f8ff" opacity="0.92" transform="rotate(0) translate(0,-5.5)" stroke="#63AED9" stroke-width="0.4"/>
+        <ellipse rx="3.2" ry="9.5" fill="white" opacity="0.9" transform="rotate(72) translate(0,-5.5)" stroke="#63AED9" stroke-width="0.4"/>
+        <ellipse rx="3.2" ry="9.5" fill="#f0f8ff" opacity="0.92" transform="rotate(144) translate(0,-5.5)" stroke="#63AED9" stroke-width="0.4"/>
+        <ellipse rx="3.2" ry="9.5" fill="white" opacity="0.9" transform="rotate(216) translate(0,-5.5)" stroke="#63AED9" stroke-width="0.4"/>
+        <ellipse rx="3.2" ry="9.5" fill="#f0f8ff" opacity="0.92" transform="rotate(288) translate(0,-5.5)" stroke="#63AED9" stroke-width="0.4"/>
+        <!-- 花びら中央の水色の筋 -->
+        <line x1="0" y1="-2" x2="0" y2="-12" stroke="#63AED9" stroke-width="0.6" opacity="0.45" transform="rotate(0)"/>
+        <line x1="0" y1="-2" x2="0" y2="-12" stroke="#63AED9" stroke-width="0.6" opacity="0.45" transform="rotate(72)"/>
+        <line x1="0" y1="-2" x2="0" y2="-12" stroke="#63AED9" stroke-width="0.6" opacity="0.45" transform="rotate(144)"/>
+        <line x1="0" y1="-2" x2="0" y2="-12" stroke="#63AED9" stroke-width="0.6" opacity="0.45" transform="rotate(216)"/>
+        <line x1="0" y1="-2" x2="0" y2="-12" stroke="#63AED9" stroke-width="0.6" opacity="0.45" transform="rotate(288)"/>
+        <!-- 中心：サブカラーの金 -->
+        <circle r="3.5" fill="#ffe8a0"/>
+        <circle r="2.2" fill="#FFC547"/>
+        <!-- しべ：濃い金の点 -->
+        <circle r="0.55" fill="#e8a820" transform="translate(0,-1.4)"/>
+        <circle r="0.55" fill="#e8a820" transform="translate(1.21,-0.7)"/>
+        <circle r="0.55" fill="#e8a820" transform="translate(1.21,0.7)"/>
+        <circle r="0.55" fill="#e8a820" transform="translate(0,1.4)"/>
+        <circle r="0.55" fill="#e8a820" transform="translate(-1.21,0.7)"/>
+        <circle r="0.55" fill="#e8a820" transform="translate(-1.21,-0.7)"/>
+      </g>
+    </svg>`,
+
+    /* 桃の花（梢桃音）: 5弁。丸みのある花びら
+       メイン:#FFC6E2 サブ:#DECDFC → ピンク×薄紫 */
+    momo: `<svg width="${s}" height="${s}" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <path id="momo-petal" d="M0,0 C-3.5,-2 -4,-7 0,-10 C4,-7 3.5,-2 0,0Z"/>
+      </defs>
+      <g transform="translate(16,16)">
+        <!-- 外側5弁：メインのピンク -->
+        <use href="#momo-petal" fill="#FFC6E2" opacity="0.82" transform="rotate(0) translate(0,-3.5)"/>
+        <use href="#momo-petal" fill="#f0a8cc" opacity="0.82" transform="rotate(72) translate(0,-3.5)"/>
+        <use href="#momo-petal" fill="#FFC6E2" opacity="0.82" transform="rotate(144) translate(0,-3.5)"/>
+        <use href="#momo-petal" fill="#f0a8cc" opacity="0.82" transform="rotate(216) translate(0,-3.5)"/>
+        <use href="#momo-petal" fill="#FFC6E2" opacity="0.82" transform="rotate(288) translate(0,-3.5)"/>
+        <!-- 内側：サブカラーの薄紫でグラデ感 -->
+        <use href="#momo-petal" fill="#DECDFC" opacity="0.6" transform="rotate(36) translate(0,-2.5) scale(0.75)"/>
+        <use href="#momo-petal" fill="#e8dcfe" opacity="0.6" transform="rotate(108) translate(0,-2.5) scale(0.75)"/>
+        <use href="#momo-petal" fill="#DECDFC" opacity="0.6" transform="rotate(180) translate(0,-2.5) scale(0.75)"/>
+        <use href="#momo-petal" fill="#e8dcfe" opacity="0.6" transform="rotate(252) translate(0,-2.5) scale(0.75)"/>
+        <use href="#momo-petal" fill="#DECDFC" opacity="0.6" transform="rotate(324) translate(0,-2.5) scale(0.75)"/>
+        <!-- 中心：ピンクの淡い -->
+        <circle r="3" fill="#fff0f6"/>
+        <circle r="1.8" fill="#ffd8ec"/>
+        <!-- おしべ：ピンク×紫 -->
+        <line x1="0" y1="-1.5" x2="0" y2="-5" stroke="#d870a8" stroke-width="0.6" opacity="0.7"/>
+        <line x1="0" y1="-1.5" x2="0" y2="-5" stroke="#b888d0" stroke-width="0.6" opacity="0.7" transform="rotate(45)"/>
+        <line x1="0" y1="-1.5" x2="0" y2="-5" stroke="#d870a8" stroke-width="0.6" opacity="0.7" transform="rotate(90)"/>
+        <line x1="0" y1="-1.5" x2="0" y2="-5" stroke="#b888d0" stroke-width="0.6" opacity="0.7" transform="rotate(135)"/>
+        <line x1="0" y1="-1.5" x2="0" y2="-5" stroke="#d870a8" stroke-width="0.6" opacity="0.7" transform="rotate(180)"/>
+        <line x1="0" y1="-1.5" x2="0" y2="-5" stroke="#b888d0" stroke-width="0.6" opacity="0.7" transform="rotate(225)"/>
+        <line x1="0" y1="-1.5" x2="0" y2="-5" stroke="#d870a8" stroke-width="0.6" opacity="0.7" transform="rotate(270)"/>
+        <line x1="0" y1="-1.5" x2="0" y2="-5" stroke="#b888d0" stroke-width="0.6" opacity="0.7" transform="rotate(315)"/>
+        <circle r="0.7" fill="#c860a0" transform="translate(0,-5)"/>
+        <circle r="0.7" fill="#a070c0" transform="rotate(45) translate(0,-5)"/>
+        <circle r="0.7" fill="#c860a0" transform="rotate(90) translate(0,-5)"/>
+        <circle r="0.7" fill="#a070c0" transform="rotate(135) translate(0,-5)"/>
+        <circle r="0.7" fill="#c860a0" transform="rotate(180) translate(0,-5)"/>
+        <circle r="0.7" fill="#a070c0" transform="rotate(225) translate(0,-5)"/>
+        <circle r="0.7" fill="#c860a0" transform="rotate(270) translate(0,-5)"/>
+        <circle r="0.7" fill="#a070c0" transform="rotate(315) translate(0,-5)"/>
+      </g>
+    </svg>`
+  };
+  return svgs[type] || svgs.shakyaku;
+}
+
+/* 5人の花・ファンマーク順（表示順） */
+const MEMBER_FLOWERS = [
+  { name:'綺沙良',     type:'shakyaku',   mark:'🪞' },
+  { name:'司賀りこ',   type:'roubai',     mark:'📒' },
+  { name:'ルンルン',   type:'kinmokusei', mark:'🥨🍚' },
+  { name:'珠乃井ナナ', type:'jasmine',    mark:'🛼' },
+  { name:'梢桃音',     type:'momo',       mark:'🪷' },
+];
+
+/* 花イラストの横並び帯を生成（size: px） */
+function memberFlowerRow(size=28){
+  return `<div class="member-flower-row">${
+    MEMBER_FLOWERS.map(m=>
+      `<span class="member-flower-item" title="${m.name}">${flowerSVG(m.type, size)}</span>`
+    ).join('')
+  }</div>`;
+}
+
+/* ─── 最終ページ ── */
 function getAnnHTML(){
-  /* 花5種：芍薬・蝋梅・金木犀・ジャスミン・桃の花 */
-  const flowers5=[
-    {e:'🌸',n:'芍薬',c:'#f9a8d4'},
-    {e:'🌼',n:'蝋梅',c:'#fde68a'},
-    {e:'🌸',n:'金木犀',c:'#fdba74'},
-    {e:'🤍',n:'ジャスミン',c:'#e9d5ff'},
-    {e:'🌸',n:'桃の花',c:'#fbcfe8'},
-  ];
-  const flowerRow = flowers5.map(f=>
-    `<span class="flower" title="${f.n}" style="color:${f.c}">${f.e}</span>`
-  ).join('');
-  const flowerDiv = `<div class="flower-row">${flowerRow}</div>`;
+  const flowerBand = memberFlowerRow(22);
 
+  /* ── 左ページ: お祝いメッセージ ── */
   const left=`
-<div class="final-spread-l">
-  ${flowerDiv}
-  <div class="final-en">2nd Anniversary</div>
-  <div class="final-ja-big">デビュー2周年</div>
-  <div class="final-msg">
-    ここにお祝いの<br>
-    メッセージを<br>
-    書いてください。
+<div class="final-left-wrap">
+  ${flowerBand}
+
+  <div class="final-ann-block">
+    <div class="final-ann-en">2nd Anniversary</div>
+    <div class="final-ann-date">2024.06 — 2026.05</div>
+    <div class="final-ann-title-wrap">
+      <div class="final-ann-line"></div>
+      <div class="final-ann-main-ja">デビュー2周年</div>
+      <div class="final-ann-omedetou">おめでとう</div>
+      <div class="final-ann-line"></div>
+    </div>
+    <div class="final-ann-body">
+      2年間、たくさんの思い出をありがとう。<br>
+      これからもずっと応援しています。
+    </div>
   </div>
-  ${flowerDiv}
+
+  ${flowerBand}
 </div>`;
 
+  /* ── 右ページ: 便箋風のメッセージ ── */
   const right=`
-<div class="final-spread-r">
-  ${flowerDiv}
-  <div class="final-ja-big">おめでとう</div>
-  <div class="final-msg">
-    2年間ありがとう。<br>
-    これからもずっと<br>
-    応援しています。
+<div class="final-right-wrap">
+  <div class="final-letter-header">
+    <div class="final-letter-title">— to いずれ菖蒲か杜若 —</div>
   </div>
-  ${flowerDiv}
+  <div class="final-letter-body">
+    <div class="final-letter-lines">
+      ${Array(10).fill('<div class="final-letter-line"></div>').join('')}
+    </div>
+    <div class="final-letter-text">
+      <p>はじめて出会ったあの日から、</p>
+      <p>気づけばもう2年近くになります。</p>
+      <p class="letter-spacer"></p>
+      <p>4人と1匹の個性が重なり合って、</p>
+      <p>「いずれ菖蒲か杜若」になる。</p>
+      <p>その瞬間がずっと好きです。</p>
+      <p class="letter-spacer"></p>
+      <p>これからも、笑顔でいてください。</p>
+      <p>ずっと応援しています。</p>
+    </div>
+  </div>
+  <div class="final-letter-footer">
+    <div class="final-letter-members">${
+      MEMBER_FLOWERS.map(m =>
+        `<span class="final-member-item" title="${m.name}">${flowerSVG(m.type,16)}<span class="final-member-mark">${m.mark}</span></span>`
+      ).join('')
+    }</div>
+  </div>
 </div>`;
+
   return {left,right};
 }
 
@@ -1783,6 +2419,7 @@ function spSlide(toSide, newIdx, dir){
     idx = newIdx;
     const p = PAGES[idx];
     if(p.type === 'month'){ curYear = p.year; curMonth = p.month; }
+    else if(p.type === 'anniversary'){ curYear = 2026; curMonth = 6; }
     renderPage(idx); renderYearTabs(); renderMonthTabs();
   }
   spSide = toSide;
