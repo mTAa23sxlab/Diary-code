@@ -523,6 +523,8 @@ body{
   grid-auto-rows:1fr;
   gap:clamp(4px,1vw,8px);
   height:100%;
+  position:relative;
+  z-index:2; /* 花びら(z:1)より前面 */
 }
 /* 全パターン共通 */
 .photo-grid .photo-item{
@@ -575,7 +577,7 @@ body{
 .photo-placeholder{width:100%;height:100%;background:linear-gradient(135deg,#e8dff8,#d8ccec);display:flex;align-items:center;justify-content:center;font-size:clamp(14px,2vw,26px);color:#b0a0d0;}
 .photo-name{position:absolute;bottom:clamp(2px,.35vw,4px);left:0;right:0;text-align:center;font-size:clamp(6.5px,.72vw,8.5px);color:#9080b8;font-family:'Cormorant Garamond',serif;font-style:italic;}
 
-.pickup-area{display:flex;flex-direction:column;height:100%;gap:clamp(4px,.8vw,8px);}
+.pickup-area{display:flex;flex-direction:column;height:100%;gap:clamp(4px,.8vw,8px);position:relative;z-index:2;}
 .pickup-fanmark{
   display:flex;
   align-items:center;
@@ -1313,33 +1315,71 @@ body{
 
 /* ════════════════════════════════════════════════
    誕生日月の花びら散布アニメ
+   book要素直下に配置し、ページコンテンツより前面、
+   写真hoverより背面（z-index:2）に表示
 ════════════════════════════════════════════════ */
-.petal-canvas{
+/* ════ 誕生日花びら Canvas ════ */
+#petal-cv{
   position:absolute;
   inset:0;
   pointer-events:none;
-  overflow:hidden;
-  z-index:3;
-  border-radius:inherit;
+  z-index:1; /* 写真・コメント(z:2)より後ろ */
+  display:none; /* 非表示時 */
 }
-.petal-svg{
-  position:absolute;
-  top:-40px;
-  animation: petal-drift linear forwards;
-  will-change:transform,opacity;
-  pointer-events:none;
+
+/* ════════════════════════════════════════════════
+   花火ボタン（最終ページ右・便箋の余白）
+════════════════════════════════════════════════ */
+.fw-trigger-wrap{
+  flex-shrink:0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:clamp(4px,.6vw,7px);
+  padding:clamp(6px,1vw,10px) 0 clamp(4px,.6vw,6px);
+  border-top:1px solid rgba(140,118,195,0.15);
 }
-@keyframes petal-drift{
-  0%{
-    transform: translateY(0) rotate(0deg) scale(1);
-    opacity:0;
-  }
-  8%{ opacity:0.85; }
-  85%{ opacity:0.7; }
-  100%{
-    transform: translateY(110%) rotate(540deg) scale(0.6);
-    opacity:0;
-  }
+.fw-btn{
+  display:inline-flex;
+  align-items:center;
+  gap:clamp(5px,.8vw,8px);
+  background:linear-gradient(135deg, rgba(132,111,199,0.14), rgba(147,148,178,0.12));
+  border:1px solid rgba(132,111,199,0.35);
+  border-radius:20px;
+  padding:clamp(5px,.8vw,8px) clamp(10px,1.5vw,16px);
+  cursor:pointer;
+  font-family:'Shippori Mincho',serif;
+  font-size:clamp(7px,.9vw,10px);
+  color:#5a4888;
+  letter-spacing:.1em;
+  transition:background .2s, border-color .2s, transform .15s;
+  white-space:nowrap;
+}
+.fw-btn:hover{
+  background:linear-gradient(135deg, rgba(132,111,199,0.25), rgba(147,148,178,0.2));
+  border-color:rgba(132,111,199,0.6);
+  transform:scale(1.04);
+}
+.fw-btn:active{ transform:scale(0.97); }
+.fw-btn-icon{
+  display:inline-flex;
+  align-items:center;
+  line-height:1;
+  flex-shrink:0;
+}
+.fw-sub{
+  font-family:'Cormorant Garamond',serif;
+  font-style:italic;
+  font-size:clamp(6px,.75vw,8.5px);
+  color:#9888b8;
+  letter-spacing:.15em;
+  opacity:0.7;
+}
+@media(max-width:600px){
+  .fw-btn{font-size:2.5vw;padding:1.5vw 3vw;border-radius:4vw;}
+  .fw-btn-icon{font-size:3.2vw;}
+  .fw-sub{font-size:2vw;}
 }
 </style>
 </head>
@@ -1539,11 +1579,13 @@ function renderYearTabs(){
 function renderMonthTabs(){
   monthCol.innerHTML='';
   const valid=VALID[curYear]||[];
+  const _cp=PAGES[idx];
+  const _isAnn = _cp && _cp.type==='anniversary';
   for(let m=1;m<=12;m++){
     const ok=valid.includes(m);
-    const p=PAGES[idx];
-    const isAnn = p && p.type==='anniversary';
-    const act=ok&&curMonth===m&&idx>0&&(!isAnn||(isAnn&&m===6));
+    /* anniversaryのとき: 6月をアクティブ（ただし6月はVALIDに'month'としてなくanniversary） */
+    const act = ok && curMonth===m && idx>0 && !_isAnn
+               || (_isAnn && m===6 && curYear===2026);
     const b=document.createElement('button');
     b.className='month-tab'+(ok?'':' disabled')+(act?' active':'');
     b.textContent=MN[m-1]; b.style.background=ok?MCOL[m]:'';
@@ -1734,8 +1776,8 @@ function initTurnJs(){
         if(p && p.type === 'month'){ curYear = p.year; curMonth = p.month; }
         else if(p && p.type === 'anniversary'){ curYear = 2026; curMonth = 6; }
         renderYearTabs(); renderMonthTabs(); updateUI();
-        /* 誕生日月の花びら（PCはめくり完了後に起動） */
-        setTimeout(checkAndSpawnBirthdayPetals, 100);
+        /* 誕生日月の花びら */
+        checkAndSpawnBirthdayPetals();
       }
     }
   });
@@ -1803,8 +1845,8 @@ function renderPage(i){
   const {left,right}=getPageHTML(i);
   pageLeft.innerHTML=left;
   pageRight.innerHTML=right;
-  /* 誕生日月なら花びらを散らす（SPのみ: PCはturnedイベントから） */
-  if(MOBILE()) setTimeout(checkAndSpawnBirthdayPetals, 50);
+  /* 誕生日月なら花びらを散らす（DOM更新後に実行） */
+  setTimeout(checkAndSpawnBirthdayPetals, 120);
 }
 
 /* ─── 目次 ─────────────────────────────────── */
@@ -1881,118 +1923,108 @@ function getTocHTML(){
 /* ─── 誕生日月の花びら散布 ──────────────────────
    各メンバーの誕生日月にそのモチーフの花びらを散らす
    司賀りこ:1月  梢桃音:3月  珠乃井ナナ:4月  綺沙良:5月  ルンルン:10月
+   配置: book要素直下（turn.js管理外）
+   z-index:2 → ページコンテンツの上・写真hover(z:5)の下
 ──────────────────────────────────────────────── */
 const BIRTHDAY_MONTHS = {
-  1:  'roubai',     /* 司賀りこ */
-  3:  'momo',       /* 梢桃音 */
-  4:  'jasmine',    /* 珠乃井ナナ */
-  5:  'shakyaku',   /* 綺沙良 */
-  10: 'kinmokusei', /* ルンルン */
+  1:  { cols:['#FFE36C','#fef3a0','#839DDE','#c4d4ef','#fff9d0'] }, /* 司賀りこ：黄×青紫 */
+  3:  { cols:['#FFC6E2','#f8d8ec','#DECDFC','#ede0fe','#fff0f6'] }, /* 梢桃音：ピンク×薄紫 */
+  4:  { cols:['#63AED9','#a0d0ec','#FFC547','#ffe090','#e8f5ff'] }, /* 珠乃井ナナ：水色×金 */
+  5:  { cols:['#846FC7','#b8aade','#9394B2','#c8c9d8','#dcd8f0'] }, /* 綺沙良：紫系 */
+  10: { cols:['#D8E9FC','#b8d4f4','#F6F9FF','#c8e0f8','#e8f4ff'] }, /* ルンルン：水色×白 */
 };
 
-/* ページ内の .petal-canvas に花びらを降らせる */
-function spawnPetals(container, flowerType){
-  /* 既存のキャンバスがあれば削除 */
-  container.querySelectorAll('.petal-canvas').forEach(c=>c.remove());
+let petalCv=null, petalCx=null, petalPts=[], petalRaf=null, petalRunning=false;
 
-  const canvas = document.createElement('div');
-  canvas.className = 'petal-canvas';
-  container.appendChild(canvas);
+function mkPetal(cols, w, h, fromTop){
+  return {
+    x:  Math.random() * w,
+    y:  fromTop ? Math.random() * h : -20,
+    r:  4 + Math.random() * 9,
+    vy: 0.45 + Math.random() * 0.95,
+    vx: (Math.random() - 0.5) * 0.5,
+    rot: Math.random() * Math.PI * 2,
+    dr: (Math.random() - 0.5) * 0.03,
+    a:  0.28 + Math.random() * 0.42,
+    c:  cols[Math.floor(Math.random() * cols.length)],
+    ph: Math.random() * Math.PI * 2,
+  };
+}
 
-  const count = 14; /* 花びらの枚数 */
-  for(let i=0; i<count; i++){
-    setTimeout(()=>{
-      const petal = document.createElement('div');
-      petal.className = 'petal-svg';
+function startPetalCanvas(cols){
+  const bookEl = document.getElementById('book');
+  if(!bookEl) return;
 
-      /* ランダムな位置・サイズ・速度 */
-      const x      = Math.random() * 100;        /* 左からの%位置 */
-      const size   = 12 + Math.random() * 14;    /* 12〜26px */
-      const dur    = 4.5 + Math.random() * 4;    /* 4.5〜8.5秒 */
-      const delay  = Math.random() * 0.5;        /* 0〜0.5秒の開始遅延 */
-      const swing  = (Math.random()-0.5)*60;     /* 横揺れ量 */
-
-      petal.style.cssText = `
-        left: ${x}%;
-        width: ${size}px;
-        height: ${size}px;
-        animation-duration: ${dur}s;
-        animation-delay: ${delay}s;
-        filter: drop-shadow(0 1px 2px rgba(100,60,150,0.15));
-        transform: translateX(${swing}px);
-      `;
-      petal.innerHTML = flowerSVG(flowerType, size);
-      canvas.appendChild(petal);
-
-      /* アニメ終了後に削除して再生成（ループ） */
-      petal.addEventListener('animationend', ()=>{
-        petal.remove();
-        /* 少し間隔を開けて再生成 */
-        setTimeout(()=>{
-          if(canvas.isConnected) spawnOnePetal(canvas, flowerType);
-        }, Math.random() * 2000);
-      }, {once:true});
-    }, i * 300 + Math.random() * 200);
+  if(!petalCv){
+    petalCv = document.createElement('canvas');
+    petalCv.id = 'petal-cv';
+    bookEl.appendChild(petalCv);
+    petalCx = petalCv.getContext('2d');
   }
+
+  /* offsetWidthが0のとき getBoundingClientRect で取得 */
+  const rect = bookEl.getBoundingClientRect();
+  const w = bookEl.offsetWidth  || rect.width  || 800;
+  const h = bookEl.offsetHeight || rect.height || 600;
+  petalCv.width  = w;
+  petalCv.height = h;
+  petalCv.style.cssText = 'position:absolute;inset:0;pointer-events:none;z-index:1;display:block;';
+
+  petalPts = [];
+  for(let i = 0; i < 22; i++) petalPts.push(mkPetal(cols, w, h, true));
+
+  petalRunning = true;
+  if(petalRaf) cancelAnimationFrame(petalRaf);
+
+  (function loop(){
+    if(!petalRunning){
+      petalCx.clearRect(0, 0, petalCv.width, petalCv.height);
+      return;
+    }
+    petalCx.clearRect(0, 0, petalCv.width, petalCv.height);
+    petalPts.forEach(p => {
+      p.y   += p.vy;
+      p.x   += p.vx + Math.sin(p.y * 0.008 + p.ph) * 0.5;
+      p.rot += p.dr;
+      if(p.y > petalCv.height + 20){
+        Object.assign(p, mkPetal(cols, petalCv.width, petalCv.height, false));
+      }
+      petalCx.save();
+      petalCx.translate(p.x, p.y);
+      petalCx.rotate(p.rot);
+      petalCx.globalAlpha = p.a;
+      petalCx.fillStyle = p.c;
+      /* 参考サイトと同じベジェ曲線の花びら形 */
+      petalCx.beginPath();
+      petalCx.moveTo(0, -p.r);
+      petalCx.bezierCurveTo( p.r*.7, -p.r*.6,  p.r*.7, p.r*.6, 0, p.r);
+      petalCx.bezierCurveTo(-p.r*.7,  p.r*.6, -p.r*.7,-p.r*.6, 0,-p.r);
+      petalCx.fill();
+      petalCx.restore();
+    });
+    petalRaf = requestAnimationFrame(loop);
+  })();
 }
 
-function spawnOnePetal(canvas, flowerType){
-  const petal = document.createElement('div');
-  petal.className = 'petal-svg';
-  const x    = Math.random() * 100;
-  const size = 12 + Math.random() * 14;
-  const dur  = 4.5 + Math.random() * 4;
-  const swing = (Math.random()-0.5)*60;
-  petal.style.cssText = `left:${x}%;width:${size}px;height:${size}px;animation-duration:${dur}s;filter:drop-shadow(0 1px 2px rgba(100,60,150,0.15));transform:translateX(${swing}px);`;
-  petal.innerHTML = flowerSVG(flowerType, size);
-  canvas.appendChild(petal);
-  petal.addEventListener('animationend', ()=>{
-    petal.remove();
-    if(canvas.isConnected) setTimeout(()=>spawnOnePetal(canvas,flowerType), Math.random()*2000);
-  },{once:true});
+function stopPetalCanvas(){
+  petalRunning = false;
+  if(petalRaf){ cancelAnimationFrame(petalRaf); petalRaf = null; }
+  if(petalCv)  petalCv.style.display = 'none';
+  petalPts = [];
 }
 
-/* renderPage後に誕生日チェックをして花びらを起動 */
 function checkAndSpawnBirthdayPetals(){
   const p = PAGES[idx];
+  stopPetalCanvas();
   if(!p || p.type !== 'month') return;
-
-  /* 既存のキャンバスをすべてクリア */
-  document.querySelectorAll('.petal-canvas').forEach(c=>c.remove());
-
-  const flowerType = BIRTHDAY_MONTHS[p.month];
-  if(!flowerType) return;
-
-  if(!MOBILE() && turnInitialized){
-    const $ = jQuery;
-    const fb = $(document.getElementById('flipbook'));
-    /* 現在表示中の見開きページ番号を取得 */
-    const view = fb.turn('view'); /* [左page番号, 右page番号] */
-    const fbEl = document.getElementById('flipbook');
-    if(!fbEl) return;
-    /* turn.jsが生成するpage-wrapperのdata-page属性でページを特定 */
-    view.forEach(pageNum => {
-      if(!pageNum) return;
-      /* page-wrapperはattr page="N" を持つ */
-      const wrapper = fbEl.querySelector('[page="'+pageNum+'"]');
-      if(wrapper){
-        const pc = wrapper.querySelector('.page-content');
-        if(pc) spawnPetals(pc, flowerType);
-      }
-    });
-    /* fallback: page-wrapperが見つからない場合は全page-contentに */
-    if(!fbEl.querySelector('[page]')){
-      const allPc = fbEl.querySelectorAll('.page-content');
-      /* 現在見開きに対応するのは (idx*2+1)番目と(idx*2+2)番目 */
-      const li = idx * 2; /* 0-based */
-      [allPc[li], allPc[li+1]].forEach(pc => { if(pc) spawnPetals(pc, flowerType); });
-    }
-  } else {
-    const pL = document.getElementById('pageLeft');
-    const pR = document.getElementById('pageRight');
-    if(pL) spawnPetals(pL, flowerType);
-    if(pR) spawnPetals(pR, flowerType);
-  }
+  const cfg = BIRTHDAY_MONTHS[p.month];
+  if(!cfg) return;
+  /* canvasを毎回作り直す（前のcanvasを完全に除去してから） */
+  const old = document.getElementById('petal-cv');
+  if(old) old.remove();
+  petalCv = null; petalCx = null;
+  /* bookのサイズが確定するまで少し待ってから起動 */
+  setTimeout(()=> startPetalCanvas(cfg.cols), 50);
 }
 
 /* ─── 月ページ ──────────────────────────────── */
@@ -2324,9 +2356,205 @@ function getAnnHTML(){
       ).join('')
     }</div>
   </div>
+  <div class="fw-trigger-wrap">
+    <button class="fw-btn" onclick="launchFireworks()">
+      <span class="fw-btn-icon">${sparklerSVG()}</span>
+      <span>お祝いの花火を打ち上げる</span>
+    </button>
+    <div class="fw-sub">— 2nd Anniversary —</div>
+  </div>
 </div>`;
 
   return {left,right};
+}
+
+
+/* ════════════════════════════════════════════════
+   お祝い花火（参考サイトより移植）
+   5人のメンバーカラーをシェルカラーに使用
+════════════════════════════════════════════════ */
+let fwCv=null, fwCx=null, fwParticles=[], fwRockets=[], fwRunning=false, fwEndTime=0;
+
+/* 線香花火SVG（花火ボタンのアイコン） */
+function sparklerSVG(){
+  return '<svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle;margin-bottom:1px">'+
+  '<line x1="8" y1="15" x2="8" y2="8.5" stroke="#9888c4" stroke-width="1.4" stroke-linecap="round"/>'+
+  '<circle cx="8" cy="7.8" r="2" fill="#ffd700"/>'+
+  '<circle cx="8" cy="7.8" r="1.1" fill="#fff7a0"/>'+
+  '<line x1="8" y1="7.8" x2="8"    y2="2.2"  stroke="#ffd700" stroke-width="0.9" stroke-linecap="round" opacity="0.9"/>'+
+  '<line x1="8" y1="7.8" x2="12.5" y2="4"    stroke="#ff9ecd" stroke-width="0.8" stroke-linecap="round" opacity="0.85"/>'+
+  '<line x1="8" y1="7.8" x2="14"   y2="7.8"  stroke="#ffd700" stroke-width="0.8" stroke-linecap="round" opacity="0.8"/>'+
+  '<line x1="8" y1="7.8" x2="12.5" y2="11.5" stroke="#a0d8ff" stroke-width="0.7" stroke-linecap="round" opacity="0.75"/>'+
+  '<line x1="8" y1="7.8" x2="4"    y2="11.5" stroke="#ffd700" stroke-width="0.8" stroke-linecap="round" opacity="0.75"/>'+
+  '<line x1="8" y1="7.8" x2="2"    y2="7.8"  stroke="#a0d8ff" stroke-width="0.9" stroke-linecap="round" opacity="0.8"/>'+
+  '<line x1="8" y1="7.8" x2="3.5"  y2="4"    stroke="#ffd700" stroke-width="0.8" stroke-linecap="round" opacity="0.85"/>'+
+  '<circle cx="8"    cy="2.2"  r="0.9" fill="#fff7a0"/>'+
+  '<circle cx="12.5" cy="4"    r="0.8" fill="#ffb0d8"/>'+
+  '<circle cx="14"   cy="7.8"  r="0.8" fill="#ffd700"/>'+
+  '<circle cx="12.5" cy="11.5" r="0.7" fill="#c0e8ff"/>'+
+  '<circle cx="2"    cy="7.8"  r="0.8" fill="#c0e8ff"/>'+
+  '<circle cx="3.5"  cy="4"    r="0.8" fill="#ffd700"/>'+
+  '</svg>';
+}
+
+function launchFireworks(){
+  if(!fwCv){
+    fwCv = document.createElement('canvas');
+    fwCv.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:9000;';
+    document.body.appendChild(fwCv);
+    fwCx = fwCv.getContext('2d');
+  }
+  fwCv.width = innerWidth;
+  fwCv.height = innerHeight;
+  fwParticles=[]; fwRockets=[];
+
+  /* メンバーカラーをベースにしたシェルカラー */
+  const shellCols=[
+    ['#846FC7','#b8aade','#e0dbf5','#ffffff'],  /* 綺沙良 */
+    ['#FFE36C','#839DDE','#fff5cc','#c8d4ef'],  /* 司賀りこ */
+    ['#D8E9FC','#b8d4f4','#F6F9FF','#ffffff'],  /* ルンルン */
+    ['#63AED9','#FFC547','#c0e8ff','#fff5cc'],  /* 珠乃井ナナ */
+    ['#FFC6E2','#DECDFC','#ffffff','#f0d8ec'],  /* 梢桃音 */
+    ['#9394B2','#b8aade','#ffffff','#e8e6f4'],  /* 全体カラー */
+  ];
+
+  const shells=[
+    {t:0,   rx:.20,ry:.15, type:0},
+    {t:150, rx:.80,ry:.12, type:3},
+    {t:300, rx:.50,ry:.22, type:2},
+    {t:450, rx:.18,ry:.35, type:1},
+    {t:600, rx:.82,ry:.30, type:0},
+    {t:750, rx:.38,ry:.10, type:3},
+    {t:900, rx:.65,ry:.38, type:2},
+    {t:1050,rx:.28,ry:.25, type:1},
+    {t:1200,rx:.72,ry:.18, type:0},
+    {t:1350,rx:.50,ry:.32, type:2},
+  ];
+
+  fwEndTime = performance.now() + 5500;
+
+  shells.forEach((sh,si)=>{
+    setTimeout(()=>{
+      const bx = 60 + sh.rx*(innerWidth-120);
+      const by = 30 + sh.ry*(innerHeight*.55);
+      const pal = shellCols[si % shellCols.length];
+      fwRockets.push({
+        x: bx+(Math.random()-.5)*40,
+        y: innerHeight-20,
+        tx:bx, ty:by,
+        a:1, c:pal[0],
+        trail:[],
+        burst:{bx,by,pal,type:sh.type}
+      });
+    }, sh.t);
+  });
+
+  if(!fwRunning) animFW();
+}
+
+function spawnBurst(bx,by,pal,type){
+  const t = type||0;
+  const cnt = t===3 ? 60 : (120+Math.floor(Math.random()*30));
+
+  if(t===0){
+    for(let i=0;i<cnt;i++){
+      const ang=(i/cnt)*Math.PI*2, sp=5+Math.random()*9;
+      fwParticles.push({x:bx,y:by,vx:Math.cos(ang)*sp,vy:Math.sin(ang)*sp,
+        a:1,c:pal[Math.floor(Math.random()*pal.length)],
+        sz:2+Math.random()*2.5,trail:[],grav:.12,decay:.011,twinkle:false});
+    }
+  } else if(t===1){
+    for(let i=0;i<cnt;i++){
+      const ang=(i/cnt)*Math.PI*2, sp=4+Math.random()*10;
+      const vx=Math.cos(ang)*sp;
+      const vy=Math.sin(ang)*sp*(Math.sin(ang)>0?-0.3:1)-2;
+      fwParticles.push({x:bx,y:by,vx,vy,
+        a:1,c:pal[Math.floor(Math.random()*pal.length)],
+        sz:1.8+Math.random()*2,trail:[],grav:.22,decay:.008,twinkle:false});
+    }
+  } else if(t===2){
+    for(let arm=0;arm<5;arm++){
+      const baseAng=arm/5*Math.PI*2-Math.PI/2;
+      for(let j=0;j<22;j++){
+        const spread=((j/22)-.5)*.45, ang=baseAng+spread, sp=6+Math.random()*8;
+        fwParticles.push({x:bx,y:by,vx:Math.cos(ang)*sp,vy:Math.sin(ang)*sp,
+          a:1,c:pal[j%pal.length],sz:2+Math.random()*2,trail:[],grav:.09,decay:.012,twinkle:true});
+      }
+    }
+    for(let i=0;i<20;i++){
+      const ang=Math.random()*Math.PI*2;
+      fwParticles.push({x:bx,y:by,vx:Math.cos(ang)*3,vy:Math.sin(ang)*3,
+        a:1,c:'#ffffff',sz:1.5,trail:[],grav:.06,decay:.025,twinkle:true});
+    }
+  } else {
+    for(let i=0;i<cnt;i++){
+      const ang=(i/cnt)*Math.PI*2, sp=8+Math.random()*1.5;
+      fwParticles.push({x:bx,y:by,vx:Math.cos(ang)*sp,vy:Math.sin(ang)*sp,
+        a:1,c:pal[i%pal.length],sz:2.2+Math.random()*1.5,trail:[],grav:.055,decay:.013,twinkle:true});
+    }
+  }
+  for(let i=0;i<16;i++){
+    const ang=Math.random()*Math.PI*2, sp=2+Math.random()*5;
+    fwParticles.push({x:bx,y:by,vx:Math.cos(ang)*sp,vy:Math.sin(ang)*sp,
+      a:1,c:'#ffe88a',sz:1.5+Math.random()*2,trail:[],grav:.08,decay:.022,twinkle:true});
+  }
+}
+
+function animFW(){
+  fwRunning=true;
+  (function loop(now){
+    const alive = fwParticles.length>0 || fwRockets.length>0 || (now<fwEndTime);
+    if(!fwCv||!alive){
+      fwRunning=false;
+      if(fwCv) fwCx.clearRect(0,0,fwCv.width,fwCv.height);
+      return;
+    }
+    fwCx.clearRect(0,0,fwCv.width,fwCv.height);
+
+    fwRockets = fwRockets.filter(r=>{
+      const dx=r.tx-r.x, dy=r.ty-r.y, dist=Math.sqrt(dx*dx+dy*dy);
+      r.trail.push({x:r.x,y:r.y});
+      if(r.trail.length>16) r.trail.shift();
+      if(dist<6){
+        spawnBurst(r.tx,r.ty,r.burst.pal,r.burst.type);
+        const g=fwCx.createRadialGradient(r.tx,r.ty,0,r.tx,r.ty,40);
+        g.addColorStop(0,'rgba(255,255,255,.9)');
+        g.addColorStop(1,'rgba(255,255,255,0)');
+        fwCx.fillStyle=g; fwCx.beginPath();fwCx.arc(r.tx,r.ty,40,0,Math.PI*2);fwCx.fill();
+        return false;
+      }
+      const speed=12;
+      r.x+=dx/dist*speed; r.y+=dy/dist*speed;
+      r.trail.forEach((t,i)=>{
+        fwCx.globalAlpha=(i/r.trail.length)*.8;
+        fwCx.fillStyle=r.c;
+        fwCx.beginPath();fwCx.arc(t.x,t.y,1.6,0,Math.PI*2);fwCx.fill();
+      });
+      fwCx.globalAlpha=1; fwCx.fillStyle='#fffacc';
+      fwCx.beginPath();fwCx.arc(r.x,r.y,3,0,Math.PI*2);fwCx.fill();
+      fwCx.globalAlpha=1;
+      return true;
+    });
+
+    fwParticles = fwParticles.filter(p=>p.a>.01);
+    fwParticles.forEach(p=>{
+      p.trail.push({x:p.x,y:p.y});
+      if(p.trail.length>10) p.trail.shift();
+      p.x+=p.vx; p.y+=p.vy;
+      p.vy+=p.grav; p.vx*=.982;
+      p.a -= (p.decay||.012);
+      p.trail.forEach((t,i)=>{
+        fwCx.globalAlpha=p.a*(i/p.trail.length)*.45;
+        fwCx.fillStyle=p.c;
+        fwCx.beginPath();fwCx.arc(t.x,t.y,p.sz*.4,0,Math.PI*2);fwCx.fill();
+      });
+      const tw = p.twinkle ? (.55+Math.sin(now*.025+p.x*.3)*.45) : 1;
+      fwCx.globalAlpha=Math.min(p.a*tw,1); fwCx.fillStyle=p.c;
+      fwCx.beginPath();fwCx.arc(p.x,p.y,p.sz,0,Math.PI*2);fwCx.fill();
+    });
+    fwCx.globalAlpha=1;
+    requestAnimationFrame(loop);
+  })(performance.now());
 }
 
 /* ─── キーボード ─────────────────────────────── */
