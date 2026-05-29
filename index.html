@@ -1955,56 +1955,84 @@ function mkPetal(cols, w, h, fromTop){
 }
 
 function startPetalCanvas(cols){
-  const bookEl = document.getElementById('book');
-  if(!bookEl) return;
-
-  if(!petalCv){
-    petalCv = document.createElement('canvas');
-    petalCv.id = 'petal-cv';
-    bookEl.appendChild(petalCv);
-    petalCx = petalCv.getContext('2d');
+  /* 配置先: SP=pageLeft/pageRight, PC=flipbook内の現在page-content */
+  const targets = [];
+  if(MOBILE()){
+    const pL = document.getElementById('pageLeft');
+    const pR = document.getElementById('pageRight');
+    if(pL) targets.push(pL);
+    if(pR) targets.push(pR);
+  } else {
+    const fb = document.getElementById('flipbook');
+    if(fb && typeof jQuery !== 'undefined'){
+      try{
+        const view = jQuery(fb).turn('view');
+        view.forEach(pn=>{
+          if(!pn) return;
+          const wr = fb.querySelector('[page="'+pn+'"]');
+          const pc = wr ? wr.querySelector('.page-content') : null;
+          if(pc) targets.push(pc);
+        });
+      }catch(e){}
+    }
+    if(targets.length === 0){
+      const fb2 = document.getElementById('flipbook');
+      if(fb2) fb2.querySelectorAll('.page-content').forEach(pc=>targets.push(pc));
+    }
   }
+  if(targets.length === 0) return;
 
-  /* offsetWidthが0のとき getBoundingClientRect で取得 */
-  const rect = bookEl.getBoundingClientRect();
-  const w = bookEl.offsetWidth  || rect.width  || 800;
-  const h = bookEl.offsetHeight || rect.height || 600;
-  petalCv.width  = w;
-  petalCv.height = h;
-  petalCv.style.cssText = 'position:absolute;inset:0;pointer-events:none;z-index:0;display:block;';
+  /* 既存のpetal canvasを全て除去 */
+  document.querySelectorAll('.petal-cv-el').forEach(c=>c.remove());
+  petalCv = null; petalCx = null;
+
+  const canvases = targets.map(t=>{
+    const cv = document.createElement('canvas');
+    cv.className = 'petal-cv-el';
+    const tw = t.offsetWidth  || t.getBoundingClientRect().width  || 400;
+    const th = t.offsetHeight || t.getBoundingClientRect().height || 500;
+    cv.width = tw; cv.height = th;
+    /* position:relativeがない場合は付与 */
+    if(getComputedStyle(t).position === 'static') t.style.position = 'relative';
+    /* z-index:0でコンテンツ(z:1,z:2)の後ろに */
+    cv.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;';
+    t.appendChild(cv);
+    return { cv, cx: cv.getContext('2d'), w: tw, h: th };
+  });
+
+  petalCv = canvases[0].cv;
+  petalCx = canvases[0].cx;
+  const W = canvases[0].w, H = canvases[0].h;
 
   petalPts = [];
-  for(let i = 0; i < 22; i++) petalPts.push(mkPetal(cols, w, h, true));
+  for(let i=0; i<20; i++) petalPts.push(mkPetal(cols, W, H, true));
 
   petalRunning = true;
   if(petalRaf) cancelAnimationFrame(petalRaf);
 
   (function loop(){
     if(!petalRunning){
-      petalCx.clearRect(0, 0, petalCv.width, petalCv.height);
+      canvases.forEach(({cx,w,h})=>cx.clearRect(0,0,w,h));
       return;
     }
-    petalCx.clearRect(0, 0, petalCv.width, petalCv.height);
-    petalPts.forEach(p => {
-      p.y   += p.vy;
-      p.x   += p.vx + Math.sin(p.y * 0.008 + p.ph) * 0.5;
-      p.rot += p.dr;
-      if(p.y > petalCv.height + 20){
-        Object.assign(p, mkPetal(cols, petalCv.width, petalCv.height, false));
-      }
-      petalCx.save();
-      petalCx.translate(p.x, p.y);
-      petalCx.rotate(p.rot);
-      petalCx.globalAlpha = p.a;
-      petalCx.fillStyle = p.c;
-      /* 参考サイトと同じベジェ曲線の花びら形 */
-      petalCx.beginPath();
-      petalCx.moveTo(0, -p.r);
-      petalCx.bezierCurveTo( p.r*.7, -p.r*.6,  p.r*.7, p.r*.6, 0, p.r);
-      petalCx.bezierCurveTo(-p.r*.7,  p.r*.6, -p.r*.7,-p.r*.6, 0,-p.r);
-      petalCx.fill();
-      petalCx.restore();
+    canvases[0].cx.clearRect(0,0,W,H);
+    petalPts.forEach(p=>{
+      p.y += p.vy; p.x += p.vx + Math.sin(p.y*.008+p.ph)*.5; p.rot += p.dr;
+      if(p.y > H+20) Object.assign(p, mkPetal(cols,W,H,false));
+      canvases[0].cx.save();
+      canvases[0].cx.translate(p.x,p.y); canvases[0].cx.rotate(p.rot);
+      canvases[0].cx.globalAlpha=p.a; canvases[0].cx.fillStyle=p.c;
+      canvases[0].cx.beginPath();
+      canvases[0].cx.moveTo(0,-p.r);
+      canvases[0].cx.bezierCurveTo(p.r*.7,-p.r*.6,p.r*.7,p.r*.6,0,p.r);
+      canvases[0].cx.bezierCurveTo(-p.r*.7,p.r*.6,-p.r*.7,-p.r*.6,0,-p.r);
+      canvases[0].cx.fill(); canvases[0].cx.restore();
     });
+    /* 他のcanvasに内容をコピー */
+    for(let i=1;i<canvases.length;i++){
+      canvases[i].cx.clearRect(0,0,canvases[i].w,canvases[i].h);
+      canvases[i].cx.drawImage(canvases[0].cv,0,0,canvases[i].w,canvases[i].h);
+    }
     petalRaf = requestAnimationFrame(loop);
   })();
 }
@@ -2012,8 +2040,8 @@ function startPetalCanvas(cols){
 function stopPetalCanvas(){
   petalRunning = false;
   if(petalRaf){ cancelAnimationFrame(petalRaf); petalRaf = null; }
-  if(petalCv)  petalCv.style.display = 'none';
-  petalPts = [];
+  document.querySelectorAll('.petal-cv-el').forEach(c=>c.remove());
+  petalCv = null; petalCx = null; petalPts = [];
 }
 
 function checkAndSpawnBirthdayPetals(){
@@ -2022,12 +2050,7 @@ function checkAndSpawnBirthdayPetals(){
   if(!p || p.type !== 'month') return;
   const cfg = BIRTHDAY_MONTHS[p.month];
   if(!cfg) return;
-  /* canvasを毎回作り直す（前のcanvasを完全に除去してから） */
-  const old = document.getElementById('petal-cv');
-  if(old) old.remove();
-  petalCv = null; petalCx = null;
-  /* bookのサイズが確定するまで少し待ってから起動 */
-  setTimeout(()=> startPetalCanvas(cfg.cols), 50);
+  setTimeout(()=> startPetalCanvas(cfg.cols), 80);
 }
 
 /* ─── 月ページ ──────────────────────────────── */
