@@ -115,6 +115,7 @@ body{
   padding-bottom:14px;
   box-shadow:0 -4px 14px rgba(80,55,130,0.3),inset 0 1px 0 rgba(255,255,255,0.2);
   z-index:2;
+
 }
 
 /* ════════════════════════════════════════════════
@@ -239,7 +240,7 @@ body{
 .page{
   flex:1;
   position:relative;overflow:hidden;
-  z-index:1; /* 花びらcanvas(z:0)より前面 */
+  z-index:1;
   padding:clamp(10px,1.6vw,20px) clamp(12px,1.8vw,22px);
   /* ページの紙質 */
   background:
@@ -260,7 +261,7 @@ body{
   box-shadow:inset 8px 0 16px rgba(80,55,130,0.08);
 }
 
-/* 綴じ目 */
+/* 綴じ目：中華格子紋（回字紋）パターン */
 .spine{
   position:absolute;left:50%;top:0;transform:translateX(-50%);
   width:14px;height:100%;z-index:100;pointer-events:none;
@@ -270,14 +271,28 @@ body{
   );
   box-shadow:0 0 12px rgba(80,55,130,0.2);
 }
-/* 綴じ目の縫い目風 */
+/* 格子紋様（回字紋）: 縦の繰り返し格子 */
+.spine::before{
+  content:'';position:absolute;inset:0;
+  background-image:
+    repeating-linear-gradient(
+      to bottom,
+      rgba(70,50,110,0.3) 0px, rgba(70,50,110,0.3) 1px,
+      transparent 1px, transparent 6px,
+      rgba(70,50,110,0.15) 6px, rgba(70,50,110,0.15) 7px,
+      transparent 7px, transparent 13px,
+      rgba(70,50,110,0.3) 13px, rgba(70,50,110,0.3) 14px,
+      transparent 14px, transparent 20px
+    );
+  pointer-events:none;
+}
+/* 光沢ハイライト */
 .spine::after{
-  content:'';position:absolute;left:50%;top:0;transform:translateX(-50%);
-  width:1px;height:100%;
-  background:repeating-linear-gradient(
-    to bottom,
-    rgba(80,55,130,0.15) 0px,rgba(80,55,130,0.15) 6px,
-    transparent 6px,transparent 10px
+  content:'';position:absolute;left:28%;top:0;
+  width:2px;height:100%;
+  background:linear-gradient(180deg,
+    transparent 0%,rgba(255,255,255,0.28) 20%,
+    rgba(255,255,255,0.18) 50%,rgba(255,255,255,0.28) 80%,transparent 100%
   );
 }
 
@@ -720,6 +735,25 @@ body{
   text-align:center;margin-bottom:clamp(3px,.5vw,5px);
   flex-shrink:0;
 }
+/* ③ 中華紋様の区切り線（toc-book-title の下） */
+.toc-book-title::after{
+  content:'';display:block;
+  width:clamp(60px,10vw,110px);
+  height:7px;
+  margin:clamp(3px,.5vw,5px) auto 0;
+  background-image:
+    /* 回字紋風: 中央線＋上下に点線 */
+    repeating-linear-gradient(
+      90deg,
+      rgba(140,110,200,0.55) 0px, rgba(140,110,200,0.55) 4px,
+      transparent 4px, transparent 6px,
+      rgba(140,110,200,0.3) 6px, rgba(140,110,200,0.3) 7px,
+      transparent 7px, transparent 10px
+    );
+  background-size:10px 7px;
+  background-repeat:repeat-x;
+  background-position:center center;
+}
 
 /* ─ ミニ本イラスト（タブ密着） ─ */
 .guide-book-col-inline{
@@ -942,11 +976,66 @@ body{
 
 
 /* ════ ローディング画面 ════ */
-#loading-screen{position:fixed;inset:0;background:linear-gradient(135deg,#ede4fa 0%,#ddd0f4 50%,#cfc0ec 100%);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(16px,3vw,28px);transition:opacity .5s ease,visibility .5s ease;opacity:1;visibility:visible;}
+/* ════ ローディング画面 ════ */
+#loading-screen{
+  position:fixed;inset:0;
+  background:
+    radial-gradient(ellipse 120% 80% at 20% 20%, rgba(220,210,255,0.6) 0%, transparent 50%),
+    radial-gradient(ellipse 100% 120% at 80% 80%, rgba(160,140,220,0.4) 0%, transparent 52%),
+    linear-gradient(148deg, #ede7f9 0%, #ddd2f0 35%, #cfc2ea 65%, #c0b0e4 100%);
+  z-index:99999;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:clamp(12px,2vw,20px);
+  transition:opacity .8s ease,visibility .8s ease;
+  opacity:1;visibility:visible;
+}
 #loading-screen.hidden{opacity:0;visibility:hidden;pointer-events:none;}
-.loading-title{font-family:'Shippori Mincho',serif;font-size:clamp(14px,2vw,20px);color:#5a4a8a;letter-spacing:.2em;font-weight:600;}
-.loading-sub{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:clamp(10px,1.4vw,14px);color:#8878b8;letter-spacing:.2em;}
-.loading-dot{position:relative;width:10px;height:10px;border-radius:5px;background:transparent;color:transparent;box-shadow:0 -22px 0 0 #9888c4,15.56px -15.56px 0 0 #9888c4,22px 0 0 0 #9888c4,15.56px 15.56px 0 0 rgba(152,136,196,0),0 22px 0 0 rgba(152,136,196,0),-15.56px 15.56px 0 0 rgba(152,136,196,0),-22px 0 0 0 rgba(152,136,196,0),-15.56px -15.56px 0 0 rgba(152,136,196,0);animation:loading-spin 1.5s infinite linear;}
+
+
+
+/* 花スピナー */
+.loading-title{
+  font-family:'Zen Old Mincho','Shippori Mincho',serif;
+  font-size:clamp(16px,2.2vw,24px);
+  color:#3a2860;letter-spacing:.25em;font-weight:900;
+  text-shadow:0 2px 12px rgba(80,55,130,0.12);
+}
+.loading-sub{
+  font-family:'DM Serif Display','Cormorant Garamond',serif;font-style:italic;
+  font-size:clamp(9px,1.2vw,13px);color:#8878b8;letter-spacing:.2em;opacity:0.85;
+}
+.loading-dot{ display:none; }
+
+/* 5輪の花スピナー */
+.flower-spinner{
+  position:relative;
+  /* 100x100px, 中心=(50,50), 半径38px の正五角形に配置 */
+  width:100px; height:100px;
+  flex-shrink:0;
+}
+/* 各花はposition:absolute、top/leftで円周上に配置
+   translateで花の中心を座標に合わせる */
+.flower-spinner .fs-petal{
+  position:absolute;
+  opacity:0;
+  transition:opacity 0.4s ease;
+}
+/* 5輪の座標（中心50,50 / 半径38 / 72度ずつ / 花サイズ22px）
+   top = cy - size/2, left = cx - size/2 */
+.flower-spinner .fs-petal:nth-child(1){ top: -1px; left:39px; } /* 270deg: (50,-38)→top=-1,left=39 */
+.flower-spinner .fs-petal:nth-child(2){ top:27px; left:75px; } /* 342deg: (86,38)→top=27,left=75  */
+.flower-spinner .fs-petal:nth-child(3){ top:70px; left:61px; } /* 54deg:  (72,81)→top=70,left=61  */
+.flower-spinner .fs-petal:nth-child(4){ top:70px; left:17px; } /* 126deg: (28,81)→top=70,left=17  */
+.flower-spinner .fs-petal:nth-child(5){ top:27px; left: 3px; } /* 198deg: (14,38)→top=27,left=3   */
+/* 5輪揃ったら全体回転: transform-originはデフォルトcenter(50px,50px) */
+.flower-spinner.spinning{
+  animation:spinner-rotate 3.5s linear infinite;
+  transform-origin:50px 50px; /* 5輪の重心 = スピナー中心 */
+}
+@keyframes spinner-rotate{
+  from{transform:rotate(0deg);}
+  to  {transform:rotate(360deg);}
+}
 @keyframes loading-spin{0%,100%{box-shadow:0 -22px 0 0 #9888c4,15.56px -15.56px 0 0 #9888c4,22px 0 0 0 #9888c4,15.56px 15.56px 0 -5px rgba(152,136,196,0),0 22px 0 -5px rgba(152,136,196,0),-15.56px 15.56px 0 -5px rgba(152,136,196,0),-22px 0 0 -5px rgba(152,136,196,0),-15.56px -15.56px 0 -5px rgba(152,136,196,0);}12.5%{box-shadow:0 -22px 0 -5px rgba(152,136,196,0),15.56px -15.56px 0 0 #9888c4,22px 0 0 0 #9888c4,15.56px 15.56px 0 0 #9888c4,0 22px 0 -5px rgba(152,136,196,0),-15.56px 15.56px 0 -5px rgba(152,136,196,0),-22px 0 0 -5px rgba(152,136,196,0),-15.56px -15.56px 0 -5px rgba(152,136,196,0);}25%{box-shadow:0 -22px 0 -5px rgba(152,136,196,0),15.56px -15.56px 0 -5px rgba(152,136,196,0),22px 0 0 0 #9888c4,15.56px 15.56px 0 0 #9888c4,0 22px 0 0 #9888c4,-15.56px 15.56px 0 -5px rgba(152,136,196,0),-22px 0 0 -5px rgba(152,136,196,0),-15.56px -15.56px 0 -5px rgba(152,136,196,0);}37.5%{box-shadow:0 -22px 0 -5px rgba(152,136,196,0),15.56px -15.56px 0 -5px rgba(152,136,196,0),22px 0 0 -5px rgba(152,136,196,0),15.56px 15.56px 0 0 #9888c4,0 22px 0 0 #9888c4,-15.56px 15.56px 0 0 #9888c4,-22px 0 0 -5px rgba(152,136,196,0),-15.56px -15.56px 0 -5px rgba(152,136,196,0);}50%{box-shadow:0 -22px 0 -5px rgba(152,136,196,0),15.56px -15.56px 0 -5px rgba(152,136,196,0),22px 0 0 -5px rgba(152,136,196,0),15.56px 15.56px 0 -5px rgba(152,136,196,0),0 22px 0 0 #9888c4,-15.56px 15.56px 0 0 #9888c4,-22px 0 0 0 #9888c4,-15.56px -15.56px 0 -5px rgba(152,136,196,0);}62.5%{box-shadow:0 -22px 0 -5px rgba(152,136,196,0),15.56px -15.56px 0 -5px rgba(152,136,196,0),22px 0 0 -5px rgba(152,136,196,0),15.56px 15.56px 0 -5px rgba(152,136,196,0),0 22px 0 -5px rgba(152,136,196,0),-15.56px 15.56px 0 0 #9888c4,-22px 0 0 0 #9888c4,-15.56px -15.56px 0 0 #9888c4;}75%{box-shadow:0 -22px 0 0 #9888c4,15.56px -15.56px 0 -5px rgba(152,136,196,0),22px 0 0 -5px rgba(152,136,196,0),15.56px 15.56px 0 -5px rgba(152,136,196,0),0 22px 0 -5px rgba(152,136,196,0),-15.56px 15.56px 0 -5px rgba(152,136,196,0),-22px 0 0 0 #9888c4,-15.56px -15.56px 0 0 #9888c4;}87.5%{box-shadow:0 -22px 0 0 #9888c4,15.56px -15.56px 0 0 #9888c4,22px 0 0 -5px rgba(152,136,196,0),15.56px 15.56px 0 -5px rgba(152,136,196,0),0 22px 0 -5px rgba(152,136,196,0),-15.56px 15.56px 0 -5px rgba(152,136,196,0),-22px 0 0 -5px rgba(152,136,196,0),-15.56px -15.56px 0 0 #9888c4;}}
 .site-main{opacity:0;transition:opacity .5s ease;}
 .site-main.loaded{opacity:1;}
@@ -1063,7 +1152,29 @@ body{
   box-sizing:border-box;overflow:hidden;
   padding:clamp(10px,1.6vw,20px) clamp(12px,1.8vw,22px);
   position:relative;
-  z-index:1; /* 花びらcanvas(z:0)より前面 */
+  z-index:1;
+}
+/* 書角（中華書物の四隅装飾）*/
+#flipbook .page-content::before,
+#flipbook .page-content::after{
+  content:'';
+  position:absolute;
+  width:clamp(10px,1.4vw,16px);
+  height:clamp(10px,1.4vw,16px);
+  pointer-events:none;
+  opacity:0.22;
+}
+#flipbook .page-content::before{
+  top:clamp(5px,.8vw,9px);
+  left:clamp(5px,.8vw,9px);
+  border-top:1.5px solid #7050a8;
+  border-left:1.5px solid #7050a8;
+}
+#flipbook .page-content::after{
+  top:clamp(5px,.8vw,9px);
+  right:clamp(5px,.8vw,9px);
+  border-top:1.5px solid #7050a8;
+  border-right:1.5px solid #7050a8;
 }
 /* シャドウ・コーナーUI制御 */
 /* gradients:falseなのでシャドウ要素は不要 */
@@ -1384,14 +1495,97 @@ body{
   .fw-btn-icon{font-size:3.2vw;}
   .fw-sub{font-size:2vw;}
 }
+
+/* ════ 表紙 一筆書きアニメーション ════ */
+
+/* 「いずれ菖蒲か杜若」各文字 */
+.cover-unit-anim{
+  overflow:visible;
+  letter-spacing:.22em;
+}
+.cu-char{
+  display:inline-block;
+  opacity:0;
+  clip-path:inset(0 100% 0 0);
+  animation:cu-brush 0.5s cubic-bezier(0.22,0.61,0.36,1) forwards;
+  animation-delay:calc(var(--i) * 0.42s + 0.3s);
+}
+@keyframes cu-brush{
+  0%  {opacity:1; clip-path:inset(0 100% 0 0);}
+  100%{opacity:1; clip-path:inset(0 0% 0 0);}
+}
+
+/* 筆先の光（各文字に続く輝き） */
+.cu-char::after{
+  content:'';
+  position:absolute;right:-2px;top:0;bottom:0;width:2px;
+  background:rgba(180,150,220,0.7);
+  animation:cu-tip 0.5s cubic-bezier(0.22,0.61,0.36,1) forwards;
+  animation-delay:calc(var(--i) * 0.42s + 0.3s);
+  opacity:0;
+}
+@keyframes cu-tip{
+  0%  {opacity:0.9;}
+  80% {opacity:0.4;}
+  100%{opacity:0;}
+}
+
+/* サブ要素: 文字書き終わり後にフェードイン */
+/* 8文字 × 0.42s + 0.3s + 少し待つ = 約3.76s */
+.cover-en-anim{
+  opacity:0;
+  transform:translateY(6px);
+  animation:cover-fade-up 0.8s ease forwards;
+  animation-delay:3.9s;
+}
+.cover-deco-anim{
+  opacity:0;
+  animation:cover-fade-up 0.6s ease forwards;
+  animation-delay:4.3s;
+}
+.cover-title-anim{
+  opacity:0;
+  transform:translateY(8px);
+  animation:cover-fade-up 0.9s ease forwards;
+  animation-delay:4.5s;
+}
+.cover-sub-anim{
+  opacity:0;
+  animation:cover-fade-up 0.7s ease forwards;
+  animation-delay:5.0s;
+}
+/* hint は最後に点滅 */
+.cover-hint-anim{
+  opacity:0;
+  animation:
+    cover-fade-up 0.6s ease forwards 5.4s,
+    pulse 2.4s ease-in-out infinite 6.0s;
+}
+@keyframes cover-fade-up{
+  from{opacity:0;transform:translateY(8px);}
+  to  {opacity:1;transform:translateY(0);}
+}
+
+/* メンバー名もフェードイン */
+.cover-members{
+  opacity:0;
+  animation:cover-fade-up 0.7s ease forwards;
+  animation-delay:5.2s;
+}
 </style>
 </head>
 <body>
 <div id="loading-screen">
-  <div class="loading-title">いずれ菖蒲か杜若</div>
-  <div class="loading-dot"></div>
-  <div class="loading-sub">2nd Anniversary Memory Book</div>
+  <!-- 花スピナー: 5輪が順に現れて回転 -->
+  <div class="flower-spinner" id="flowerSpinner">
+    <div class="fs-petal" id="fsp0"></div>
+    <div class="fs-petal" id="fsp1"></div>
+    <div class="fs-petal" id="fsp2"></div>
+    <div class="fs-petal" id="fsp3"></div>
+    <div class="fs-petal" id="fsp4"></div>
+  </div>
 </div>
+
 <div id="orientation-lock">
   <div class="orient-icon">📱</div>
   <div class="orient-text">縦向きでご覧ください</div>
@@ -1432,12 +1626,15 @@ body{
             <!-- 表紙 -->
             <div class="cover" id="cover">
               <div class="cover-inner">
-                <div class="cover-unit">いずれ菖蒲か杜若</div>
-                <div class="cover-en">2nd Anniversary Memory Book</div>
-                <div class="cover-deco">✦ ✦ ✦</div>
-                <div class="cover-title">推し活日記</div>
-                <div class="cover-sub">2024.06 — 2026.05</div>
-                <div class="cover-hint">— タップして開く —</div>
+                <!-- 一筆ずつ書かれる「いずれ菖蒲か杜若」 -->
+                <div class="cover-unit cover-unit-anim" id="coverUnit">
+                  <span class="cu-char" style="--i:0">い</span><span class="cu-char" style="--i:1">ず</span><span class="cu-char" style="--i:2">れ</span><span class="cu-char" style="--i:3">菖</span><span class="cu-char" style="--i:4">蒲</span><span class="cu-char" style="--i:5">か</span><span class="cu-char" style="--i:6">杜</span><span class="cu-char" style="--i:7">若</span>
+                </div>
+                <div class="cover-en cover-en-anim">2nd Anniversary Memory Book</div>
+                <div class="cover-deco cover-deco-anim"></div>
+                <div class="cover-title cover-title-anim">推し活日記</div>
+                <div class="cover-sub cover-sub-anim">2024.06 — 2026.05</div>
+                <div class="cover-hint cover-hint-anim">— タップして開く —</div>
                 <div class="cover-members">
                   <div class="cover-members-row1">
                     <span>綺沙良</span>
@@ -1779,6 +1976,15 @@ function initTurnJs(){
         if(p && p.type === 'month'){ curYear = p.year; curMonth = p.month; }
         else if(p && p.type === 'anniversary'){ curYear = 2026; curMonth = 6; }
         renderYearTabs(); renderMonthTabs(); updateUI();
+        /* 遅延読み込み: めくったページの画像を読み込む */
+        const fb2 = document.getElementById('flipbook');
+        if(fb2) fb2.querySelectorAll('[page] img.lazy-page').forEach(function(img){
+          const src = img.getAttribute('data-src');
+          if(src && !img.getAttribute('src')){
+            img.setAttribute('src', src);
+            img.addEventListener('load', function(){ img.style.opacity='1'; },{once:true});
+          }
+        });
         /* 誕生日月の花びら */
         checkAndSpawnBirthdayPetals();
       }
@@ -1844,11 +2050,36 @@ function getPageHTML(i){
   if(p.type==='anniversary') return getAnnHTML();
   return getMonthHTML(p.year,p.month);
 }
+
+/* ════ 遅延読み込み（Lazy Load）════
+   data.jsに写真を追加したとき自動で動作する
+   img.lazy-page に data-src を設定しておき、
+   ページが表示されるタイミングで src に移す ════ */
+function loadLazyImages(container){
+  if(!container) return;
+  container.querySelectorAll('img.lazy-page').forEach(function(img){
+    const src = img.getAttribute('data-src');
+    if(src && !img.getAttribute('src')){
+      img.setAttribute('src', src);
+      img.addEventListener('load', function(){
+        img.style.opacity = '1';
+      }, {once:true});
+      /* 読み込み失敗時はプレースホルダー表示 */
+      img.addEventListener('error', function(){
+        img.style.opacity = '0.3';
+      }, {once:true});
+    }
+  });
+}
+
 function renderPage(i){
   const {left,right}=getPageHTML(i);
   pageLeft.innerHTML=left;
   pageRight.innerHTML=right;
-  /* 誕生日月なら花びらを散らす（DOM更新後に実行） */
+  /* 遅延読み込み */
+  loadLazyImages(pageLeft);
+  loadLazyImages(pageRight);
+  /* 誕生日月なら花びらを散らす */
   setTimeout(checkAndSpawnBirthdayPetals, 120);
 }
 
@@ -1951,6 +2182,25 @@ function mkPetal(cols, w, h, fromTop){
     a:  0.28 + Math.random() * 0.42,
     c:  cols[Math.floor(Math.random() * cols.length)],
     ph: Math.random() * Math.PI * 2,
+    lotus: false,
+  };
+}
+
+/* ④ 蓮の花びら（楕円形、薄いピンク〜白、背景に漂う） */
+function mkLotusPetal(w, h, fromTop){
+  return {
+    x:  Math.random() * w,
+    y:  fromTop ? Math.random() * h : -15,
+    r:  6 + Math.random() * 8,   /* やや大きめ */
+    ry: 3 + Math.random() * 4,   /* 楕円（横長） */
+    vy: 0.2 + Math.random() * 0.4,  /* ゆっくり落ちる */
+    vx: (Math.random() - 0.5) * 0.3,
+    rot: Math.random() * Math.PI * 2,
+    dr: (Math.random() - 0.5) * 0.012, /* ゆっくり回転 */
+    a:  0.08 + Math.random() * 0.12,  /* とても薄い */
+    c:  ['#f0b0c8','#f8d0dc','#fce8ee','#f4c0d0'][Math.floor(Math.random()*4)],
+    ph: Math.random() * Math.PI * 2,
+    lotus: true,
   };
 }
 
@@ -1995,6 +2245,8 @@ function startPetalCanvas(cols){
 
   petalPts = [];
   for(let i = 0; i < 20; i++) petalPts.push(mkPetal(cols, W, H, true));
+  /* ④ 蓮の花びらを6枚追加（背景に薄く漂う） */
+  for(let i = 0; i < 6; i++) petalPts.push(mkLotusPetal(W, H, true));
 
   petalRunning = true;
   if(petalRaf) cancelAnimationFrame(petalRaf);
@@ -2007,14 +2259,22 @@ function startPetalCanvas(cols){
     petalCx.clearRect(0,0,W,H);
     petalPts.forEach(p=>{
       p.y += p.vy; p.x += p.vx + Math.sin(p.y*.008+p.ph)*.5; p.rot += p.dr;
-      if(p.y > H+20) Object.assign(p, mkPetal(cols,W,H,false));
+      if(p.y > H+20){
+        if(p.lotus) Object.assign(p, mkLotusPetal(W,H,false));
+        else Object.assign(p, mkPetal(cols,W,H,false));
+      }
       petalCx.save();
       petalCx.translate(p.x,p.y); petalCx.rotate(p.rot);
       petalCx.globalAlpha=p.a; petalCx.fillStyle=p.c;
       petalCx.beginPath();
-      petalCx.moveTo(0,-p.r);
-      petalCx.bezierCurveTo(p.r*.7,-p.r*.6,p.r*.7,p.r*.6,0,p.r);
-      petalCx.bezierCurveTo(-p.r*.7,p.r*.6,-p.r*.7,-p.r*.6,0,-p.r);
+      if(p.lotus){
+        /* 蓮の花びら: 横長楕円 */
+        petalCx.ellipse(0, 0, p.r, p.ry||p.r*0.45, 0, 0, Math.PI*2);
+      } else {
+        petalCx.moveTo(0,-p.r);
+        petalCx.bezierCurveTo(p.r*.7,-p.r*.6,p.r*.7,p.r*.6,0,p.r);
+        petalCx.bezierCurveTo(-p.r*.7,p.r*.6,-p.r*.7,-p.r*.6,0,-p.r);
+      }
       petalCx.fill();
       petalCx.restore();
     });
@@ -2783,16 +3043,60 @@ window.addEventListener('resize', ()=>{
 /* 初期化 */
 if(MOBILE()) slider.max = PAGES.length * 2 - 1;
 
-/* ════ ローディング画面制御 ════ */
+/* ════ 花スピナー → 表紙アニメ ════ */
 (function(){
-  const ls=document.getElementById('loading-screen');
-  const sm=document.getElementById('siteMain');
-  let done=false;
-  function hide(){if(done)return;done=true;ls.classList.add('hidden');sm.classList.add('loaded');}
-  const t=setTimeout(hide,1500);
-  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{clearTimeout(t);setTimeout(hide,300);});
-})();
+  /* ── 花スピナー初期化 ── */
+  const SPINNER_TYPES = ['shakyaku','roubai','kinmokusei','jasmine','momo'];
+  const SPINNER_SIZE  = 22;
+  const spinner = document.getElementById('flowerSpinner');
 
+  function initSpinner(){
+    if(typeof flowerSVG === 'undefined'){ setTimeout(initSpinner, 50); return; }
+    SPINNER_TYPES.forEach((type, i) => {
+      const el = document.getElementById('fsp' + i);
+      if(!el) return;
+      el.innerHTML = flowerSVG(type, SPINNER_SIZE);
+      /* 位置はCSS側で設定済み（JS上書きなし） */
+    });
+    /* 綺沙良から順に0.3秒ずつ出現 */
+    let appeared = 0;
+    SPINNER_TYPES.forEach((_, i) => {
+      setTimeout(() => {
+        const el = document.getElementById('fsp' + i);
+        if(el) el.style.opacity = '1';
+        appeared++;
+        /* 5輪揃ったらspinner全体を回転（重心=中心なので正しく回る） */
+        if(appeared === 5 && spinner){
+          setTimeout(() => { spinner.classList.add('spinning'); }, 200);
+        }
+      }, i * 300);
+    });
+  }
+  initSpinner();
+
+  /* ── ローディング完了 → 表紙へ直接移行 ── */
+  const ls = document.getElementById('loading-screen');
+  const sm = document.getElementById('siteMain');
+  let done = false;
+
+  function showCover(){
+    if(done) return; done = true;
+    ls.classList.add('hidden');
+    /* site-mainをフェードイン（表紙アニメはCSS側で自動スタート） */
+    sm.classList.add('loaded');
+  }
+
+  /* フォント読み込み完了 or 最低1.8秒（花スピナーが1周するまで） */
+  let loadDone = false;
+  function onLoad(){
+    if(loadDone) return; loadDone = true;
+    setTimeout(showCover, 1800);
+  }
+  const t = setTimeout(onLoad, 2400);
+  if(document.fonts && document.fonts.ready){
+    document.fonts.ready.then(() => { clearTimeout(t); onLoad(); });
+  }
+})();
 </script>
 </div><!-- /site-main -->
 </body>
