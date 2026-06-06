@@ -224,6 +224,9 @@ body{
   border-radius:4px 10px 10px 4px;
   overflow:hidden;
   box-shadow:0 16px 48px rgba(60,40,110,0.28),0 4px 10px rgba(60,40,110,0.16);
+  /* 独立した積み重ねコンテキストを作成
+     → canvas(z:-1)が確実にページ(z:1)の後ろになる */
+  isolation:isolate;
 }
 
 /* ════════════════════════════════════════════════
@@ -2183,7 +2186,7 @@ function startPetalCanvas(cols){
     `width:100%`,
     `height:100%`,
     'pointer-events:none',
-    'z-index:0',
+    'z-index:-1', /* ページ(z:1)・写真(z:2)より確実に後ろ */
     'border-radius:4px 10px 10px 4px',
     'overflow:hidden',
   ].join(';');
