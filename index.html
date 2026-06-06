@@ -3,17 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>推し活日記 — いずれ菖蒲か杜若 2nd Anniversary Memory Book</title>
+<title>2nd Anniversary Memory Book — いずれ菖蒲か杜若</title>
 <meta name="description" content="いずれ菖蒲か杜若のデビュー2周年を記念した個人制作のファン活動サイト。2024年6月〜2026年5月の推し活の思い出をまとめた非公式記念誌です。">
 <meta name="robots" content="noindex">
 <meta property="og:type" content="website">
-<meta property="og:title" content="推し活日記 — いずれ菖蒲か杜若 2nd Anniversary Memory Book">
+<meta property="og:title" content="2nd Anniversary Memory Book — いずれ菖蒲か杜若">
 <meta property="og:description" content="いずれ菖蒲か杜若のデビュー2周年を記念した個人制作のファン活動サイトです。">
 <meta property="og:locale" content="ja_JP">
 <!-- <meta property="og:image" content="https://あなたのドメイン/ogp.jpg"> -->
 <!-- <meta property="og:url" content="https://あなたのドメイン/"> -->
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="推し活日記 — いずれ菖蒲か杜若 2nd Anniversary Memory Book">
+<meta name="twitter:title" content="2nd Anniversary Memory Book — いずれ菖蒲か杜若">
 <meta name="twitter:description" content="いずれ菖蒲か杜若のデビュー2周年を記念した個人制作のファン活動サイトです。">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Zen+Kurenaido&display=swap" rel="stylesheet">
@@ -310,10 +310,25 @@ body{
   font-size:clamp(9px,1.3vw,14px);letter-spacing:.3em;
   color:#8878b8;margin-bottom:12px;
 }
+.cover-celebr{
+  font-family:'Shippori Mincho',serif;
+  font-size:clamp(10px,1.3vw,14px);
+  color:#8878b8;
+  letter-spacing:.22em;
+  opacity:0.88;
+  margin-bottom:clamp(2px,.4vw,4px);
+}
+.cover-celebr-anim{
+  opacity:0;
+  animation:cover-fade-up 0.7s ease forwards;
+  animation-delay:3.95s;
+}
 .cover-title{
-  font-family:'Shippori Mincho',serif;font-weight:700;
-  font-size:clamp(18px,4vw,48px);
-  color:#2a1848;letter-spacing:.12em;line-height:1.4;
+  font-family:'DM Serif Display','Cormorant Garamond',serif;
+  font-weight:400;font-style:italic;
+  font-size:clamp(12px,2.2vw,28px);
+  color:#2a1848;letter-spacing:.05em;line-height:1.4;
+  white-space:nowrap;
   text-shadow:0 2px 8px rgba(80,55,130,0.15);
   margin-bottom:8px;
 }
@@ -1217,7 +1232,8 @@ body{
   padding:clamp(4px,.7vw,8px) 0;
 }
 .final-ann-line{
-  width:clamp(50px,9vw,100px);
+  /* 文字幅（デビュー2周年 = 約5.5文字×font-size）に合わせて伸ばす */
+  width:min(85%, clamp(140px,18vw,240px));
   height:5px;
   border-top:1px solid rgba(140,118,195,0.48);
   border-bottom:1px solid rgba(140,118,195,0.22);
@@ -1578,9 +1594,9 @@ body{
                 <div class="cover-unit cover-unit-anim" id="coverUnit">
                   <span class="cu-char" style="--i:0">い</span><span class="cu-char" style="--i:1">ず</span><span class="cu-char" style="--i:2">れ</span><span class="cu-char" style="--i:3">菖</span><span class="cu-char" style="--i:4">蒲</span><span class="cu-char" style="--i:5">か</span><span class="cu-char" style="--i:6">杜</span><span class="cu-char" style="--i:7">若</span>
                 </div>
-                <div class="cover-en cover-en-anim">2nd Anniversary Memory Book</div>
+                <div class="cover-celebr cover-celebr-anim">2周年を祝して</div>
                 <div class="cover-deco cover-deco-anim"></div>
-                <div class="cover-title cover-title-anim">推し活日記</div>
+                <div class="cover-title cover-title-anim">2nd Anniversary Memory Book</div>
                 <div class="cover-sub cover-sub-anim">2024.06 — 2026.06</div>
                 <div class="cover-hint cover-hint-anim">— タップして開く —</div>
                 <div class="cover-members">
@@ -2490,7 +2506,7 @@ function getAnnHTML(){
   ${flowerBand}
 
   <div class="final-ann-block">
-    <div class="final-ann-en">2nd Anniversary</div>
+    <div class="final-ann-en">2nd Anniversary Memory Book</div>
     <div class="final-ann-date">2024.06 — 2026.06</div>
     <div class="final-ann-title-wrap">
       <div class="final-ann-line"></div>
