@@ -261,7 +261,7 @@ body{
   box-shadow:inset 8px 0 16px rgba(80,55,130,0.08);
 }
 
-/* 綴じ目：中華格子紋（回字紋）パターン */
+/* 綴じ目 */
 .spine{
   position:absolute;left:50%;top:0;transform:translateX(-50%);
   width:14px;height:100%;z-index:100;pointer-events:none;
@@ -271,28 +271,14 @@ body{
   );
   box-shadow:0 0 12px rgba(80,55,130,0.2);
 }
-/* 格子紋様（回字紋）: 縦の繰り返し格子 */
-.spine::before{
-  content:'';position:absolute;inset:0;
-  background-image:
-    repeating-linear-gradient(
-      to bottom,
-      rgba(70,50,110,0.3) 0px, rgba(70,50,110,0.3) 1px,
-      transparent 1px, transparent 6px,
-      rgba(70,50,110,0.15) 6px, rgba(70,50,110,0.15) 7px,
-      transparent 7px, transparent 13px,
-      rgba(70,50,110,0.3) 13px, rgba(70,50,110,0.3) 14px,
-      transparent 14px, transparent 20px
-    );
-  pointer-events:none;
-}
-/* 光沢ハイライト */
+/* 綴じ目の縫い目風 */
 .spine::after{
-  content:'';position:absolute;left:28%;top:0;
-  width:2px;height:100%;
-  background:linear-gradient(180deg,
-    transparent 0%,rgba(255,255,255,0.28) 20%,
-    rgba(255,255,255,0.18) 50%,rgba(255,255,255,0.28) 80%,transparent 100%
+  content:'';position:absolute;left:50%;top:0;transform:translateX(-50%);
+  width:1px;height:100%;
+  background:repeating-linear-gradient(
+    to bottom,
+    rgba(80,55,130,0.15) 0px,rgba(80,55,130,0.15) 6px,
+    transparent 6px,transparent 10px
   );
 }
 
@@ -735,25 +721,7 @@ body{
   text-align:center;margin-bottom:clamp(3px,.5vw,5px);
   flex-shrink:0;
 }
-/* ③ 中華紋様の区切り線（toc-book-title の下） */
-.toc-book-title::after{
-  content:'';display:block;
-  width:clamp(60px,10vw,110px);
-  height:7px;
-  margin:clamp(3px,.5vw,5px) auto 0;
-  background-image:
-    /* 回字紋風: 中央線＋上下に点線 */
-    repeating-linear-gradient(
-      90deg,
-      rgba(140,110,200,0.55) 0px, rgba(140,110,200,0.55) 4px,
-      transparent 4px, transparent 6px,
-      rgba(140,110,200,0.3) 6px, rgba(140,110,200,0.3) 7px,
-      transparent 7px, transparent 10px
-    );
-  background-size:10px 7px;
-  background-repeat:repeat-x;
-  background-position:center center;
-}
+
 
 /* ─ ミニ本イラスト（タブ密着） ─ */
 .guide-book-col-inline{
@@ -1154,28 +1122,7 @@ body{
   position:relative;
   z-index:1;
 }
-/* 書角（中華書物の四隅装飾）*/
-#flipbook .page-content::before,
-#flipbook .page-content::after{
-  content:'';
-  position:absolute;
-  width:clamp(10px,1.4vw,16px);
-  height:clamp(10px,1.4vw,16px);
-  pointer-events:none;
-  opacity:0.22;
-}
-#flipbook .page-content::before{
-  top:clamp(5px,.8vw,9px);
-  left:clamp(5px,.8vw,9px);
-  border-top:1.5px solid #7050a8;
-  border-left:1.5px solid #7050a8;
-}
-#flipbook .page-content::after{
-  top:clamp(5px,.8vw,9px);
-  right:clamp(5px,.8vw,9px);
-  border-top:1.5px solid #7050a8;
-  border-right:1.5px solid #7050a8;
-}
+
 /* シャドウ・コーナーUI制御 */
 /* gradients:falseなのでシャドウ要素は不要 */
 #flipbook .b-shadow-f,
@@ -1372,13 +1319,12 @@ body{
 }
 .final-letter-text p{
   font-family:'Shippori Mincho',serif;
-  font-size:clamp(8.5px,1.1vw,12px);
-  /* line-heightを横線の間隔にぴったり合わせる */
+  font-size:clamp(10px,1.3vw,14px);
   line-height: clamp(22px, 3.2vw, 32px);
   color:#2a1848;
   margin:0;
-  opacity:0.85;
-  letter-spacing:.02em;
+  opacity:0.9;
+  letter-spacing:.03em;
 }
 /* 段落間の空行（横線1本分の高さ） */
 .final-letter-text p.letter-spacer{
@@ -2182,27 +2128,9 @@ function mkPetal(cols, w, h, fromTop){
     a:  0.28 + Math.random() * 0.42,
     c:  cols[Math.floor(Math.random() * cols.length)],
     ph: Math.random() * Math.PI * 2,
-    lotus: false,
   };
 }
 
-/* ④ 蓮の花びら（楕円形、薄いピンク〜白、背景に漂う） */
-function mkLotusPetal(w, h, fromTop){
-  return {
-    x:  Math.random() * w,
-    y:  fromTop ? Math.random() * h : -15,
-    r:  6 + Math.random() * 8,   /* やや大きめ */
-    ry: 3 + Math.random() * 4,   /* 楕円（横長） */
-    vy: 0.2 + Math.random() * 0.4,  /* ゆっくり落ちる */
-    vx: (Math.random() - 0.5) * 0.3,
-    rot: Math.random() * Math.PI * 2,
-    dr: (Math.random() - 0.5) * 0.012, /* ゆっくり回転 */
-    a:  0.08 + Math.random() * 0.12,  /* とても薄い */
-    c:  ['#f0b0c8','#f8d0dc','#fce8ee','#f4c0d0'][Math.floor(Math.random()*4)],
-    ph: Math.random() * Math.PI * 2,
-    lotus: true,
-  };
-}
 
 function startPetalCanvas(cols){
   /* position:fixed でbookの上にcanvasを固定配置する
@@ -2245,8 +2173,7 @@ function startPetalCanvas(cols){
 
   petalPts = [];
   for(let i = 0; i < 20; i++) petalPts.push(mkPetal(cols, W, H, true));
-  /* ④ 蓮の花びらを6枚追加（背景に薄く漂う） */
-  for(let i = 0; i < 6; i++) petalPts.push(mkLotusPetal(W, H, true));
+
 
   petalRunning = true;
   if(petalRaf) cancelAnimationFrame(petalRaf);
@@ -2259,22 +2186,14 @@ function startPetalCanvas(cols){
     petalCx.clearRect(0,0,W,H);
     petalPts.forEach(p=>{
       p.y += p.vy; p.x += p.vx + Math.sin(p.y*.008+p.ph)*.5; p.rot += p.dr;
-      if(p.y > H+20){
-        if(p.lotus) Object.assign(p, mkLotusPetal(W,H,false));
-        else Object.assign(p, mkPetal(cols,W,H,false));
-      }
+      if(p.y > H+20) Object.assign(p, mkPetal(cols,W,H,false));
       petalCx.save();
       petalCx.translate(p.x,p.y); petalCx.rotate(p.rot);
       petalCx.globalAlpha=p.a; petalCx.fillStyle=p.c;
       petalCx.beginPath();
-      if(p.lotus){
-        /* 蓮の花びら: 横長楕円 */
-        petalCx.ellipse(0, 0, p.r, p.ry||p.r*0.45, 0, 0, Math.PI*2);
-      } else {
-        petalCx.moveTo(0,-p.r);
-        petalCx.bezierCurveTo(p.r*.7,-p.r*.6,p.r*.7,p.r*.6,0,p.r);
-        petalCx.bezierCurveTo(-p.r*.7,p.r*.6,-p.r*.7,-p.r*.6,0,-p.r);
-      }
+      petalCx.moveTo(0,-p.r);
+      petalCx.bezierCurveTo(p.r*.7,-p.r*.6,p.r*.7,p.r*.6,0,p.r);
+      petalCx.bezierCurveTo(-p.r*.7,p.r*.6,-p.r*.7,-p.r*.6,0,-p.r);
       petalCx.fill();
       petalCx.restore();
     });
@@ -2604,7 +2523,7 @@ function getAnnHTML(){
       <p>「いずれ菖蒲か杜若」になる。</p>
       <p>その瞬間がずっと好きです。</p>
       <p class="letter-spacer"></p>
-      <p>これからも、笑顔でいてください。</p>
+      <p>デビューしてくれて、ありがとう。</p>
       <p>ずっと応援しています。</p>
     </div>
   </div>
