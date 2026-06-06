@@ -2267,6 +2267,88 @@ function stopPetalCanvas(){
   petalCv = null; petalCx = null; petalPts = [];
 }
 
+/* ─── 花クリック: 対応する花びらを2〜3秒間だけ降らせる ── */
+const FLOWER_COLS = {
+  shakyaku:   ['#a880cc','#c0a8dc','#dcd8f0','#9070b8','#b8aade'],
+  roubai:     ['#f8de50','#fce870','#FFE36C','#e8b820','#fff5cc'],
+  kinmokusei: ['#D8E9FC','#c8e0f8','#F6F9FF','#b8d4f4','#e8f4ff'],
+  jasmine:    ['#70b8f0','#a0d0ec','#c8e8f8','#50a0e0','#e8f5ff'],
+  momo:       ['#f8c8d8','#FFC6E2','#DECDFC','#fce4ec','#ede0fe'],
+};
+
+function onFlowerClick(e, flowerType){
+  e.stopPropagation();
+  const cols = FLOWER_COLS[flowerType] || FLOWER_COLS.momo;
+  if(window._tempPetalTimer) clearTimeout(window._tempPetalTimer);
+
+  const containers = [];
+  if(MOBILE()){
+    const pL = document.getElementById('pageLeft');
+    const pR = document.getElementById('pageRight');
+    if(pL) containers.push(pL);
+    if(pR) containers.push(pR);
+  } else {
+    const fb = document.getElementById('flipbook');
+    if(fb && typeof jQuery !== 'undefined'){
+      try{
+        const view = jQuery(fb).turn('view');
+        view.forEach(pn=>{
+          if(!pn) return;
+          const wr = fb.querySelector('[page="'+pn+'"]');
+          const pc = wr && wr.querySelector('.page-content');
+          if(pc) containers.push(pc);
+        });
+      } catch(e2){}
+    }
+    if(!containers.length){
+      const pL2 = document.getElementById('pageLeft');
+      const pR2 = document.getElementById('pageRight');
+      if(pL2) containers.push(pL2);
+      if(pR2) containers.push(pR2);
+    }
+  }
+
+  const tempCvs = [];
+  containers.forEach(cont=>{
+    const cv = document.createElement('canvas');
+    cv.className = 'petal-cv-el petal-temp';
+    const cr = cont.getBoundingClientRect();
+    const W = Math.round(cr.width)  || 400;
+    const H = Math.round(cr.height) || 500;
+    cv.width = W; cv.height = H;
+    cv.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;';
+    if(getComputedStyle(cont).position === 'static') cont.style.position = 'relative';
+    cont.appendChild(cv);
+    const pts = [];
+    for(let i=0; i<28; i++) pts.push(mkPetal(cols, W, H, false));
+    const duration = 2500 + Math.random()*500;
+    const startTime = performance.now();
+    (function loop(now){
+      const elapsed = now - startTime;
+      const cx2 = cv.getContext('2d');
+      cx2.clearRect(0,0,W,H);
+      const fade = elapsed > duration*0.7 ? Math.max(0,1-(elapsed-duration*0.7)/(duration*0.3)) : 1;
+      pts.forEach(p=>{
+        p.y += p.vy*1.3; p.x += p.vx+Math.sin(p.y*.008+p.ph)*.5; p.rot += p.dr;
+        if(p.y > H+20) Object.assign(p, mkPetal(cols,W,H,false));
+        cx2.save(); cx2.translate(p.x,p.y); cx2.rotate(p.rot);
+        cx2.globalAlpha = p.a * fade; cx2.fillStyle = p.c;
+        cx2.beginPath();
+        cx2.moveTo(0,-p.r);
+        cx2.bezierCurveTo(p.r*.7,-p.r*.6,p.r*.7,p.r*.6,0,p.r);
+        cx2.bezierCurveTo(-p.r*.7,p.r*.6,-p.r*.7,-p.r*.6,0,-p.r);
+        cx2.fill(); cx2.restore();
+      });
+      if(elapsed < duration) requestAnimationFrame(loop);
+      else cv.remove();
+    })(performance.now());
+    tempCvs.push(cv);
+  });
+  window._tempPetalTimer = setTimeout(()=>{
+    tempCvs.forEach(cv=>{ if(cv.isConnected) cv.remove(); });
+  }, 3500);
+}
+
 function checkAndSpawnBirthdayPetals(){
   const p = PAGES[idx];
   stopPetalCanvas();
@@ -2516,7 +2598,10 @@ const MEMBER_FLOWERS = [
 function memberFlowerRow(size=28){
   return `<div class="member-flower-row">${
     MEMBER_FLOWERS.map(m=>
-      `<span class="member-flower-item" title="${m.name}">${flowerSVG(m.type, size)}</span>`
+      `<span class="member-flower-item" title="${m.name}" data-flower-type="${m.type}"
+        onclick="onFlowerClick(event,'${m.type}')"
+        style="cursor:pointer;"
+      >${flowerSVG(m.type, size)}</span>`
     ).join('')
   }</div>`;
 }
