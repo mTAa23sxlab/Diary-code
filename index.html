@@ -224,9 +224,6 @@ body{
   border-radius:4px 10px 10px 4px;
   overflow:hidden;
   box-shadow:0 16px 48px rgba(60,40,110,0.28),0 4px 10px rgba(60,40,110,0.16);
-  /* 独立した積み重ねコンテキストを作成
-     → canvas(z:-1)が確実にページ(z:1)の後ろになる */
-  isolation:isolate;
 }
 
 /* ════════════════════════════════════════════════
@@ -544,7 +541,7 @@ body{
   gap:clamp(4px,1vw,8px);
   height:100%;
   position:relative;
-  z-index:2; /* 花びら(z:1)より前面 */
+  z-index:1; /* 花びら(z:0)より前面 */
 }
 /* 全パターン共通 */
 .photo-grid .photo-item{
@@ -597,7 +594,7 @@ body{
 .photo-placeholder{width:100%;height:100%;background:linear-gradient(135deg,#e8dff8,#d8ccec);display:flex;align-items:center;justify-content:center;font-size:clamp(14px,2vw,26px);color:#b0a0d0;}
 .photo-name{position:absolute;bottom:clamp(2px,.35vw,4px);left:0;right:0;text-align:center;font-size:clamp(6.5px,.72vw,8.5px);color:#9080b8;font-family:'Cormorant Garamond',serif;font-style:italic;}
 
-.pickup-area{display:flex;flex-direction:column;height:100%;gap:clamp(4px,.8vw,8px);position:relative;z-index:2;}
+.pickup-area{display:flex;flex-direction:column;height:100%;gap:clamp(4px,.8vw,8px);position:relative;z-index:1;}
 .pickup-fanmark{
   display:flex;
   align-items:center;
@@ -2169,29 +2166,55 @@ function startPetalCanvas(cols){
   const H = Math.round(r.height);
   if(W < 10 || H < 10) return;
 
-  const cv = document.createElement('canvas');
-  cv.className = 'petal-cv-el';
-  cv.width  = W;
-  cv.height = H;
-  /* canvasをbook直下のposition:absoluteで配置
-     z-index:0 → .page(z:1)・photo-grid(z:2)の確実に後ろ */
-  const bookEl2 = document.getElementById('book');
-  if(bookEl2 && !bookEl2.contains(cv)){
-    bookEl2.appendChild(cv);
+  /* canvasをページコンテンツ内に配置
+     SP: pageLeft/pageRight, PC: flipbook内のpage-content
+     z-index:0 → photo-grid/pickup-area(z:1)の下、紙面の上 */
+  const containers = [];
+  if(MOBILE()){
+    const pL = document.getElementById('pageLeft');
+    const pR = document.getElementById('pageRight');
+    if(pL) containers.push(pL);
+    if(pR) containers.push(pR);
+  } else {
+    const fb = document.getElementById('flipbook');
+    if(fb){
+      try{
+        const view = jQuery(fb).turn('view');
+        view.forEach(pn=>{
+          if(!pn) return;
+          const wr = fb.querySelector('[page="'+pn+'"]');
+          const pc = wr && wr.querySelector('.page-content');
+          if(pc) containers.push(pc);
+        });
+      } catch(e){}
+      if(containers.length === 0){
+        fb.querySelectorAll('.page-content').forEach(pc=>containers.push(pc));
+      }
+    }
   }
-  cv.style.cssText = [
-    'position:absolute',
-    'top:0',
-    'left:0',
-    `width:100%`,
-    `height:100%`,
-    'pointer-events:none',
-    'z-index:-1', /* ページ(z:1)・写真(z:2)より確実に後ろ */
-    'border-radius:4px 10px 10px 4px',
-    'overflow:hidden',
-  ].join(';');
-  petalCv = cv;
-  petalCx = cv.getContext('2d');
+
+  /* 各コンテナにcanvasを1枚ずつ追加 */
+  const allCvs = containers.map(cont=>{
+    const cv = document.createElement('canvas');
+    cv.className = 'petal-cv-el';
+    const cr = cont.getBoundingClientRect();
+    cv.width  = Math.round(cr.width)  || W;
+    cv.height = Math.round(cr.height) || H;
+    cv.style.cssText = [
+      'position:absolute',
+      'top:0','left:0',
+      'width:100%','height:100%',
+      'pointer-events:none',
+      'z-index:0', /* photo-grid/pickup-area(z:1)の下 */
+    ].join(';');
+    if(getComputedStyle(cont).position === 'static') cont.style.position = 'relative';
+    cont.appendChild(cv);
+    return cv;
+  });
+
+  if(allCvs.length === 0) return;
+  petalCv = allCvs[0];
+  petalCx = petalCv.getContext('2d');
 
   petalPts = [];
   for(let i = 0; i < 20; i++) petalPts.push(mkPetal(cols, W, H, true));
@@ -2205,19 +2228,25 @@ function startPetalCanvas(cols){
       petalCx.clearRect(0,0,W,H);
       return;
     }
-    petalCx.clearRect(0,0,W,H);
     petalPts.forEach(p=>{
       p.y += p.vy; p.x += p.vx + Math.sin(p.y*.008+p.ph)*.5; p.rot += p.dr;
       if(p.y > H+20) Object.assign(p, mkPetal(cols,W,H,false));
-      petalCx.save();
-      petalCx.translate(p.x,p.y); petalCx.rotate(p.rot);
-      petalCx.globalAlpha=p.a; petalCx.fillStyle=p.c;
-      petalCx.beginPath();
-      petalCx.moveTo(0,-p.r);
-      petalCx.bezierCurveTo(p.r*.7,-p.r*.6,p.r*.7,p.r*.6,0,p.r);
-      petalCx.bezierCurveTo(-p.r*.7,p.r*.6,-p.r*.7,-p.r*.6,0,-p.r);
-      petalCx.fill();
-      petalCx.restore();
+    });
+    /* 全canvasに描画 */
+    document.querySelectorAll('.petal-cv-el').forEach(cv2=>{
+      const cx2 = cv2.getContext('2d');
+      cx2.clearRect(0,0,cv2.width,cv2.height);
+      petalPts.forEach(p=>{
+        cx2.save();
+        cx2.translate(p.x,p.y); cx2.rotate(p.rot);
+        cx2.globalAlpha=p.a; cx2.fillStyle=p.c;
+        cx2.beginPath();
+        cx2.moveTo(0,-p.r);
+        cx2.bezierCurveTo(p.r*.7,-p.r*.6,p.r*.7,p.r*.6,0,p.r);
+        cx2.bezierCurveTo(-p.r*.7,p.r*.6,-p.r*.7,-p.r*.6,0,-p.r);
+        cx2.fill();
+        cx2.restore();
+      });
     });
     petalRaf = requestAnimationFrame(loop);
   })();
