@@ -622,11 +622,14 @@ body{
 /* ════════════════════════════════════════════════
    2周年
 ════════════════════════════════════════════════ */
-.ann-wrap{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(10px,1.8vw,22px);text-align:center;}
-.ann-deco{color:#b0a0cc;font-size:clamp(12px,1.5vw,20px);letter-spacing:.45em;}
-.ann-en{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:clamp(12px,1.8vw,22px);color:#6858a8;letter-spacing:.08em;}
-.ann-main{font-family:'Shippori Mincho',serif;font-weight:700;font-size:clamp(18px,3vw,44px);color:#2a1848;letter-spacing:.1em;line-height:1.6;text-shadow:0 2px 8px rgba(80,55,130,.12);}
-.ann-msg{font-size:clamp(10px,1.1vw,13px);color:#2a1848;line-height:2.4;max-width:88%;}
+.ann-wrap{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(12px,2vw,24px);text-align:center;}
+.ann-deco{display:flex;align-items:center;justify-content:center;width:clamp(50px,8vw,90px);height:8px;position:relative;}
+.ann-deco::before,.ann-deco::after{content:'';position:absolute;left:0;right:0;height:1px;}
+.ann-deco::before{background:rgba(140,118,195,0.55);top:0;}
+.ann-deco::after{background:rgba(140,118,195,0.25);bottom:0;}
+.ann-en{font-family:'DM Serif Display','Cormorant Garamond',serif;font-style:italic;font-size:clamp(13px,2vw,24px);color:#6858a8;letter-spacing:.1em;opacity:.9;}
+.ann-main{font-family:'Zen Old Mincho','Shippori Mincho',serif;font-weight:900;font-size:clamp(22px,3.8vw,52px);color:#1e1238;letter-spacing:.12em;line-height:1.5;text-shadow:0 1px 0 rgba(255,255,255,0.4),0 3px 14px rgba(60,40,110,.14);}
+.ann-msg{font-family:'Shippori Mincho',serif;font-size:clamp(11px,1.3vw,15px);color:#2a1848;line-height:2.4;max-width:88%;opacity:0.85;}
 
 /* ════════════════════════════════════════════════
    スマホ
@@ -1193,17 +1196,17 @@ body{
 .final-ann-en{
   font-family:'DM Serif Display','Cormorant Garamond',serif;
   font-style:italic;
-  font-size:clamp(10px,1.5vw,17px);
+  font-size:clamp(11px,1.6vw,19px);
   color:#8878b8;
   letter-spacing:.18em;
   opacity:0.88;
 }
 .final-ann-date{
   font-family:'Cormorant Garamond',serif;
-  font-size:clamp(8px,1.1vw,12px);
+  font-size:clamp(9px,1.2vw,13px);
   color:#9888b8;
   letter-spacing:.2em;
-  opacity:0.72;
+  opacity:0.75;
 }
 .final-ann-title-wrap{
   display:flex;
@@ -1227,7 +1230,7 @@ body{
 .final-ann-main-ja{
   font-family:'Zen Old Mincho','Shippori Mincho',serif;
   font-weight:900;
-  font-size:clamp(18px,3.5vw,44px);
+  font-size:clamp(20px,3.8vw,48px);
   color:#1e1238;
   letter-spacing:.1em;
   line-height:1.2;
@@ -1236,19 +1239,18 @@ body{
 .final-ann-omedetou{
   font-family:'Zen Old Mincho','Shippori Mincho',serif;
   font-weight:900;
-  font-size:clamp(14px,2.6vw,34px);
-  color:#3a286a;
+  font-size:clamp(16px,2.8vw,38px);
+  color:#1e1238;
   letter-spacing:.18em;
   line-height:1.2;
-  text-shadow:0 1px 0 rgba(255,255,255,0.35);
-  opacity:0.88;
+  text-shadow:0 1px 0 rgba(255,255,255,0.4), 0 3px 14px rgba(60,40,110,.12);
 }
 .final-ann-body{
   font-family:'Shippori Mincho',serif;
-  font-size:clamp(8px,1.05vw,12px);
+  font-size:clamp(10px,1.25vw,14px);
   color:#2a1848;
   line-height:2.2;
-  opacity:0.82;
+  opacity:0.85;
   letter-spacing:.04em;
 }
 
@@ -1579,7 +1581,7 @@ body{
                 <div class="cover-en cover-en-anim">2nd Anniversary Memory Book</div>
                 <div class="cover-deco cover-deco-anim"></div>
                 <div class="cover-title cover-title-anim">推し活日記</div>
-                <div class="cover-sub cover-sub-anim">2024.06 — 2026.05</div>
+                <div class="cover-sub cover-sub-anim">2024.06 — 2026.06</div>
                 <div class="cover-hint cover-hint-anim">— タップして開く —</div>
                 <div class="cover-members">
                   <div class="cover-members-row1">
@@ -2489,7 +2491,7 @@ function getAnnHTML(){
 
   <div class="final-ann-block">
     <div class="final-ann-en">2nd Anniversary</div>
-    <div class="final-ann-date">2024.06 — 2026.05</div>
+    <div class="final-ann-date">2024.06 — 2026.06</div>
     <div class="final-ann-title-wrap">
       <div class="final-ann-line"></div>
       <div class="final-ann-main-ja">デビュー2周年</div>
@@ -2524,6 +2526,7 @@ function getAnnHTML(){
       <p>その瞬間がずっと好きです。</p>
       <p class="letter-spacer"></p>
       <p>デビューしてくれて、ありがとう。</p>
+      <p>これからの日々が、もっと輝くものになりますように。</p>
       <p>ずっと応援しています。</p>
     </div>
   </div>
