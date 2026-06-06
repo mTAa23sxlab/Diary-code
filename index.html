@@ -326,7 +326,7 @@ body{
 .cover-title{
   font-family:'DM Serif Display','Cormorant Garamond',serif;
   font-weight:400;font-style:italic;
-  font-size:clamp(12px,2.2vw,28px);
+  font-size:clamp(14px,2.8vw,34px);
   color:#2a1848;letter-spacing:.05em;line-height:1.4;
   white-space:nowrap;
   text-shadow:0 2px 8px rgba(80,55,130,0.15);
@@ -348,7 +348,7 @@ body{
 }
 .cover-unit{
   font-family:'Shippori Mincho',serif;
-  font-size:clamp(14px,2vw,22px);
+  font-size:clamp(14px,3.2vw,38px);
   color:#5a4a8a;letter-spacing:.22em;font-weight:600;
   margin-bottom:clamp(6px,1vw,10px);
 }
@@ -2170,22 +2170,23 @@ function startPetalCanvas(cols){
   cv.className = 'petal-cv-el';
   cv.width  = W;
   cv.height = H;
+  /* canvasをbook直下のposition:absoluteで配置
+     z-index:0 → .page(z:1)・photo-grid(z:2)の確実に後ろ */
+  const bookEl2 = document.getElementById('book');
+  if(bookEl2 && !bookEl2.contains(cv)){
+    bookEl2.appendChild(cv);
+  }
   cv.style.cssText = [
-    'position:fixed',
-    `top:${r.top + window.scrollY}px`,
-    `left:${r.left + window.scrollX}px`,
-    `width:${W}px`,
-    `height:${H}px`,
+    'position:absolute',
+    'top:0',
+    'left:0',
+    `width:100%`,
+    `height:100%`,
     'pointer-events:none',
-    /* 写真・コメント(z:2)より背面、ただし背景紙より前面
-       z-index:1 だが stacking context を作らないため
-       photo-gridのz:2が確実に上に来る
-       ここではbookの上に重ねるだけなのでz:50で十分 */
-    'z-index:50',
+    'z-index:0',
     'border-radius:4px 10px 10px 4px',
     'overflow:hidden',
   ].join(';');
-  document.body.appendChild(cv);
   petalCv = cv;
   petalCx = cv.getContext('2d');
 
@@ -2218,15 +2219,7 @@ function startPetalCanvas(cols){
     petalRaf = requestAnimationFrame(loop);
   })();
 
-  /* ウィンドウリサイズ・スクロール時に位置を更新 */
-  petalCv._reposition = ()=>{
-    if(!petalCv || !petalCv.isConnected) return;
-    const nr = bookEl.getBoundingClientRect();
-    petalCv.style.top  = (nr.top  + window.scrollY) + 'px';
-    petalCv.style.left = (nr.left + window.scrollX) + 'px';
-  };
-  window.addEventListener('scroll', petalCv._reposition, {passive:true});
-  window.addEventListener('resize', petalCv._reposition, {passive:true});
+  /* position:absoluteのためreposition不要 */
 }
 
 function stopPetalCanvas(){
