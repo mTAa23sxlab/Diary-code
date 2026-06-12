@@ -1542,121 +1542,144 @@ body{
 }
 
 /* ════════════════════════════════════════════════
-   写真レイアウトパターン
-   .pg-layout 配下の .photo-item は object-fit:cover で
-   縦横比に関わらずフレームにフィット
+   写真フレーム・スライドショーシステム
+   各「枠」はSwiperインスタンス。
+   枠の向き(orient)で縦長(3:4)/横長(4:3)のアスペクト比を持つ。
+   枚数が1枚の場合は静止（インジケーター非表示）。
 ════════════════════════════════════════════════ */
-.pg-layout{
+
+/* ── ページ全体のフレームコンテナ ── */
+.frame-area{
   width:100%; height:100%;
-  display:grid;
-  gap:clamp(3px,.5vw,6px);
+  display:flex; gap:clamp(4px,.7vw,8px);
 }
-.pg-layout .photo-item{
-  overflow:hidden;
-  border-radius:2px;
-  min-height:0; min-width:0;
+.frame-area.row{ flex-direction:row; }
+.frame-area.col{ flex-direction:column; }
+
+/* ── 個々の枠 ── */
+.photo-frame{
   position:relative;
+  overflow:hidden;
+  border-radius:3px;
+  min-width:0; min-height:0;
+  background:linear-gradient(135deg,#e8dff8,#d8ccec);
+  box-shadow:1px 3px 10px rgba(70,50,110,.10);
 }
-.pg-layout .photo-item .photo-img{
-  width:100%;height:100%;
+.photo-frame.flex1{ flex:1; }
+
+/* Swiperラッパー */
+.photo-frame .swiper{
+  width:100%; height:100%;
+}
+.photo-frame .swiper-slide{
+  width:100%; height:100%;
+  position:relative;
+  overflow:hidden;
+}
+.photo-frame .photo-img{
+  width:100%; height:100%;
   object-fit:cover;
   display:block;
 }
-.pg-layout .photo-item .photo-placeholder{
+.photo-frame .photo-placeholder{
   width:100%;height:100%;
   display:flex;align-items:center;justify-content:center;
   background:linear-gradient(135deg,#e8dff8,#d8ccec);
   color:#b0a0d0;font-size:clamp(12px,2vw,22px);
 }
 
-/* 縦向き中心 */
-.v2{ grid-template-columns:1fr 1fr; grid-template-rows:1fr; }
-.v3{ grid-template-columns:1fr 1fr 1fr; grid-template-rows:1fr; }
-.v4-grid{ grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr; }
-
-/* 横向き中心 */
-.h2{ grid-template-columns:1fr; grid-template-rows:1fr 1fr; }
-.h3{ grid-template-columns:1fr; grid-template-rows:1fr 1fr 1fr; }
-.h4-grid{ grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr; }
-.h5-grid{
-  grid-template-columns:1fr 1fr;
-  grid-template-rows:1fr 1fr 1fr;
+/* ── ドットインジケーター（2〜5枚） ── */
+.photo-frame .swiper-pagination{
+  position:absolute;
+  bottom:clamp(4px,.8vw,8px);
+  left:0; right:0;
+  display:flex;
+  justify-content:center;
+  gap:4px;
+  z-index:2;
 }
-.h5-grid .photo-item:first-child{
-  grid-column:1/-1;
+.photo-frame .swiper-pagination-bullet{
+  width:5px; height:5px;
+  border-radius:50%;
+  background:rgba(255,255,255,0.55);
+  opacity:1;
+  border:0.5px solid rgba(120,90,170,0.3);
+  transition:background .25s ease, transform .25s ease;
 }
-.h6-grid{ grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr 1fr; }
-.h7-grid{
-  grid-template-columns:1fr 1fr 1fr;
-  grid-template-rows:1fr 1fr 1fr;
-}
-.h7-grid .photo-item:nth-child(n+8){ display:none; }
-.h7-grid .photo-item:last-child{ display:none; }
-
-.h8-grid{ grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr 1fr 1fr; }
-.h9-grid{ grid-template-columns:1fr 1fr 1fr; grid-template-rows:1fr 1fr 1fr; }
-
-/* グリッド（正方形トリミング） */
-.grid4{ grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr; }
-.grid6{ grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr 1fr; }
-.grid9{ grid-template-columns:1fr 1fr 1fr; grid-template-rows:1fr 1fr 1fr; }
-
-/* 混合レイアウト */
-/* 縦1大＋横2小 (左1/2大, 右に横2段) */
-.v1h2{
-  grid-template-columns:1.2fr 1fr;
-  grid-template-rows:1fr 1fr;
-}
-.v1h2 .photo-item:first-child{ grid-row:1/3; }
-
-/* 横2＋縦1 */
-.h2v1{
-  grid-template-columns:1fr 1fr;
-  grid-template-rows:1fr 1.5fr;
-}
-.h2v1 .photo-item:nth-child(3){ grid-column:1/3; }
-
-/* 縦1大＋横3小 */
-.v1h3{
-  grid-template-columns:1.2fr 1fr;
-  grid-template-rows:1fr 1fr 1fr;
-}
-.v1h3 .photo-item:first-child{ grid-row:1/4; }
-
-/* 縦2＋横2 */
-.v2h2{
-  grid-template-columns:1fr 1fr;
-  grid-template-rows:1.4fr 1fr;
-}
-.v2h2 .photo-item:nth-child(3),
-.v2h2 .photo-item:nth-child(4){ /* 横向き: 下段 */
+.photo-frame .swiper-pagination-bullet-active{
+  background:#a880cc;
+  transform:scale(1.25);
 }
 
-/* 縦2＋横3 */
-.v2h3{
-  grid-template-columns:1fr 1fr;
-  grid-template-rows:1.4fr 1fr 1fr;
+/* ── 数字インジケーター（6枚以上） ── */
+.photo-frame .frame-counter{
+  position:absolute;
+  bottom:clamp(4px,.8vw,8px);
+  right:clamp(5px,.9vw,9px);
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(8px,1vw,11px);
+  color:#fff;
+  background:rgba(70,50,110,0.45);
+  padding:1px 6px;
+  border-radius:8px;
+  letter-spacing:.05em;
+  z-index:2;
+  pointer-events:none;
 }
-.v2h3 .photo-item:nth-child(1),
-.v2h3 .photo-item:nth-child(2){ /* 縦向き: 上段 */ }
-.v2h3 .photo-item:nth-child(3){ grid-column:1/-1; }
 
-/* 縦5＋横1 (左列に縦5枚、右1列に横1枚大) */
-.v5h1{
-  grid-template-columns:1fr 1.4fr;
-  grid-template-rows:1fr 1fr 1fr 1fr 1fr;
+/* ── 「複数枚あります」初期ヒント（最初の0.6秒だけ次の写真を覗かせる演出はJS側で実装） ── */
+.photo-frame.multi .swiper-slide-next{
+  /* JSでpeek効果を付与する際のフック */
 }
-.v5h1 .photo-item:nth-child(6){ grid-column:2; grid-row:1/6; }
-.v5h1 .photo-item:nth-child(1){ grid-column:1; }
-.v5h1 .photo-item:nth-child(2){ grid-column:1; }
-.v5h1 .photo-item:nth-child(3){ grid-column:1; }
-.v5h1 .photo-item:nth-child(4){ grid-column:1; }
-.v5h1 .photo-item:nth-child(5){ grid-column:1; }
 
-/* 縦5列 (右ページ用・縦向き写真5枚を縦に並べる) */
-.v5-col{
-  grid-template-columns:1fr 1fr 1fr 1fr 1fr;
-  grid-template-rows:1fr;
+/* 枠の向き（アスペクト比のヒント・gridでの比率調整に使用） */
+.photo-frame.orient-v{ /* 縦長 */ }
+.photo-frame.orient-h{ /* 横長 */ }
+
+/* ════════════════════════════════════════════════
+   左右ページのレイアウトパターン
+════════════════════════════════════════════════ */
+
+/* ① 横大1枠のみ（横写真メインの月） */
+.layout-h1{ }
+.layout-h1 .photo-frame{ flex:1; }
+
+/* ② 横2枠を縦に積む */
+.layout-h2col{ flex-direction:column; }
+.layout-h2col .photo-frame{ flex:1; }
+
+/* ③ 新レイアウト: 縦1枠(大) + 横2段
+   左ページ: 縦1枠が左側全体、右側に横2枠を縦積み
+   右ページ: 同様の構成も可能 */
+.layout-v1h2{
+  flex-direction:row;
+}
+.layout-v1h2 > .photo-frame.v-main{
+  flex:0 0 38%;
+  height:100%;
+}
+.layout-v1h2 > .frame-area.col{
+  flex:1;
+  min-width:0;
+}
+.layout-v1h2 > .frame-area.col > .photo-frame{
+  flex:1;
+  min-height:0;
+}
+
+/* ④ 縦1枠（大）のみ */
+.layout-v1{ }
+.layout-v1 .photo-frame{ flex:1; aspect-ratio:3/4; }
+
+/* ⑤ 縦2枠を横に並べる */
+.layout-v2row{ flex-direction:row; }
+.layout-v2row .photo-frame{ flex:1; }
+
+/* SP対応 */
+@media(max-width:600px){
+  .frame-area{ gap:3px; }
+  .layout-v1h2 > .photo-frame.v-main{ flex:0 0 36%; }
+  .photo-frame .swiper-pagination-bullet{ width:4px; height:4px; }
 }
 
 /* pickup-innerは右ページのメインコンテンツエリア */
@@ -1664,23 +1687,35 @@ body{
   flex:1;
   min-height:0;
   overflow:hidden;
+  display:flex;
 }
-.pickup-inner .pg-layout{
+.pickup-inner .frame-area{
   height:100%;
 }
-.pickup-inner .photo-item{
-  box-shadow:1px 3px 10px rgba(70,50,110,.14),1px 1px 3px rgba(70,50,110,.08);
-  background:linear-gradient(160deg,#fffffe 0%,#fdfcfa 60%,#faf8f5 100%);
-}
 
-/* SP対応 */
-@media(max-width:600px){
-  .pg-layout{ gap:2px; }
-  .v5-col{ grid-template-columns:repeat(5,1fr); }
-  .h9-grid{ grid-template-columns:repeat(3,1fr); }
-  .h8-grid{ grid-template-columns:repeat(2,1fr); }
+/* ════ anniversaryページ左の写真フレーム ════ */
+.ann-photo-frame{
+  width:100%;
+  flex-shrink:0;
+  border-radius:clamp(3px,.5vw,6px);
+  overflow:hidden;
+  box-shadow:1px 3px 10px rgba(70,50,110,.14);
+  background:linear-gradient(135deg,#e8dff8,#d8ccec);
+  /* 横向き写真用: 16:9相当のアスペクト比 */
+  aspect-ratio:16/9;
+  max-height:clamp(60px,9vw,100px);
+}
+.ann-photo-frame img{
+  width:100%;height:100%;
+  object-fit:cover;display:block;
+}
+.ann-photo-placeholder{
+  width:100%;height:100%;
+  display:flex;align-items:center;justify-content:center;
+  color:#b0a0d0;font-size:clamp(12px,1.8vw,20px);
 }
 </style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Swiper/11.0.5/swiper-bundle.min.css">
 </head>
 <body>
 <div id="loading-screen">
@@ -1773,6 +1808,7 @@ body{
   </div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Swiper/11.0.5/swiper-bundle.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.7.1.min.js" crossorigin="anonymous"></script>
 <script src="js/turn.js"></script>
 <script src="data.js"></script>
@@ -2093,6 +2129,8 @@ function initTurnJs(){
             img.addEventListener('load', function(){ img.style.opacity='1'; },{once:true});
           }
         });
+        /* スライドショー: 現在表示中の見開きのみSwiperを有効化、他は破棄 */
+        updateVisibleFrameSwipers();
         /* 誕生日月の花びら */
         checkAndSpawnBirthdayPetals();
       }
@@ -2132,6 +2170,9 @@ function initTurnJs(){
   turnData.opts.duration = 0;
   fbEl.turn('page', 2);
   turnData.opts.duration = origDuration;
+
+  /* 初期表示の見開きでSwiperを有効化 */
+  setTimeout(updateVisibleFrameSwipers, 50);
 }
 
 /* PC: turn.jsでページ移動 */
@@ -2163,6 +2204,158 @@ function getPageHTML(i){
    data.jsに写真を追加したとき自動で動作する
    img.lazy-page に data-src を設定しておき、
    ページが表示されるタイミングで src に移す ════ */
+
+/* ════════════════════════════════════════════════
+   写真フレーム・スライドショー管理
+   - 各.photo-frameごとにSwiperインスタンスを生成
+   - 現在表示中のページの枠のみautoplayを有効化
+   - 枠ごとに開始タイミングをずらす（タイムラグ）
+   - クロスフェードトランジション
+   - 最後のスライドで少し長く停止してから先頭へ
+   - hover/タップ中は一時停止
+   - ページを離れたらautoplay停止・インスタンス破棄
+════════════════════════════════════════════════ */
+const FRAME_SWIPERS = new Map(); /* frameId -> swiper instance */
+
+const SLIDE_DURATION = 3000;      /* 通常のスライド間隔 */
+const SLIDE_LAST_PAUSE = 5000;    /* 最後のスライドでの停止時間 */
+const SLIDE_STAGGER = 600;        /* 枠ごとの開始タイムラグ */
+const AUTOPLAY_START_DELAY = 900; /* ページ表示後、自動再生開始までの遅延 */
+
+/* 指定コンテナ内の.photo-frameをSwiper化する */
+function initFrameSwipers(container){
+  if(!container || typeof Swiper === 'undefined') return;
+  const frames = container.querySelectorAll('.photo-frame');
+  let staggerIndex = 0;
+
+  frames.forEach(frameEl=>{
+    const n = parseInt(frameEl.dataset.count || '1', 10);
+    const swiperEl = frameEl.querySelector('.swiper');
+    if(!swiperEl) return;
+
+    /* 既存インスタンスがあれば破棄 */
+    const fid = frameEl.id;
+    if(FRAME_SWIPERS.has(fid)){
+      try{ FRAME_SWIPERS.get(fid).destroy(true,true); }catch(e){}
+      FRAME_SWIPERS.delete(fid);
+    }
+
+    const myStagger = staggerIndex * SLIDE_STAGGER;
+    if(n > 1) staggerIndex++;
+
+    const swiper = new Swiper(swiperEl, {
+      loop: n > 1,
+      effect: n > 1 ? 'fade' : 'slide',
+      fadeEffect: { crossFade: true },
+      speed: 500,
+      allowTouchMove: n > 1,
+      touchStartPreventDefault: false,
+      pagination: (n >= 2 && n <= 5) ? {
+        el: frameEl.querySelector('.swiper-pagination'),
+        clickable: true,
+      } : false,
+      on: {
+        slideChange: function(){
+          /* 数字インジケーター更新 */
+          const cur = frameEl.querySelector('.fc-cur');
+          if(cur){
+            const realIndex = this.realIndex !== undefined ? this.realIndex : this.activeIndex;
+            cur.textContent = (realIndex % n) + 1;
+          }
+        }
+      }
+    });
+
+    /* turn.js(PC)とのジェスチャー競合対策:
+       Swiper枠内でのタッチ/マウス操作がページめくりに伝播しないようにする */
+    if(n > 1){
+      ['touchstart','touchmove','mousedown'].forEach(evt=>{
+        swiperEl.addEventListener(evt, e=>{ e.stopPropagation(); }, {passive:true});
+      });
+    }
+
+    FRAME_SWIPERS.set(fid, swiper);
+
+    /* 自動再生（タイムラグ＋最後で長め停止） */
+    if(n > 1){
+      let timer = null;
+      let paused = false;
+
+      function scheduleNext(){
+        if(paused) return;
+        const isLast = (swiper.realIndex === n - 1);
+        const wait = isLast ? SLIDE_LAST_PAUSE : SLIDE_DURATION;
+        timer = setTimeout(()=>{
+          if(paused) return;
+          swiper.slideNext();
+          scheduleNext();
+        }, wait);
+      }
+
+      function startAutoplay(){
+        if(timer) return;
+        scheduleNext();
+      }
+      function stopAutoplay(){
+        if(timer){ clearTimeout(timer); timer = null; }
+      }
+
+      swiper._customAutoplay = { start: startAutoplay, stop: stopAutoplay };
+
+      /* hover / タップ中は一時停止 */
+      frameEl.addEventListener('mouseenter', ()=>{ paused = true; stopAutoplay(); });
+      frameEl.addEventListener('mouseleave', ()=>{ paused = false; startAutoplay(); });
+      frameEl.addEventListener('touchstart', ()=>{ paused = true; stopAutoplay(); }, {passive:true});
+      frameEl.addEventListener('touchend', ()=>{
+        setTimeout(()=>{ paused = false; startAutoplay(); }, 1000);
+      }, {passive:true});
+
+      /* ページ表示後、タイムラグを付けて自動再生開始 */
+      setTimeout(()=>{
+        if(frameEl.isConnected) startAutoplay();
+      }, AUTOPLAY_START_DELAY + myStagger);
+    }
+  });
+}
+
+/* 表示されなくなったページのSwiperを破棄（パフォーマンス対策） */
+function destroyFrameSwipers(container){
+  if(!container) return;
+  container.querySelectorAll('.photo-frame').forEach(frameEl=>{
+    const fid = frameEl.id;
+    if(fid && FRAME_SWIPERS.has(fid)){
+      const sw = FRAME_SWIPERS.get(fid);
+      if(sw._customAutoplay) sw._customAutoplay.stop();
+      try{ sw.destroy(true,true); }catch(e){}
+      FRAME_SWIPERS.delete(fid);
+    }
+  });
+}
+
+/* PC: 現在表示中の見開き2ページのみSwiperを有効化し、他は破棄する */
+function updateVisibleFrameSwipers(){
+  if(MOBILE() || !turnInitialized) return;
+  const fb = document.getElementById('flipbook');
+  if(!fb || typeof jQuery === 'undefined') return;
+  let visiblePages = [];
+  try{
+    visiblePages = jQuery(fb).turn('view') || [];
+  }catch(e){ return; }
+
+  /* 表示中以外のページのSwiperを破棄 */
+  fb.querySelectorAll('.page').forEach(pageEl=>{
+    const pn = parseInt(pageEl.getAttribute('page'), 10);
+    const pc = pageEl.querySelector('.page-content');
+    if(!pc) return;
+    if(visiblePages.includes(pn)){
+      initFrameSwipers(pc);
+    } else {
+      destroyFrameSwipers(pc);
+    }
+  });
+}
+
+
 function loadLazyImages(container){
   if(!container) return;
   container.querySelectorAll('img.lazy-page').forEach(function(img){
@@ -2181,12 +2374,18 @@ function loadLazyImages(container){
 }
 
 function renderPage(i){
+  /* 前のページのSwiperを破棄 */
+  destroyFrameSwipers(pageLeft);
+  destroyFrameSwipers(pageRight);
   const {left,right}=getPageHTML(i);
   pageLeft.innerHTML=left;
   pageRight.innerHTML=right;
   /* 遅延読み込み */
   loadLazyImages(pageLeft);
   loadLazyImages(pageRight);
+  /* スライドショー初期化 */
+  initFrameSwipers(pageLeft);
+  initFrameSwipers(pageRight);
   /* 誕生日月なら花びらを散らす */
   setTimeout(checkAndSpawnBirthdayPetals, 120);
 }
@@ -2237,7 +2436,8 @@ function getTocHTML(){
         スライダーでも移動できます<br>
         スマホはスワイプも可能です<br>
         <span class="guide-tip-inline">グレーのタブは押せません</span><br>
-        <span class="guide-tip-inline">特定の写真はクリックでリンクが開きます</span>
+        <span class="guide-tip-inline">特定の写真はクリックでリンクが開きます</span><br>
+        <span class="guide-tip-inline">写真は自動で切り替わります（指でも操作できます）</span>
       </div>
     </div>
     <!-- 下部: サイト説明・非推奨文 -->
@@ -2504,110 +2704,123 @@ function checkAndSpawnBirthdayPetals(){
 
 /* ─── 月ページ ──────────────────────────────── */
 /* ─── 写真アイテムのHTML生成 ─── */
-function photoItem(p, extraClass=''){
-  if(!p) return `<div class="photo-item${extraClass?(' '+extraClass):''}"><div class="photo-placeholder">📷</div></div>`;
-  return `<div class="photo-item${extraClass?(' '+extraClass):''}${p.url?' clickable':''}" ${p.url?`onclick="window.open('${p.url}','_blank','noopener')"`:''}>
-    <img class="photo-img lazy-page" data-src="${p.file}" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" style="opacity:0;transition:opacity .3s;">
-    <div class="photo-placeholder" style="display:none;">📷</div>
+/* ─── 写真スライドフレームのHTML生成 ───
+   frame: {orient:'v'|'h', photos:[{file,url}, ...]}
+   各枠は1つのSwiperインスタンスになる。
+   - photos.length === 1 → 静止（インジケーターなし）
+   - 2〜5枚 → ドットインジケーター
+   - 6枚以上 → 数字インジケーター(1/7)
+*/
+let _frameIdCounter = 0;
+function frameHTML(frame, extraClass=''){
+  if(!frame || !frame.photos || !frame.photos.length){
+    return `<div class="photo-frame ${extraClass}"><div class="photo-placeholder">📷</div></div>`;
+  }
+  const photos = frame.photos;
+  const n = photos.length;
+  const fid = 'frm' + (++_frameIdCounter);
+  const orientClass = frame.orient === 'v' ? 'orient-v' : 'orient-h';
+  const multiClass = n > 1 ? ' multi' : '';
+
+  const slides = photos.map(p=>{
+    if(!p || !p.file){
+      return `<div class="swiper-slide"><div class="photo-placeholder">📷</div></div>`;
+    }
+    const clickAttr = p.url ? ` onclick="window.open('${p.url}','_blank','noopener')" style="cursor:pointer;"` : '';
+    return `<div class="swiper-slide"${clickAttr}>
+      <img class="photo-img lazy-page" data-src="${p.file}" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" style="opacity:0;transition:opacity .3s;">
+      <div class="photo-placeholder" style="display:none;">📷</div>
+    </div>`;
+  }).join('');
+
+  let indicator = '';
+  if(n >= 2 && n <= 5){
+    indicator = `<div class="swiper-pagination"></div>`;
+  } else if(n >= 6){
+    indicator = `<div class="frame-counter"><span class="fc-cur">1</span>/${n}</div>`;
+  }
+
+  return `<div class="photo-frame ${orientClass}${multiClass} ${extraClass}" id="${fid}" data-count="${n}">
+    <div class="swiper">
+      <div class="swiper-wrapper">${slides}</div>
+    </div>
+    ${indicator}
   </div>`;
 }
 
-/* ─── 左ページHTMLを生成 ─── */
-function buildLeftHTML(photos, layout){
-  const L = layout || 'auto';
-  const p = (i) => photoItem(photos[i]);
-  const n = photos.length;
+/* ─── 左ページHTMLを生成 ───
+   leftFrames: [{orient:'v'|'h', photos:[...]}]
+   layout指定:
+   'h-stack'   横長フレームを縦に積む(1〜2枠)
+   'v-stack'   縦長フレームを横に並べる(1〜2枠)
+   'v1h2'      新レイアウト: 縦1枠(大) + 横2段
+   'auto'      frames構成から自動判定
+*/
+function buildLeftHTML(frames, layout){
+  if(!frames || !frames.length){
+    return `<div style="height:100%;display:flex;align-items:center;justify-content:center;color:#b0a0d0;font-size:clamp(8px,1vw,11px);">data.jsに写真を追加してください</div>`;
+  }
+  const L = layout || autoLayout(frames);
 
-  /* autoの場合: 枚数で自動判定 */
-  const eff = L === 'auto' ? (
-    n <= 2 ? 'v2' :
-    n <= 4 ? 'v4-grid' :
-    n <= 6 ? 'h6-grid' :
-    'h9-grid'
-  ) : L;
-
-  switch(eff){
-    /* ── 縦向き中心 ── */
-    case 'v2':        return `<div class="pg-layout v2">${p(0)}${p(1)}</div>`;
-    case 'v3':        return `<div class="pg-layout v3">${p(0)}${p(1)}${p(2)}</div>`;
-    case 'v4-grid':   return `<div class="pg-layout v4-grid">${p(0)}${p(1)}${p(2)}${p(3)}</div>`;
-    /* ── 横向き中心 ── */
-    case 'h2':        return `<div class="pg-layout h2">${p(0)}${p(1)}</div>`;
-    case 'h3':        return `<div class="pg-layout h3">${p(0)}${p(1)}${p(2)}</div>`;
-    case 'h4-grid':   return `<div class="pg-layout h4-grid">${p(0)}${p(1)}${p(2)}${p(3)}</div>`;
-    case 'h5-grid':   return `<div class="pg-layout h5-grid">${p(0)}${p(1)}${p(2)}${p(3)}${p(4)}</div>`;
-    case 'h6-grid':   return `<div class="pg-layout h6-grid">${p(0)}${p(1)}${p(2)}${p(3)}${p(4)}${p(5)}</div>`;
-    /* ── 混合 ── */
-    case 'v1h2':      return `<div class="pg-layout v1h2">${p(0)}${p(1)}${p(2)}</div>`;  /* 縦1大+横2小 */
-    case 'h2v1':      return `<div class="pg-layout h2v1">${p(0)}${p(1)}${p(2)}</div>`;  /* 横2+縦1 */
-    case 'v2h2':      return `<div class="pg-layout v2h2">${p(0)}${p(1)}${p(2)}${p(3)}</div>`;
-    case 'v2h3':      return `<div class="pg-layout v2h3">${p(0)}${p(1)}${p(2)}${p(3)}${p(4)}</div>`;
-    case 'v1h3':      return `<div class="pg-layout v1h3">${p(0)}${p(1)}${p(2)}${p(3)}</div>`;
-    case 'v3h3':      return `<div class="pg-layout h6-grid">${[...Array(6)].map((_,i)=>p(i)).join('')}</div>`;
-    case 'v5h1':      return `<div class="pg-layout v5h1">${[...Array(6)].map((_,i)=>p(i)).join('')}</div>`;
-    case 'v2h7':      return `<div class="pg-layout h9-grid">${[...Array(9)].map((_,i)=>p(i)).join('')}</div>`;
-    case 'h9-grid':   return `<div class="pg-layout h9-grid">${[...Array(9)].map((_,i)=>p(i)).join('')}</div>`;
-    case 'h8-grid':   return `<div class="pg-layout h8-grid">${[...Array(8)].map((_,i)=>p(i)).join('')}</div>`;
-    case 'h7-grid':   return `<div class="pg-layout h7-grid">${[...Array(7)].map((_,i)=>p(i)).join('')}</div>`;
-    default:          return `<div class="pg-layout v4-grid">${p(0)}${p(1)}${p(2)}${p(3)}</div>`;
+  switch(L){
+    case 'v1h2': {
+      /* 縦1枠(大) + 横2段 */
+      const vMain = frames[0];
+      const h1 = frames[1], h2 = frames[2];
+      return `<div class="frame-area layout-v1h2">
+        ${frameHTML(vMain, 'v-main flex1')}
+        <div class="frame-area col">
+          ${frameHTML(h1, 'flex1')}
+          ${h2 ? frameHTML(h2, 'flex1') : ''}
+        </div>
+      </div>`;
+    }
+    case 'h-stack': {
+      /* 横長フレームを縦に積む（1〜2枠） */
+      return `<div class="frame-area layout-h2col">
+        ${frames.map(f=>frameHTML(f,'flex1')).join('')}
+      </div>`;
+    }
+    case 'v-stack': {
+      /* 縦長フレームを横に並べる */
+      return `<div class="frame-area layout-v2row">
+        ${frames.map(f=>frameHTML(f,'flex1')).join('')}
+      </div>`;
+    }
+    case 'single':
+    default: {
+      return `<div class="frame-area layout-h1">
+        ${frameHTML(frames[0],'flex1')}
+      </div>`;
+    }
   }
 }
 
+/* frames構成から最適なlayoutを自動判定 */
+function autoLayout(frames){
+  if(frames.length === 1) return 'single';
+  const orients = frames.map(f=>f.orient);
+  const vCount = orients.filter(o=>o==='v').length;
+  const hCount = orients.filter(o=>o==='h').length;
+  if(vCount >= 1 && hCount >= 1 && frames.length <= 3) return 'v1h2';
+  if(orients.every(o=>o==='h')) return 'h-stack';
+  if(orients.every(o=>o==='v')) return 'v-stack';
+  return 'h-stack';
+}
+
 /* ─── 右ページHTMLを生成 ─── */
-function buildRightHTML(photos, layout, label, fanMark, message){
-  const L = layout || 'auto';
-  const n = photos.length;
-  const eff = L === 'auto' ? (
-    n <= 1 ? 'pickup-v' :
-    n <= 2 ? 'h2-stack' :
-    n <= 4 ? 'grid4' :
-    n <= 6 ? 'grid6' :
-    'grid9'
-  ) : L;
-
-  const p = (i) => photoItem(photos[i]);
-  const picUp = (img, url) => `
-    <div class="pickup-frame${url?' clickable':''}" ${url?`onclick="window.open('${url}','_blank','noopener')"`:''}>
-      ${img?`<img class="pickup-img lazy-page" data-src="${img}" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" style="opacity:0;transition:opacity .3s;"><div class="pickup-placeholder" style="display:none;">🌸</div>`:`<div class="pickup-placeholder">🌸</div>`}
-    </div>`;
-
-  let innerHTML = '';
-  switch(eff){
-    case 'pickup-v':
-    case 'pickup-h': {
-      const ph0 = photos[0];
-      innerHTML = picUp(ph0&&ph0.file, ph0&&ph0.url);
-      break;
-    }
-    case 'h2-stack': innerHTML = `<div class="pg-layout h2">${p(0)}${p(1)}</div>`; break;
-    case 'h3-stack': innerHTML = `<div class="pg-layout h3">${p(0)}${p(1)}${p(2)}</div>`; break;
-    case 'v2-side':  innerHTML = `<div class="pg-layout v2">${p(0)}${p(1)}</div>`; break;
-    case 'v3-side':  innerHTML = `<div class="pg-layout v3">${p(0)}${p(1)}${p(2)}</div>`; break;
-    case 'v4-side':  innerHTML = `<div class="pg-layout v4-grid">${p(0)}${p(1)}${p(2)}${p(3)}</div>`; break;
-    case 'v5-col':   innerHTML = `<div class="pg-layout v5-col">${[...Array(5)].map((_,i)=>p(i)).join('')}</div>`; break;
-    case 'grid4':    innerHTML = `<div class="pg-layout grid4">${p(0)}${p(1)}${p(2)}${p(3)}</div>`; break;
-    case 'grid6':    innerHTML = `<div class="pg-layout grid6">${[...Array(6)].map((_,i)=>p(i)).join('')}</div>`; break;
-    case 'grid9':    innerHTML = `<div class="pg-layout grid9">${[...Array(9)].map((_,i)=>p(i)).join('')}</div>`; break;
-    case 'v1h2':     innerHTML = `<div class="pg-layout v1h2">${p(0)}${p(1)}${p(2)}</div>`; break;
-    case 'v1h3':     innerHTML = `<div class="pg-layout v1h3">${p(0)}${p(1)}${p(2)}${p(3)}</div>`; break;
-    case 'v2h2':     innerHTML = `<div class="pg-layout v2h2">${p(0)}${p(1)}${p(2)}${p(3)}</div>`; break;
-    case 'v3h3':     innerHTML = `<div class="pg-layout h6-grid">${[...Array(6)].map((_,i)=>p(i)).join('')}</div>`; break;
-    case 'v4h4':     innerHTML = `<div class="pg-layout h8-grid">${[...Array(8)].map((_,i)=>p(i)).join('')}</div>`; break;
-    case 'v3h5':     innerHTML = `<div class="pg-layout h8-grid">${[...Array(8)].map((_,i)=>p(i)).join('')}</div>`; break;
-    case 'v1h5':     innerHTML = `<div class="pg-layout h6-grid">${[...Array(6)].map((_,i)=>p(i)).join('')}</div>`; break;
-    case 'h4-right': innerHTML = `<div class="pg-layout h4-grid">${p(0)}${p(1)}${p(2)}${p(3)}</div>`; break;
-    case 'h5-right': innerHTML = `<div class="pg-layout h5-grid">${[...Array(5)].map((_,i)=>p(i)).join('')}</div>`; break;
-    default: {
-      const ph0 = photos[0];
-      innerHTML = picUp(ph0&&ph0.file, ph0&&ph0.url);
-    }
+function buildRightHTML(frames, layout, label, message){
+  let inner;
+  if(!frames || !frames.length){
+    inner = `<div class="frame-area layout-h1"><div class="photo-frame"><div class="photo-placeholder">🌸</div></div></div>`;
+  } else {
+    inner = buildLeftHTML(frames, layout);
   }
 
   return `
 <div class="pickup-area">
   <div class="pickup-month-label">${label}</div>
-  ${fanMark ? `<div class="pickup-fanmark">${fanMark}</div>` : ''}
-  <div class="pickup-inner">${innerHTML}</div>
+  <div class="pickup-inner">${inner}</div>
   <div class="pickup-message">${message||'ここにこの月の一言コメントを入れてください。'}</div>
 </div>`;
 }
@@ -2617,48 +2830,17 @@ function getMonthHTML(year,month){
   const data=(typeof DIARY_DATA!=='undefined')?DIARY_DATA.find(d=>d.year===year&&d.month===month):null;
   const label=`${year}年 ${MN[month-1]}`;
 
-  /* 左右の写真を分割 */
-  const leftPhotos  = (data&&data.leftPhotos)  || (data&&data.photos) || [];
-  const rightPhotos = (data&&data.rightPhotos) || [];
-  const leftLayout  = (data&&data.leftLayout)  || 'auto';
-  const rightLayout = (data&&data.rightLayout) || (rightPhotos.length?'auto':'pickup-v');
+  const leftFrames  = (data&&data.leftFrames)  || [];
+  const rightFrames = (data&&data.rightFrames) || [];
+  const leftLayout  = (data&&data.leftLayout)  || null;
+  const rightLayout = (data&&data.rightLayout) || null;
 
-  /* ファンマーク */
-  const MEMBER_MAP = {};
-  MEMBER_FLOWERS.forEach(m=>{ MEMBER_MAP[m.name]=m; });
-  const puMember = data&&data.member;
-  const mInfo = puMember ? MEMBER_MAP[puMember] : null;
-  const fanMark = mInfo ? flowerSVG(mInfo.type,24)+'<span style="font-size:1.2em;opacity:.85;">'+mInfo.mark+'</span>' : '';
-
-  /* 左: データがない場合はプレースホルダー */
-  let leftHTML;
-  if(leftPhotos.length){
-    leftHTML = buildLeftHTML(leftPhotos, leftLayout);
-  } else {
-    leftHTML = `<div style="height:100%;display:flex;align-items:center;justify-content:center;color:#b0a0d0;font-size:clamp(8px,1vw,11px);">data.jsに写真を追加してください</div>`;
-  }
-
-  /* 右: rightPhotosがある場合はグリッド、ない場合は旧来のpickup形式 */
-  let rightHTML;
-  if(rightPhotos.length){
-    rightHTML = buildRightHTML(rightPhotos, rightLayout, label, fanMark, data&&data.message);
-  } else {
-    /* 旧来のpickup形式（後方互換） */
-    const pu = data&&data.pickup;
-    const pickupImg = pu&&pu.file ? `<img class="pickup-img lazy-page" data-src="${pu.file}" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" style="opacity:0;transition:opacity .3s;"><div class="pickup-placeholder" style="display:none;">🌸</div>` : `<div class="pickup-placeholder">🌸</div>`;
-    rightHTML = `
-<div class="pickup-area">
-  <div class="pickup-month-label">${label}</div>
-  ${fanMark ? `<div class="pickup-fanmark">${fanMark}</div>` : ''}
-  <div class="pickup-frame${pu&&pu.url?' clickable':''}" ${pu&&pu.url?`onclick="window.open('${pu.url}','_blank','noopener')"`:''}>
-    ${pickupImg}
-  </div>
-  <div class="pickup-message">${pu?pu.message:(data&&data.message)||'ここにこの月の一言コメントを入れてください。'}</div>
-</div>`;
-  }
+  const leftHTML  = buildLeftHTML(leftFrames, leftLayout);
+  const rightHTML = buildRightHTML(rightFrames, rightLayout, label, data&&data.message);
 
   return {left: leftHTML, right: rightHTML};
 }
+
 
 
 /* ─── 花のSVGイラスト生成 ───────────────────────
@@ -2891,6 +3073,14 @@ function getAnnHTML(){
       2年間、たくさんの思い出をありがとう。<br>
       これからもずっと応援しています。
     </div>
+  </div>
+
+  <!-- 2周年記念の横写真（data.jsのanniversaryPhotoで指定） -->
+  <div class="ann-photo-frame">
+    ${(typeof DIARY_DATA !== 'undefined' && DIARY_DATA.anniversaryPhoto)
+      ? `<img class="lazy-page" data-src="${DIARY_DATA.anniversaryPhoto}" alt="" style="opacity:0;transition:opacity .3s;">`
+      : `<div class="ann-photo-placeholder">📷</div>`
+    }
   </div>
 
   ${flowerBand}
