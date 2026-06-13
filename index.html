@@ -1696,18 +1696,18 @@ body{
 /* ④ 新レイアウト v1h2: 縦1枠(大・高さ基準) + 横長2枠(右側・幅基準で縦に重ねる)
    縦枠の幅(height×aspect)が横枠の開始位置を超えないよう調整 */
 .layout-v1h2 .photo-frame.v-main{
-  top:30%; left:1%; height:58%;
+  top:32%; left:1%; height:56%;
   transform:rotate(-1.4deg);
   z-index:2;
 }
 .layout-v1h2 .photo-frame.h-sub1{
-  top:1%; left:40%; width:60%;
+  top:0%; left:30%; width:70%;
   transform:rotate(1.2deg);
   transform-origin:left center;
   z-index:1;
 }
 .layout-v1h2 .photo-frame.h-sub2{
-  top:52%; left:36%; width:64%;
+  top:48%; left:26%; width:74%;
   transform:rotate(-1.5deg);
   transform-origin:left center;
   z-index:3;
@@ -1743,16 +1743,16 @@ body{
     transform:rotate(1deg);
   }
   .layout-v1h2 .photo-frame.v-main{
-    top:28%; left:1%; height:56%;
+    top:30%; left:1%; height:54%;
     transform:rotate(-1deg);
   }
   .layout-v1h2 .photo-frame.h-sub1{
-    top:0%; left:40%; width:60%;
+    top:0%; left:30%; width:70%;
     transform-origin:left center;
     transform:rotate(1deg);
   }
   .layout-v1h2 .photo-frame.h-sub2{
-    top:50%; left:36%; width:64%;
+    top:46%; left:26%; width:74%;
     transform-origin:left center;
     transform:rotate(-1deg);
   }
@@ -2360,18 +2360,18 @@ function initFrameSwipers(container){
       let paused = false;
 
       function scheduleNext(){
-        if(paused) return;
+        if(paused || swiper.destroyed) return;
         const isLast = (swiper.realIndex === n - 1);
         const wait = isLast ? SLIDE_LAST_PAUSE : SLIDE_DURATION;
         timer = setTimeout(()=>{
-          if(paused) return;
+          if(paused || swiper.destroyed) return;
           swiper.slideNext();
           scheduleNext();
         }, wait);
       }
 
       function startAutoplay(){
-        if(timer) return;
+        if(timer || swiper.destroyed) return;
         scheduleNext();
       }
       function stopAutoplay(){
@@ -2411,6 +2411,7 @@ function destroyFrameSwipers(container){
 }
 
 /* PC: 現在表示中の見開き2ページのみSwiperを有効化し、他は破棄する */
+let _lastVisiblePages = null;
 function updateVisibleFrameSwipers(){
   if(MOBILE() || !turnInitialized) return;
   const fb = document.getElementById('flipbook');
@@ -2421,6 +2422,11 @@ function updateVisibleFrameSwipers(){
   const leftPn = idx * 2 + 2;
   const rightPn = idx * 2 + 3;
   const visiblePages = [leftPn, rightPn];
+
+  /* 同じ見開きへの再初期化を避ける（オートプレイタイマーの多重生成防止） */
+  const key = visiblePages.join(',');
+  if(_lastVisiblePages === key) return;
+  _lastVisiblePages = key;
 
   fb.querySelectorAll('.page[page]').forEach(pageEl=>{
     const pn = parseInt(pageEl.getAttribute('page'), 10);
