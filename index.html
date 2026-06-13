@@ -2070,15 +2070,18 @@ slider.addEventListener('mousedown',()=>{sliderDragging=true;});
 slider.addEventListener('touchstart',()=>{sliderDragging=true;},{passive:true});
 slider.addEventListener('input',()=>updateSliderTrack(parseInt(slider.value)));
 /* slider change: SP統合版に移行済み */
-/* mouseup/touchend は document 全体で拾う（スライダー外で離しても確実にリセット） */
+/* mouseup/touchend は document 全体で拾う（スライダー外で離しても確実にリセット）
+   ※SPは専用のslider 'change'ハンドラで処理するため、PCのみ対象 */
 document.addEventListener('mouseup',()=>{
   if(!sliderDragging)return;
+  if(MOBILE()){ sliderDragging=false; return; }
   sliderDragging=false;
   const ni=parseInt(slider.value);
   if(ni!==idx)go(ni);
 });
 document.addEventListener('touchend',()=>{
   if(!sliderDragging)return;
+  if(MOBILE()){ sliderDragging=false; return; }
   sliderDragging=false;
   const ni=parseInt(slider.value);
   if(ni!==idx)go(ni);
@@ -2343,6 +2346,19 @@ function initFrameSwipers(container){
         }
       }
     });
+
+    /* PC: turn.js初期化直後はレイアウト未確定の場合があるため、
+       少し遅れてサイズ再計算を行う */
+    requestAnimationFrame(()=>{
+      try{
+        if(!swiper.destroyed){ swiper.updateSize(); swiper.updateSlides(); swiper.update(); }
+      }catch(e){}
+    });
+    setTimeout(()=>{
+      try{
+        if(!swiper.destroyed){ swiper.updateSize(); swiper.updateSlides(); swiper.update(); }
+      }catch(e){}
+    }, 300);
 
     /* turn.js(PC)とのジェスチャー競合対策:
        Swiper枠内でのタッチ/マウス操作がページめくりに伝播しないようにする */
