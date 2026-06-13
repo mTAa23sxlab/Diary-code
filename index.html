@@ -1701,13 +1701,13 @@ body{
   z-index:2;
 }
 .layout-v1h2 .photo-frame.h-sub1{
-  top:2%; left:46%; width:54%;
+  top:1%; left:40%; width:60%;
   transform:rotate(1.2deg);
   transform-origin:left center;
   z-index:1;
 }
 .layout-v1h2 .photo-frame.h-sub2{
-  top:54%; left:42%; width:58%;
+  top:52%; left:36%; width:64%;
   transform:rotate(-1.5deg);
   transform-origin:left center;
   z-index:3;
@@ -1747,12 +1747,12 @@ body{
     transform:rotate(-1deg);
   }
   .layout-v1h2 .photo-frame.h-sub1{
-    top:1%; left:46%; width:54%;
+    top:0%; left:40%; width:60%;
     transform-origin:left center;
     transform:rotate(1deg);
   }
   .layout-v1h2 .photo-frame.h-sub2{
-    top:52%; left:42%; width:58%;
+    top:50%; left:36%; width:64%;
     transform-origin:left center;
     transform:rotate(-1deg);
   }
@@ -2422,7 +2422,7 @@ function updateVisibleFrameSwipers(){
   const rightPn = idx * 2 + 3;
   const visiblePages = [leftPn, rightPn];
 
-  fb.querySelectorAll('.page').forEach(pageEl=>{
+  fb.querySelectorAll('.page[page]').forEach(pageEl=>{
     const pn = parseInt(pageEl.getAttribute('page'), 10);
     const pc = pageEl.querySelector('.page-content');
     if(!pc) return;
