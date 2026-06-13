@@ -1696,18 +1696,18 @@ body{
 /* ④ 新レイアウト v1h2: 縦1枠(大・高さ基準) + 横長2枠(右側・幅基準で縦に重ねる)
    縦枠の幅(height×aspect)が横枠の開始位置を超えないよう調整 */
 .layout-v1h2 .photo-frame.v-main{
-  top:32%; left:1%; height:56%;
+  top:38%; left:1%; height:52%;
   transform:rotate(-1.4deg);
   z-index:2;
 }
 .layout-v1h2 .photo-frame.h-sub1{
-  top:0%; left:30%; width:70%;
+  top:0%; left:26%; width:74%;
   transform:rotate(1.2deg);
   transform-origin:left center;
   z-index:1;
 }
 .layout-v1h2 .photo-frame.h-sub2{
-  top:48%; left:26%; width:74%;
+  top:46%; left:22%; width:78%;
   transform:rotate(-1.5deg);
   transform-origin:left center;
   z-index:3;
@@ -1743,16 +1743,16 @@ body{
     transform:rotate(1deg);
   }
   .layout-v1h2 .photo-frame.v-main{
-    top:30%; left:1%; height:54%;
+    top:36%; left:1%; height:50%;
     transform:rotate(-1deg);
   }
   .layout-v1h2 .photo-frame.h-sub1{
-    top:0%; left:30%; width:70%;
+    top:0%; left:26%; width:74%;
     transform-origin:left center;
     transform:rotate(1deg);
   }
   .layout-v1h2 .photo-frame.h-sub2{
-    top:46%; left:26%; width:74%;
+    top:44%; left:22%; width:78%;
     transform-origin:left center;
     transform:rotate(-1deg);
   }
@@ -2439,12 +2439,16 @@ function updateVisibleFrameSwipers(){
   const rightPn = idx * 2 + 3;
   const visiblePages = [leftPn, rightPn];
 
-  /* 同じ見開きへの再初期化を避ける（オートプレイタイマーの多重生成防止） */
+  /* 同じ見開きへの再初期化を避ける（オートプレイタイマーの多重生成防止）
+     ※ .page[page] がまだ存在しない（turn.js未確定）タイミングでは
+       何も処理されないため、その場合はキーを確定しない */
   const key = visiblePages.join(',');
+  const pageEls = fb.querySelectorAll('.page[page]');
+  if(pageEls.length === 0) return;
   if(_lastVisiblePages === key) return;
   _lastVisiblePages = key;
 
-  fb.querySelectorAll('.page[page]').forEach(pageEl=>{
+  pageEls.forEach(pageEl=>{
     const pn = parseInt(pageEl.getAttribute('page'), 10);
     const pc = pageEl.querySelector('.page-content');
     if(!pc) return;
