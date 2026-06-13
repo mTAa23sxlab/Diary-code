@@ -2489,12 +2489,9 @@ function renderPage(i){
   /* 遅延読み込み */
   loadLazyImages(pageLeft);
   loadLazyImages(pageRight);
-  /* スライドショー初期化（レイアウト確定後に実行し、
-     aspect-ratioによるサイズ計算ずれを防ぐ） */
-  requestAnimationFrame(()=>{
-    initFrameSwipers(pageLeft);
-    initFrameSwipers(pageRight);
-  });
+  /* スライドショー初期化 */
+  initFrameSwipers(pageLeft);
+  initFrameSwipers(pageRight);
   /* 誕生日月なら花びらを散らす */
   setTimeout(checkAndSpawnBirthdayPetals, 120);
 }
