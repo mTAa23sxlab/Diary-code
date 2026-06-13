@@ -1566,7 +1566,7 @@ body{
   box-shadow:
     0 2px 6px rgba(70,50,110,.12),
     0 8px 20px rgba(70,50,110,.16);
-  transition:box-shadow .3s ease, z-index 0s;
+  transition:transform .3s ease, box-shadow .3s ease, z-index 0s;
 }
 .photo-frame:hover{
   box-shadow:
@@ -2324,7 +2324,7 @@ function initFrameSwipers(container){
     if(n > 1) staggerIndex++;
 
     const swiper = new Swiper(swiperEl, {
-      loop: n > 1,
+      loop: n > 2,
       initialSlide: startIdx,
       effect: n > 1 ? 'fade' : 'slide',
       fadeEffect: { crossFade: true },
@@ -2360,13 +2360,12 @@ function initFrameSwipers(container){
       }catch(e){}
     }, 300);
 
-    /* turn.js(PC)とのジェスチャー競合対策:
-       Swiper枠内でのタッチ/マウス操作がページめくりに伝播しないようにする */
-    if(n > 1){
-      ['touchstart','touchmove','mousedown'].forEach(evt=>{
-        swiperEl.addEventListener(evt, e=>{ e.stopPropagation(); }, {passive:true});
-      });
-    }
+    /* turn.js(PC)とのジェスチャー競合対策／SP: 写真タップでページ送りされるのを防止
+       n===1（静止枠）でも、写真クリックでurlを開く場合などに
+       タップがページ送りジェスチャーへ伝播しないようにする */
+    ['touchstart','touchmove','mousedown'].forEach(evt=>{
+      swiperEl.addEventListener(evt, e=>{ e.stopPropagation(); }, {passive:true});
+    });
 
     FRAME_SWIPERS.set(fid, swiper);
 
@@ -2377,11 +2376,17 @@ function initFrameSwipers(container){
 
       function scheduleNext(){
         if(paused || swiper.destroyed) return;
-        const isLast = (swiper.realIndex === n - 1);
+        const isLast = (swiper.realIndex === n - 1) || (swiper.activeIndex === n - 1);
         const wait = isLast ? SLIDE_LAST_PAUSE : SLIDE_DURATION;
         timer = setTimeout(()=>{
           if(paused || swiper.destroyed) return;
-          swiper.slideNext();
+          if(swiper.params.loop){
+            swiper.slideNext();
+          } else if(swiper.activeIndex >= n - 1){
+            swiper.slideTo(0); /* loop無効時は先頭へ戻す */
+          } else {
+            swiper.slideNext();
+          }
           scheduleNext();
         }, wait);
       }
