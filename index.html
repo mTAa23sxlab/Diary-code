@@ -2252,6 +2252,8 @@ function initTurnJs(){
 
   /* 初期表示の見開きでSwiperを有効化 */
   setTimeout(updateVisibleFrameSwipers, 50);
+  setTimeout(updateVisibleFrameSwipers, 300);
+  setTimeout(updateVisibleFrameSwipers, 800);
 }
 
 /* PC: turn.jsでページ移動 */
@@ -2331,20 +2333,10 @@ function initFrameSwipers(container){
       speed: 500,
       allowTouchMove: n > 1,
       touchStartPreventDefault: false,
-      pagination: (n >= 2 && n <= 5) ? {
+      pagination: (n >= 2) ? {
         el: frameEl.querySelector('.swiper-pagination'),
         clickable: true,
       } : false,
-      on: {
-        slideChange: function(){
-          /* 数字インジケーター更新 */
-          const cur = frameEl.querySelector('.fc-cur');
-          if(cur){
-            const realIndex = this.realIndex !== undefined ? this.realIndex : this.activeIndex;
-            cur.textContent = (realIndex % n) + 1;
-          }
-        }
-      }
     });
 
     /* PC: turn.js初期化直後はレイアウト未確定の場合があるため、
@@ -2432,40 +2424,41 @@ function destroyFrameSwipers(container){
 }
 
 /* PC: 現在表示中の見開き2ページのみSwiperを有効化し、他は破棄する */
-let _lastVisiblePages = null;
+let _lastVisibleFrameIds = '';
 function updateVisibleFrameSwipers(){
   if(!turnInitialized) return;
   const fb = document.getElementById('flipbook');
   if(!fb) return;
 
-  /* 現在の見開きidxから左右ページ番号を直接算出
-     （ltr空ページ先頭方式: 見開きidx の左=page(idx*2+2), 右=page(idx*2+3)） */
-  const leftPn = idx * 2 + 2;
-  const rightPn = idx * 2 + 3;
-  const visiblePages = [leftPn, rightPn];
+  /* turn.jsのDOM構造（page属性の有無・ラップ方式）に依存せず、
+     実際に画面内（#flipbookの表示領域内）に表示されている
+     .photo-frameを基準にSwiperを有効/無効化する */
+  const fbRect = fb.getBoundingClientRect();
+  const allFrames = fb.querySelectorAll('.photo-frame');
+  const visibleIds = [];
 
-  /* 同じ見開きへの再初期化を避ける（オートプレイタイマーの多重生成防止） */
-  const key = visiblePages.join(',');
-
-  /* fb直下の.page要素はappendChild順 = ページ番号順（1始まり）。
-     turn.jsが page属性を付与しない場合でも、DOM順インデックスから
-     対応するページ要素を直接特定できる。 */
-  let pageEls = fb.querySelectorAll(':scope > .page');
-  if(pageEls.length === 0) pageEls = fb.querySelectorAll('.page');
-  if(pageEls.length === 0) return;
-  if(_lastVisiblePages === key) return;
-  _lastVisiblePages = key;
-
-  pageEls.forEach((pageEl, i)=>{
-    const pn = i + 1; /* 1始まりのページ番号 */
-    const pc = pageEl.querySelector('.page-content');
-    if(!pc) return;
-    if(visiblePages.includes(pn)){
-      initFrameSwipers(pc);
-    } else {
-      destroyFrameSwipers(pc);
-    }
+  allFrames.forEach(frameEl=>{
+    const r = frameEl.getBoundingClientRect();
+    const visible =
+      r.width > 0 && r.height > 0 &&
+      r.right > fbRect.left && r.left < fbRect.right &&
+      r.bottom > fbRect.top && r.top < fbRect.bottom;
+    if(visible) visibleIds.push(frameEl.id);
   });
+
+  const key = visibleIds.join(',');
+  if(_lastVisibleFrameIds === key) return;
+  _lastVisibleFrameIds = key;
+
+  const visibleContainers = new Set();
+  const hiddenContainers = new Set();
+  allFrames.forEach(frameEl=>{
+    const c = frameEl.closest('.page-content') || frameEl.parentElement;
+    if(visibleIds.includes(frameEl.id)) visibleContainers.add(c);
+    else hiddenContainers.add(c);
+  });
+  visibleContainers.forEach(c=> initFrameSwipers(c));
+  hiddenContainers.forEach(c=>{ if(!visibleContainers.has(c)) destroyFrameSwipers(c); });
 }
 
 
@@ -2496,9 +2489,12 @@ function renderPage(i){
   /* 遅延読み込み */
   loadLazyImages(pageLeft);
   loadLazyImages(pageRight);
-  /* スライドショー初期化 */
-  initFrameSwipers(pageLeft);
-  initFrameSwipers(pageRight);
+  /* スライドショー初期化（レイアウト確定後に実行し、
+     aspect-ratioによるサイズ計算ずれを防ぐ） */
+  requestAnimationFrame(()=>{
+    initFrameSwipers(pageLeft);
+    initFrameSwipers(pageRight);
+  });
   /* 誕生日月なら花びらを散らす */
   setTimeout(checkAndSpawnBirthdayPetals, 120);
 }
@@ -2847,10 +2843,8 @@ function frameHTML(frame, extraClass='', startIndex=0){
   }).join('');
 
   let indicator = '';
-  if(n >= 2 && n <= 5){
+  if(n >= 2){
     indicator = `<div class="swiper-pagination"></div>`;
-  } else if(n >= 6){
-    indicator = `<div class="frame-counter"><span class="fc-cur">${start+1}</span>/${n}</div>`;
   }
 
   return `<div class="photo-frame ${orientClass}${multiClass} ${extraClass}" id="${fid}" data-count="${n}" data-start="${start}">
