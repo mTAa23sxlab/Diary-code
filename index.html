@@ -2874,12 +2874,15 @@ function buildLeftHTML(frames, layout){
 
   switch(L){
     case 'v1h2': {
-      /* 縦1枠(大) + 横2段（コラージュ配置） */
-      const vMain = frames[0];
-      const h1 = frames[1], h2 = frames[2];
+      /* 縦1枠(大) + 横2段（コラージュ配置）
+         frames配列の順序に関わらず、orient:'v'の枠をv-mainに割り当てる */
+      const vIdx = frames.findIndex(f=>f.orient==='v');
+      const vMain = vIdx >= 0 ? frames[vIdx] : frames[0];
+      const hFrames = frames.filter((f,i)=>i!==(vIdx>=0?vIdx:0));
+      const h1 = hFrames[0], h2 = hFrames[1];
       return `<div class="frame-area layout-v1h2">
         ${frameHTML(vMain, 'v-main')}
-        ${frameHTML(h1, 'h-sub1')}
+        ${h1 ? frameHTML(h1, 'h-sub1') : ''}
         ${h2 ? frameHTML(h2, 'h-sub2') : ''}
       </div>`;
     }
