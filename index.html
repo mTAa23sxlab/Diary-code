@@ -1693,20 +1693,21 @@ body{
   z-index:2;
 }
 
-/* ④ 新レイアウト v1h2: 縦1枠(大・高さ基準) + 横長2枠(右側・幅基準で縦に重ねる) */
+/* ④ 新レイアウト v1h2: 縦1枠(大・高さ基準) + 横長2枠(右側・幅基準で縦に重ねる)
+   縦枠の高さを抑え、横枠2つとバランスよく重なるよう調整 */
 .layout-v1h2 .photo-frame.v-main{
-  top:4%; left:2%; height:92%;
+  top:12%; left:1%; height:72%;
   transform:rotate(-1.4deg);
   z-index:2;
 }
 .layout-v1h2 .photo-frame.h-sub1{
-  top:2%; left:40%; width:56%;
+  top:2%; left:44%; width:54%;
   transform:rotate(1.2deg);
   transform-origin:left center;
   z-index:1;
 }
 .layout-v1h2 .photo-frame.h-sub2{
-  top:50%; left:38%; width:58%;
+  top:54%; left:40%; width:58%;
   transform:rotate(-1.5deg);
   transform-origin:left center;
   z-index:3;
@@ -1742,15 +1743,17 @@ body{
     transform:rotate(1deg);
   }
   .layout-v1h2 .photo-frame.v-main{
-    top:3%; left:1%; height:94%;
+    top:8%; left:1%; height:80%;
     transform:rotate(-1deg);
   }
   .layout-v1h2 .photo-frame.h-sub1{
     top:1%; left:44%; width:52%;
+    transform-origin:left center;
     transform:rotate(1deg);
   }
   .layout-v1h2 .photo-frame.h-sub2{
-    top:50%; left:40%; width:54%;
+    top:54%; left:40%; width:56%;
+    transform-origin:left center;
     transform:rotate(-1deg);
   }
 }
@@ -2304,6 +2307,7 @@ function initFrameSwipers(container){
 
   frames.forEach(frameEl=>{
     const n = parseInt(frameEl.dataset.count || '1', 10);
+    const startIdx = parseInt(frameEl.dataset.start || '0', 10);
     const swiperEl = frameEl.querySelector('.swiper');
     if(!swiperEl) return;
 
@@ -2319,6 +2323,7 @@ function initFrameSwipers(container){
 
     const swiper = new Swiper(swiperEl, {
       loop: n > 1,
+      initialSlide: startIdx,
       effect: n > 1 ? 'fade' : 'slide',
       fadeEffect: { crossFade: true },
       speed: 500,
@@ -2786,7 +2791,7 @@ function checkAndSpawnBirthdayPetals(){
    - 6枚以上 → 数字インジケーター(1/7)
 */
 let _frameIdCounter = 0;
-function frameHTML(frame, extraClass=''){
+function frameHTML(frame, extraClass='', startIndex=0){
   if(!frame || !frame.photos || !frame.photos.length){
     return `<div class="photo-frame ${extraClass}"><div class="photo-placeholder">📷</div></div>`;
   }
@@ -2795,6 +2800,7 @@ function frameHTML(frame, extraClass=''){
   const fid = 'frm' + (++_frameIdCounter);
   const orientClass = frame.orient === 'v' ? 'orient-v' : 'orient-h';
   const multiClass = n > 1 ? ' multi' : '';
+  const start = ((startIndex % n) + n) % n; /* 負数対応 */
 
   const slides = photos.map(p=>{
     if(!p || !p.file){
@@ -2811,10 +2817,10 @@ function frameHTML(frame, extraClass=''){
   if(n >= 2 && n <= 5){
     indicator = `<div class="swiper-pagination"></div>`;
   } else if(n >= 6){
-    indicator = `<div class="frame-counter"><span class="fc-cur">1</span>/${n}</div>`;
+    indicator = `<div class="frame-counter"><span class="fc-cur">${start+1}</span>/${n}</div>`;
   }
 
-  return `<div class="photo-frame ${orientClass}${multiClass} ${extraClass}" id="${fid}" data-count="${n}">
+  return `<div class="photo-frame ${orientClass}${multiClass} ${extraClass}" id="${fid}" data-count="${n}" data-start="${start}">
     <div class="swiper">
       <div class="swiper-wrapper">${slides}</div>
     </div>
@@ -2834,7 +2840,12 @@ function buildLeftHTML(frames, layout){
   if(!frames || !frames.length){
     return `<div style="height:100%;display:flex;align-items:center;justify-content:center;color:#b0a0d0;font-size:clamp(8px,1vw,11px);">data.jsに写真を追加してください</div>`;
   }
-  const L = layout || autoLayout(frames);
+  let L = layout || autoLayout(frames);
+  /* 'single'指定でも横写真3枚以上なら自動的に2枠分割スライドに */
+  if(L === 'single' && frames.length === 1){
+    const f = frames[0];
+    if(f.orient === 'h' && f.photos && f.photos.length >= 3) L = 'single-split';
+  }
 
   switch(L){
     case 'v1h2': {
@@ -2859,6 +2870,17 @@ function buildLeftHTML(frames, layout){
         ${frames.map(f=>frameHTML(f,'')).join('')}
       </div>`;
     }
+    case 'single-split': {
+      /* 枠1つで済む横写真3枚以上 → 同じ写真群を2枠に分割し、
+         開始インデックスをずらして異なる写真が表示されるようにする */
+      const frame = frames[0];
+      const n = frame.photos.length;
+      const startB = Math.floor(n / 2); /* 後半の開始位置 */
+      return `<div class="frame-area layout-h2col">
+        ${frameHTML(frame, '', 0)}
+        ${frameHTML(frame, '', startB)}
+      </div>`;
+    }
     case 'single':
     default: {
       return `<div class="frame-area layout-h1">
@@ -2870,7 +2892,12 @@ function buildLeftHTML(frames, layout){
 
 /* frames構成から最適なlayoutを自動判定 */
 function autoLayout(frames){
-  if(frames.length === 1) return 'single';
+  if(frames.length === 1){
+    const f = frames[0];
+    /* 横写真3枚以上で1枠のみ → 2枠に分割してスライド順をずらす */
+    if(f.orient === 'h' && f.photos && f.photos.length >= 3) return 'single-split';
+    return 'single';
+  }
   const orients = frames.map(f=>f.orient);
   const vCount = orients.filter(o=>o==='v').length;
   const hCount = orients.filter(o=>o==='h').length;
