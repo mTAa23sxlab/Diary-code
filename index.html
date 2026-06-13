@@ -1698,7 +1698,7 @@ body{
 .layout-v1h2 .photo-frame.v-main{
   top:38%; left:1%; height:52%;
   transform:rotate(-1.4deg);
-  z-index:2;
+  z-index:4;
 }
 .layout-v1h2 .photo-frame.h-sub1{
   top:0%; left:26%; width:74%;
@@ -2429,7 +2429,7 @@ function destroyFrameSwipers(container){
 /* PC: 現在表示中の見開き2ページのみSwiperを有効化し、他は破棄する */
 let _lastVisiblePages = null;
 function updateVisibleFrameSwipers(){
-  if(MOBILE() || !turnInitialized) return;
+  if(!turnInitialized) return;
   const fb = document.getElementById('flipbook');
   if(!fb) return;
 
