@@ -1658,8 +1658,9 @@ body{
 /* ① single: 枠1枚を中央に大きく、わずかに傾ける */
 /* 縦写真(orient-v): 高さ基準で配置、幅はaspect-ratioで決まる */
 .layout-v1 .photo-frame{
-  top:3%; height:94%; left:50%;
+  top:3%; height:94%; width:98.7%; left:50%;
   transform:translateX(-50%) rotate(-1.2deg);
+  aspect-ratio:unset;
   z-index:1;
 }
 /* 横写真(orient-h): 幅基準で配置、高さはaspect-ratioで決まる */
@@ -1683,21 +1684,24 @@ body{
 
 /* ③ v-stack（縦長2枠を横に重ねて配置・高さ基準） */
 .layout-v2row .photo-frame:nth-child(1){
-  top:3%; left:3%; height:94%;
+  top:3%; left:3%; height:94%; width:98.7%;
   transform:rotate(-1.8deg);
+  aspect-ratio:unset;
   z-index:1;
 }
 .layout-v2row .photo-frame:nth-child(2){
-  top:5%; left:38%; height:92%;
+  top:5%; left:38%; height:92%; width:96.6%;
   transform:rotate(1.6deg);
+  aspect-ratio:unset;
   z-index:2;
 }
 
 /* ④ 新レイアウト v1h2: 縦1枠(大・高さ基準) + 横長2枠(右側・幅基準で縦に重ねる)
    縦枠の幅(height×aspect)が横枠の開始位置を超えないよう調整 */
 .layout-v1h2 .photo-frame.v-main{
-  top:38%; left:1%; height:52%;
+  top:38%; left:1%; height:52%; width:54.6%;
   transform:rotate(-1.4deg);
+  aspect-ratio:unset;
   z-index:4;
 }
 .layout-v1h2 .photo-frame.h-sub1{
@@ -1743,8 +1747,9 @@ body{
     transform:rotate(1deg);
   }
   .layout-v1h2 .photo-frame.v-main{
-    top:36%; left:1%; height:50%;
+    top:36%; left:1%; height:50%; width:52.5%;
     transform:rotate(-1deg);
+    aspect-ratio:unset;
   }
   .layout-v1h2 .photo-frame.h-sub1{
     top:0%; left:26%; width:74%;
